@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: auth-server
+
+server:
+  address: 127.0.0.1
+  port: 8088
+
+logging:
+  level:
+    ROOT: warn
+    me.card.switchv1: warn

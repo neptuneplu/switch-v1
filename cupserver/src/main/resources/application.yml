@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: cup-server
+
+server:
+  address: 127.0.0.1
+  port: 9001
+  tomcat:
+    max-threads: 2 #最大工作线程数量
+    min-spare-threads: 2 #最小工作线程数量
+
+logging:
+  #  level:
+  #    ROOT: warn
+  #    me.card: debug
+  config: classpath:logback.xml
