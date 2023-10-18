@@ -4,12 +4,15 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import me.card.switchv1.core.handler.AdminPassiveServerHandler;
 import me.card.switchv1.core.handler.ApiDecodeHandler;
 import me.card.switchv1.core.handler.ApiEncodeHandler;
@@ -25,9 +28,12 @@ public class PassiveSwitchServer extends AbstractSwitchServer implements SwitchS
   private static final Logger logger = LoggerFactory.getLogger(PassiveSwitchServer.class);
 
   private final ServerBootstrap serverBootstrap = new ServerBootstrap();
-  private final NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
-  private final NioEventLoopGroup workerGroup = new NioEventLoopGroup(1);
-  private final NioEventLoopGroup sendNioEventLoopGroup = new NioEventLoopGroup();
+  private final EventLoopGroup bossGroup =
+      new NioEventLoopGroup(1, new DefaultThreadFactory("switch-bossGroup", Thread.MAX_PRIORITY));
+  private final EventLoopGroup workerGroup =
+      new NioEventLoopGroup(1, new DefaultThreadFactory("switch-workerGroup", Thread.MAX_PRIORITY));
+  private final EventLoopGroup sendNioEventLoopGroup = new DefaultEventLoopGroup(8,
+      new DefaultThreadFactory("switch-sendNioEventLoopGroup", Thread.MAX_PRIORITY));
 
   public PassiveSwitchServer() {
     super();

@@ -5,11 +5,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.ApiDecodeHandler;
 import me.card.switchv1.core.handler.ApiEncodeHandler;
@@ -28,9 +31,12 @@ public class ActiveSwitchServerPlus extends AbstractSwitchServer implements Swit
   private static final Logger logger = LoggerFactory.getLogger(ActiveSwitchServerPlus.class);
 
   private final Bootstrap bootstrap = new Bootstrap();
-  private final NioEventLoopGroup serverNioEventLoopGroup = new NioEventLoopGroup(1);
-  private final NioEventLoopGroup sendNioEventLoopGroup = new NioEventLoopGroup();
-  private final NioEventLoopGroup persistentEventLoopGroup = new NioEventLoopGroup(1);
+  private final EventLoopGroup serverNioEventLoopGroup = new NioEventLoopGroup(1,
+      new DefaultThreadFactory("switch-serverEventLoopGroup", Thread.MAX_PRIORITY));
+  private final EventLoopGroup sendNioEventLoopGroup = new DefaultEventLoopGroup(8,
+      new DefaultThreadFactory("switch-sendEventLoopGroup", Thread.MAX_PRIORITY));
+  private final EventLoopGroup persistentEventLoopGroup = new DefaultEventLoopGroup(3,
+      new DefaultThreadFactory("switch-persistentEventLoopGroup", Thread.MAX_PRIORITY));
   private ChannelFuture connectChannelFuture;
 
   public ActiveSwitchServerPlus() {

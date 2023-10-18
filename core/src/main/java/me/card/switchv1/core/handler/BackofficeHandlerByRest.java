@@ -19,7 +19,7 @@ public class BackofficeHandlerByRest extends SimpleChannelInboundHandler<Api> {
   private final Class<? extends Api> responseApiClz;
 
   public BackofficeHandlerByRest(DestinationURL destinationURL,
-                                 NioEventLoopGroup sendNioEventLoopGroup,
+                                 EventLoopGroup sendNioEventLoopGroup,
                                  Class<? extends Api> responseApiClz) {
     this.destinationURL = destinationURL;
     this.sendEventLoopGroup = sendNioEventLoopGroup;
@@ -29,6 +29,8 @@ public class BackofficeHandlerByRest extends SimpleChannelInboundHandler<Api> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext channelHandlerContext, Api api) {
+
+//    backofficeProcess(channelHandlerContext,api);
 
     sendEventLoopGroup.submit(() -> backofficeProcess(channelHandlerContext, api));
 //
@@ -50,7 +52,6 @@ public class BackofficeHandlerByRest extends SimpleChannelInboundHandler<Api> {
   }
 
   protected void backofficeProcess(ChannelHandlerContext channelHandlerContext, Api api) {
-    System.out.println("thread id: " + Thread.currentThread().getId());
 
     Api responseApi;
     try {
