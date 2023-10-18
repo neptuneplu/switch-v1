@@ -28,7 +28,7 @@ public class PersistentOutputHandler extends ChannelOutboundHandlerAdapter {
     persistentEventLoopGroup.submit(
         () -> {
           try {
-            persistentWorker.saveInput((byte[]) msg);
+            persistentWorker.saveOutput((byte[]) msg);
           } catch (Exception e) {
             logger.error("persistent output message error", e);
           }
