@@ -3,6 +3,7 @@ package me.card.switchv1.core.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
+import java.util.Objects;
 import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,15 +24,11 @@ public class PersistentInputHandler extends SimpleChannelInboundHandler<byte[]> 
   protected void channelRead0(ChannelHandlerContext channelHandlerContext, byte[] bytes) {
     logger.debug("persistent input start");
 
-    persistentEventLoopGroup.submit(
-        () -> {
-          try {
-            persistentWorker.saveInput(bytes);
-          } catch (Exception e) {
-            logger.error("persistent input message error", e);
-          }
-        });
-
+    if (Objects.isNull(persistentEventLoopGroup)) {
+      persistentWorker.saveInput(bytes);
+    } else {
+      persistentEventLoopGroup.submit(() -> persistentWorker.saveInput(bytes));
+    }
     //todo check
     channelHandlerContext.fireChannelRead(bytes);
   }

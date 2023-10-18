@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
+import java.util.Objects;
 import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +26,11 @@ public class PersistentOutputHandler extends ChannelOutboundHandlerAdapter {
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
     logger.debug("persistent output start");
 
-    persistentEventLoopGroup.submit(
-        () -> {
-          try {
-            persistentWorker.saveOutput((byte[]) msg);
-          } catch (Exception e) {
-            logger.error("persistent output message error", e);
-          }
-        });
+    if (Objects.isNull(persistentEventLoopGroup)) {
+      persistentWorker.saveOutput((byte[]) msg);
+    } else {
+      persistentEventLoopGroup.submit(() -> persistentWorker.saveOutput((byte[]) msg));
+    }
 
     ctx.writeAndFlush(msg);
   }

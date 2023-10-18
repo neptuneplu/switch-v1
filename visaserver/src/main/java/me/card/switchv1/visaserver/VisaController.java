@@ -4,7 +4,6 @@ import javax.annotation.Resource;
 import me.card.switchv1.core.ServerMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,16 +15,13 @@ public class VisaController {
   private static final Logger logger = LoggerFactory.getLogger(VisaController.class);
 
   @Resource
-  Environment environment;
-
-  @Resource
   private VisaStarter visaStarter;
 
   @RequestMapping("/start")
   public ServerMonitor start() {
     logger.debug("visa start request");
-    //todo - prevent from repeat start
 
+    //todo - prevent from repeat start
     visaStarter.start();
 
     return getNewServerMonitor("visa server is starting");

@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
+import java.util.Objects;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.DestinationURL;
 import org.slf4j.Logger;
@@ -14,41 +15,29 @@ public class BackofficeHandlerByRest extends SimpleChannelInboundHandler<Api> {
   private static final Logger logger = LoggerFactory.getLogger(BackofficeHandlerByRest.class);
 
   private final DestinationURL destinationURL;
+  private final Class<? extends Api> responseApiClz;
   private final EventLoopGroup sendEventLoopGroup;
   private final RestTemplate restTemplate;
-  private final Class<? extends Api> responseApiClz;
 
   public BackofficeHandlerByRest(DestinationURL destinationURL,
-                                 EventLoopGroup sendNioEventLoopGroup,
-                                 Class<? extends Api> responseApiClz) {
+                                 Class<? extends Api> responseApiClz,
+                                 EventLoopGroup sendNioEventLoopGroup) {
     this.destinationURL = destinationURL;
+    this.responseApiClz = responseApiClz;
     this.sendEventLoopGroup = sendNioEventLoopGroup;
     this.restTemplate = new RestTemplate();
-    this.responseApiClz = responseApiClz;
+
   }
 
   @Override
   protected void channelRead0(ChannelHandlerContext channelHandlerContext, Api api) {
 
-//    backofficeProcess(channelHandlerContext,api);
+    if (Objects.isNull(sendEventLoopGroup)) {
+      backofficeProcess(channelHandlerContext, api);
+    } else {
+      sendEventLoopGroup.submit(() -> backofficeProcess(channelHandlerContext, api));
+    }
 
-    sendEventLoopGroup.submit(() -> backofficeProcess(channelHandlerContext, api));
-//
-//    Future<Api> future = sendEventLoopGroup.submit(
-//        () -> restTemplate.postForObject(destinationURL.getUrlString(), api, responseApiClz));
-//
-//    Api reponseApi;
-//    try {
-//      reponseApi = future.get();
-//      if (logger.isDebugEnabled()) {
-//        logger.debug(String.format("response api: %s", reponseApi.toString()));
-//      }
-//      channelHandlerContext.channel().writeAndFlush(reponseApi);
-//    } catch (Exception e) {
-//      logger.error("handle backoffice error", e);
-//      api.toResponse("96");
-//      channelHandlerContext.channel().writeAndFlush(api);
-//    }
   }
 
   protected void backofficeProcess(ChannelHandlerContext channelHandlerContext, Api api) {
@@ -56,8 +45,11 @@ public class BackofficeHandlerByRest extends SimpleChannelInboundHandler<Api> {
     Api responseApi;
     try {
       responseApi = restTemplate.postForObject(destinationURL.getUrlString(), api, responseApiClz);
+      if (Objects.isNull(responseApi)) {
+        throw new HandlerException("backoffice response api is null");
+      }
       if (logger.isDebugEnabled()) {
-        logger.debug(String.format("response api: %s", responseApi.toString()));
+        logger.debug(String.format("response api: %s", responseApi));
       }
       channelHandlerContext.channel().writeAndFlush(responseApi);
     } catch (Exception e) {

@@ -9,7 +9,7 @@ import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.handler.ApiDecodeHandler;
 import me.card.switchv1.core.handler.ApiEncodeHandler;
-import me.card.switchv1.core.handler.BackofficeHandlerByRestPlus;
+import me.card.switchv1.core.handler.BackofficeHandlerByRest;
 import me.card.switchv1.core.handler.MessageCompressHandler;
 import me.card.switchv1.core.handler.MessageExtractHandler;
 import me.card.switchv1.visaapi.VisaApi;
@@ -32,9 +32,9 @@ public class EmbeddedChannelTest {
             .addLast(new MessageCompressHandler())
             .addLast(new ApiDecodeHandler((ApiCoder) new VisaApiCoder()))
             .addLast(new ApiEncodeHandler((ApiCoder) new VisaApiCoder()))
-            .addLast(new BackofficeHandlerByRestPlus(
+            .addLast(new BackofficeHandlerByRest(
                 new DestinationURL(new InetSocketAddress("127.0.0.1", 8088), new URI("/auth/visa")),
-                VisaApi.class));
+                VisaApi.class, null));
       }
     });
 

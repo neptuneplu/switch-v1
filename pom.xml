@@ -32,6 +32,7 @@
         <logback.version>1.2.4</logback.version>
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>4.13.2</junit.version>
+        <jackson.version>2.9.0</jackson.version>
     </properties>
 
     <dependencyManagement>
@@ -95,6 +96,21 @@
                 <groupId>org.jpos</groupId>
                 <artifactId>jpos</artifactId>
                 <version>${jpos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.annotation}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.annotation}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

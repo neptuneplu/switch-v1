@@ -96,25 +96,29 @@ public class SwitchServerBuilder {
 
   private SwitchServer getServerByType(String serverType) {
     switch (serverType) {
-      case "active":
-        ActiveSwitchServer activeSwitchServer = new ActiveSwitchServer();
-        activeServerSetup(activeSwitchServer);
-        return activeSwitchServer;
-      case "activePlus":
-        ActiveSwitchServerPlus activeSwitchServerPlus = new ActiveSwitchServerPlus();
-        activeSwitchServerPlus(activeSwitchServerPlus);
-        return activeSwitchServerPlus;
-      case "passive":
-        PassiveSwitchServer passiveSwitchServer = new PassiveSwitchServer();
-        passiveServerSetup(passiveSwitchServer);
-        return passiveSwitchServer;
+      case "activeBio":
+        ActiveSwitchServerBio activeSwitchServerBio = new ActiveSwitchServerBio();
+        activeServerBioSetup(activeSwitchServerBio);
+        return activeSwitchServerBio;
+      case "activeBioPlus":
+        ActiveSwitchServerBioPlus activeSwitchServerBioPlus = new ActiveSwitchServerBioPlus();
+        activeSwitchServerBioPlusSetup(activeSwitchServerBioPlus);
+        return activeSwitchServerBioPlus;
+      case "activeNio":
+        ActiveSwitchServerNio activeSwitchServerNio = new ActiveSwitchServerNio();
+        activeSwitchServerNioSetup(activeSwitchServerNio);
+        return activeSwitchServerNio;
+      case "passiveBio":
+        PassiveSwitchServerBio passiveSwitchServerBio = new PassiveSwitchServerBio();
+        passiveServerBioSetup(passiveSwitchServerBio);
+        return passiveSwitchServerBio;
       default:
         throw new RuntimeException("server type error");
 
     }
   }
 
-  private void activeServerSetup(ActiveSwitchServer server) {
+  private void activeServerBioSetup(ActiveSwitchServerBio server) {
     server.setName(this.name);
     server.setLocalAddress(this.localAddress);
     server.setSourceAddress(this.sourceAddress);
@@ -128,7 +132,7 @@ public class SwitchServerBuilder {
     server.setPersistentWorker(this.persistentWorker);
   }
 
-  private void activeSwitchServerPlus(ActiveSwitchServerPlus server) {
+  private void activeSwitchServerBioPlusSetup(ActiveSwitchServerBioPlus server) {
     server.setName(this.name);
     server.setLocalAddress(this.localAddress);
     server.setSourceAddress(this.sourceAddress);
@@ -142,7 +146,22 @@ public class SwitchServerBuilder {
     server.setPersistentWorker(this.persistentWorker);
   }
 
-  private void passiveServerSetup(PassiveSwitchServer server) {
+
+  private void activeSwitchServerNioSetup(ActiveSwitchServerNio server) {
+    server.setName(this.name);
+    server.setLocalAddress(this.localAddress);
+    server.setSourceAddress(this.sourceAddress);
+    server.setDestinationURL(this.destinationURL);
+    server.setHeartBeat(this.heartBeat);
+    server.setPrefix(this.prefix);
+    server.setMessageSupplier(this.messageSupplier);
+    server.setApiCoder(this.apiCoder);
+    server.setResponseApiClz(this.responseApiClz);
+    server.setReadIdleTime(this.readIdleTime);
+    server.setPersistentWorker(this.persistentWorker);
+  }
+
+  private void passiveServerBioSetup(PassiveSwitchServerBio server) {
     server.setName(this.name);
     server.setLocalAddress(this.localAddress);
     server.setSourceAddress(this.sourceAddress);

@@ -24,8 +24,8 @@ import me.card.switchv1.core.handler.StreamOutputHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PassiveSwitchServer extends AbstractSwitchServer implements SwitchServer {
-  private static final Logger logger = LoggerFactory.getLogger(PassiveSwitchServer.class);
+public class PassiveSwitchServerBio extends AbstractSwitchServer implements SwitchServer {
+  private static final Logger logger = LoggerFactory.getLogger(PassiveSwitchServerBio.class);
 
   private final ServerBootstrap serverBootstrap = new ServerBootstrap();
   private final EventLoopGroup bossGroup =
@@ -35,7 +35,7 @@ public class PassiveSwitchServer extends AbstractSwitchServer implements SwitchS
   private final EventLoopGroup sendNioEventLoopGroup = new DefaultEventLoopGroup(8,
       new DefaultThreadFactory("switch-sendNioEventLoopGroup", Thread.MAX_PRIORITY));
 
-  public PassiveSwitchServer() {
+  public PassiveSwitchServerBio() {
     super();
   }
 
@@ -82,7 +82,7 @@ public class PassiveSwitchServer extends AbstractSwitchServer implements SwitchS
       ph.addLast(new ApiDecodeHandler(apiCoder));
       ph.addLast(new ApiEncodeHandler(apiCoder));
       ph.addLast(
-          new BackofficeHandlerByRest(destinationURL, sendNioEventLoopGroup, responseApiClz));
+          new BackofficeHandlerByRest(destinationURL, responseApiClz, sendNioEventLoopGroup));
       ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
       ph.addLast(new AdminPassiveServerHandler(heartBeat));
 
