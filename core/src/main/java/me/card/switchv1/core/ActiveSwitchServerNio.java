@@ -7,15 +7,11 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
-import me.card.switchv1.core.handler.ApiDecodeHandler;
-import me.card.switchv1.core.handler.ApiEncodeHandler;
+import me.card.switchv1.core.handler.ApiCodecHandler;
 import me.card.switchv1.core.handler.BackOfficeHandlerNio;
-import me.card.switchv1.core.handler.MessageCompressHandler;
-import me.card.switchv1.core.handler.MessageExtractHandler;
-import me.card.switchv1.core.handler.PersistentInputHandler;
-import me.card.switchv1.core.handler.PersistentOutputHandler;
-import me.card.switchv1.core.handler.StreamInputHandler;
-import me.card.switchv1.core.handler.StreamOutputHandler;
+import me.card.switchv1.core.handler.MessageHandler;
+import me.card.switchv1.core.handler.PersistentHandler;
+import me.card.switchv1.core.handler.StreamHandler;
 
 
 public class ActiveSwitchServerNio extends AbstractActiveSwitchServer {
@@ -29,14 +25,10 @@ public class ActiveSwitchServerNio extends AbstractActiveSwitchServer {
       @Override
       protected void initChannel(SocketChannel ch) {
         ChannelPipeline ph = ch.pipeline();
-        ph.addLast(new StreamInputHandler(prefix));
-        ph.addLast(new StreamOutputHandler(prefix));
-        ph.addLast(new PersistentInputHandler(persistentWorker, persistentEventLoopGroup));
-        ph.addLast(new PersistentOutputHandler(persistentWorker, persistentEventLoopGroup));
-        ph.addLast(new MessageExtractHandler(messageSupplier));
-        ph.addLast(new MessageCompressHandler());
-        ph.addLast(new ApiDecodeHandler(apiCoder));
-        ph.addLast(new ApiEncodeHandler(apiCoder));
+        ph.addLast(new StreamHandler(prefix));
+        ph.addLast(new PersistentHandler(persistentWorker, persistentEventLoopGroup));
+        ph.addLast(new MessageHandler(messageSupplier));
+        ph.addLast(new ApiCodecHandler(apiCoder));
         ph.addLast(
             new BackOfficeHandlerNio(destinationURL, responseApiClz, sendEventLoopGroup));
         ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));

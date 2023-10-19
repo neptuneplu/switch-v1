@@ -7,11 +7,9 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
-import me.card.switchv1.core.handler.ApiDecodeHandler;
-import me.card.switchv1.core.handler.ApiEncodeHandler;
+import me.card.switchv1.core.handler.ApiCodecHandler;
 import me.card.switchv1.core.handler.BackOfficeHandlerBio;
-import me.card.switchv1.core.handler.MessageCompressHandler;
-import me.card.switchv1.core.handler.MessageExtractHandler;
+import me.card.switchv1.core.handler.MessageHandler;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.jpos.VisaApiCoder;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
@@ -28,10 +26,8 @@ public class EmbeddedChannelTest {
       @Override
       protected void initChannel(Channel ch) throws Exception {
         ch.pipeline()
-            .addLast(new MessageExtractHandler(VisaMessageByJpos::new))
-            .addLast(new MessageCompressHandler())
-            .addLast(new ApiDecodeHandler((ApiCoder) new VisaApiCoder()))
-            .addLast(new ApiEncodeHandler((ApiCoder) new VisaApiCoder()))
+            .addLast(new MessageHandler(VisaMessageByJpos::new))
+            .addLast(new ApiCodecHandler((ApiCoder) new VisaApiCoder()))
             .addLast(new BackOfficeHandlerBio(
                 new DestinationURL(new InetSocketAddress("127.0.0.1", 8088), new URI("/auth/visa")),
                 VisaApi.class, null));

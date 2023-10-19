@@ -8,8 +8,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.BackOfficeHandlerNioPlus;
-import me.card.switchv1.core.handler.StreamInputHandler;
-import me.card.switchv1.core.handler.StreamOutputHandler;
+import me.card.switchv1.core.handler.StreamHandler;
 
 public class ActiveSwitchServerNioPlus extends AbstractActiveSwitchServer {
 
@@ -23,8 +22,7 @@ public class ActiveSwitchServerNioPlus extends AbstractActiveSwitchServer {
       @Override
       protected void initChannel(SocketChannel ch) {
         ChannelPipeline ph = ch.pipeline();
-        ph.addLast(new StreamInputHandler(prefix));
-        ph.addLast(new StreamOutputHandler(prefix));
+        ph.addLast(new StreamHandler(prefix));
         ph.addLast(
             new BackOfficeHandlerNioPlus(destinationURL, responseApiClz, sendEventLoopGroup,
                 messageSupplier, apiCoder, persistentWorker, persistentEventLoopGroup));

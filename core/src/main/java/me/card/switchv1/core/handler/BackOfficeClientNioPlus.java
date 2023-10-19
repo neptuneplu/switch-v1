@@ -45,17 +45,13 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClient{
         ChannelPipeline ph = ch.pipeline();
         ph.addLast(new HttpClientCodec());
         ph.addLast(new HttpObjectAggregator(10 * 1024 * 1024));
-        //in
-        ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz));
-        ph.addLast(new ApiEncodeHandler(apiCoder));
-        ph.addLast(new MessageCompressHandler());
-        ph.addLast(new PersistentOutputHandler(persistentWorker, persistentEventLoopGroup));
-        ph.addLast(new NioPlusClientToServerHandler(ctx));
-        //out
-        ph.addLast(new BackOfficeHttpRequestHandler(destinationURL));
-        ph.addLast(new ApiDecodeHandler(apiCoder));
-        ph.addLast(new MessageExtractHandler(messageSupplier));
-        ph.addLast(new PersistentInputHandler(persistentWorker, persistentEventLoopGroup));
+        ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz));//in
+        ph.addLast(new BackOfficeHttpRequestHandler(destinationURL));//out
+        ph.addLast(new ApiCodecHandlerNioPlus(apiCoder)); //dup
+        ph.addLast(new MessageHandlerNioPlus(messageSupplier));//dup
+        ph.addLast(new PersistentHandlerNioPlus(persistentWorker, persistentEventLoopGroup));//dup
+        ph.addLast(new NioPlusClientToServerHandler(ctx));//in
+
 
       }
     };
