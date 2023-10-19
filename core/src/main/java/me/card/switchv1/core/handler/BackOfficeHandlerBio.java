@@ -3,7 +3,6 @@ package me.card.switchv1.core.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.util.Objects;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.DestinationURL;
@@ -11,17 +10,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
-public class BackofficeHandlerByRest extends SimpleChannelInboundHandler<Api> {
-  private static final Logger logger = LoggerFactory.getLogger(BackofficeHandlerByRest.class);
+public class BackOfficeHandlerBio extends SimpleChannelInboundHandler<Api> {
+  private static final Logger logger = LoggerFactory.getLogger(BackOfficeHandlerBio.class);
 
   private final DestinationURL destinationURL;
   private final Class<? extends Api> responseApiClz;
   private final EventLoopGroup sendEventLoopGroup;
   private final RestTemplate restTemplate;
 
-  public BackofficeHandlerByRest(DestinationURL destinationURL,
-                                 Class<? extends Api> responseApiClz,
-                                 EventLoopGroup sendNioEventLoopGroup) {
+  public BackOfficeHandlerBio(DestinationURL destinationURL,
+                              Class<? extends Api> responseApiClz,
+                              EventLoopGroup sendNioEventLoopGroup) {
     this.destinationURL = destinationURL;
     this.responseApiClz = responseApiClz;
     this.sendEventLoopGroup = sendNioEventLoopGroup;

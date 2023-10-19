@@ -16,7 +16,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import me.card.switchv1.core.handler.AdminPassiveServerHandler;
 import me.card.switchv1.core.handler.ApiDecodeHandler;
 import me.card.switchv1.core.handler.ApiEncodeHandler;
-import me.card.switchv1.core.handler.BackofficeHandlerByRest;
+import me.card.switchv1.core.handler.BackOfficeHandlerBio;
 import me.card.switchv1.core.handler.MessageCompressHandler;
 import me.card.switchv1.core.handler.MessageExtractHandler;
 import me.card.switchv1.core.handler.StreamInputHandler;
@@ -82,7 +82,7 @@ public class PassiveSwitchServerBio extends AbstractSwitchServer implements Swit
       ph.addLast(new ApiDecodeHandler(apiCoder));
       ph.addLast(new ApiEncodeHandler(apiCoder));
       ph.addLast(
-          new BackofficeHandlerByRest(destinationURL, responseApiClz, sendNioEventLoopGroup));
+          new BackOfficeHandlerBio(destinationURL, responseApiClz, sendNioEventLoopGroup));
       ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
       ph.addLast(new AdminPassiveServerHandler(heartBeat));
 

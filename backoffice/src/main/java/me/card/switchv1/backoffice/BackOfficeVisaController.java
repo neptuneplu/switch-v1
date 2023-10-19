@@ -17,14 +17,15 @@ public class BackOfficeVisaController {
   @RequestMapping("/visa")
   public VisaApi visaAuth(@RequestBody VisaApi visaRequest) {
 
-//    try {
-//      Thread.sleep(100000);
-//    } catch (Exception e) {
-//    }
-
     if (logger.isDebugEnabled()) {
       logger.debug(String.format("visa request content: %s", visaRequest.toString()));
     }
+
+//    try {
+//      Thread.sleep(30000);
+//    } catch (Exception e) {
+//    }
+
 
     if (visaRequest.getMTI().equals("0100")) {
       visaRequest.setMTI("0110");

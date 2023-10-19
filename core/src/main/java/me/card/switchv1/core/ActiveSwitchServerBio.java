@@ -9,7 +9,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.ApiDecodeHandler;
 import me.card.switchv1.core.handler.ApiEncodeHandler;
-import me.card.switchv1.core.handler.BackofficeHandlerByRest;
+import me.card.switchv1.core.handler.BackOfficeHandlerBio;
 import me.card.switchv1.core.handler.MessageCompressHandler;
 import me.card.switchv1.core.handler.MessageExtractHandler;
 import me.card.switchv1.core.handler.PersistentInputHandler;
@@ -37,7 +37,7 @@ public class ActiveSwitchServerBio extends AbstractActiveSwitchServer {
         ph.addLast(new ApiDecodeHandler(apiCoder));
         ph.addLast(new ApiEncodeHandler(apiCoder));
         ph.addLast(
-            new BackofficeHandlerByRest(destinationURL, responseApiClz, sendEventLoopGroup));
+            new BackOfficeHandlerBio(destinationURL, responseApiClz, sendEventLoopGroup));
         ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
         ph.addLast(new AdminActiveServerHandler(heartBeat, bootstrap));
       }

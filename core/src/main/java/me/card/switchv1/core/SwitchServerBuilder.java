@@ -108,6 +108,10 @@ public class SwitchServerBuilder {
         ActiveSwitchServerNio activeSwitchServerNio = new ActiveSwitchServerNio();
         activeSwitchServerNioSetup(activeSwitchServerNio);
         return activeSwitchServerNio;
+      case "activeNioPlus":
+        ActiveSwitchServerNioPlus activeSwitchServerNioPlus = new ActiveSwitchServerNioPlus();
+        activeSwitchServerNioPlusSetup(activeSwitchServerNioPlus);
+        return activeSwitchServerNioPlus;
       case "passiveBio":
         PassiveSwitchServerBio passiveSwitchServerBio = new PassiveSwitchServerBio();
         passiveServerBioSetup(passiveSwitchServerBio);
@@ -148,6 +152,20 @@ public class SwitchServerBuilder {
 
 
   private void activeSwitchServerNioSetup(ActiveSwitchServerNio server) {
+    server.setName(this.name);
+    server.setLocalAddress(this.localAddress);
+    server.setSourceAddress(this.sourceAddress);
+    server.setDestinationURL(this.destinationURL);
+    server.setHeartBeat(this.heartBeat);
+    server.setPrefix(this.prefix);
+    server.setMessageSupplier(this.messageSupplier);
+    server.setApiCoder(this.apiCoder);
+    server.setResponseApiClz(this.responseApiClz);
+    server.setReadIdleTime(this.readIdleTime);
+    server.setPersistentWorker(this.persistentWorker);
+  }
+
+  private void activeSwitchServerNioPlusSetup(ActiveSwitchServerNioPlus server) {
     server.setName(this.name);
     server.setLocalAddress(this.localAddress);
     server.setSourceAddress(this.sourceAddress);
