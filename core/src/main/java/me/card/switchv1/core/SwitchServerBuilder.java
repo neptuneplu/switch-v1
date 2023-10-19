@@ -116,6 +116,10 @@ public class SwitchServerBuilder {
         PassiveSwitchServerBio passiveSwitchServerBio = new PassiveSwitchServerBio();
         passiveServerBioSetup(passiveSwitchServerBio);
         return passiveSwitchServerBio;
+      case "passiveNioPlus":
+        PassiveSwitchServerNioPlus passiveSwitchServerBioPlus = new PassiveSwitchServerNioPlus();
+        passiveServerNioPlusSetup(passiveSwitchServerBioPlus);
+        return passiveSwitchServerBioPlus;
       default:
         throw new RuntimeException("server type error");
 
@@ -180,6 +184,21 @@ public class SwitchServerBuilder {
   }
 
   private void passiveServerBioSetup(PassiveSwitchServerBio server) {
+    server.setName(this.name);
+    server.setLocalAddress(this.localAddress);
+    server.setSourceAddress(this.sourceAddress);
+    server.setDestinationURL(this.destinationURL);
+    server.setHeartBeat(this.heartBeat);
+    server.setPrefix(this.prefix);
+    server.setMessageSupplier(this.messageSupplier);
+    server.setApiCoder(this.apiCoder);
+    server.setResponseApiClz(this.responseApiClz);
+    server.setReadIdleTime(this.readIdleTime);
+    server.setPersistentWorker(this.persistentWorker);
+
+  }
+
+  private void passiveServerNioPlusSetup(PassiveSwitchServerNioPlus server) {
     server.setName(this.name);
     server.setLocalAddress(this.localAddress);
     server.setSourceAddress(this.sourceAddress);
