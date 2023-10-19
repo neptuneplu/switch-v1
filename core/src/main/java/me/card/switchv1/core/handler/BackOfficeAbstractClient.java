@@ -27,8 +27,7 @@ public abstract class BackOfficeAbstractClient {
     this.sendEventLoopGroup = sendEventLoopGroup;
   }
 
-  // should not public
-  public <T> void send(ChannelHandlerContext ctx, T t) {
+  protected  <T> void send(ChannelHandlerContext ctx, T t) {
     logger.debug("send to backoffice bootstrap start");
 
     Bootstrap bootstrap = new Bootstrap();
