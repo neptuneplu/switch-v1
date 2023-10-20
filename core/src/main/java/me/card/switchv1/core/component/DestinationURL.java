@@ -17,6 +17,12 @@ public class DestinationURL {
     return destinationAddress;
   }
 
+  //todo - substring(1) to omit the '/', the '/'' is in the netty transfer result but I don't have the code changed
+  // just modify the jackson dependency, netty's version is the same
+  public String getHostStr() {
+    return destinationAddress.toString().substring(1);
+  }
+
   public URI getUri() {
     return uri;
   }
