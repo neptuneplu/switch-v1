@@ -36,7 +36,7 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
     bootstrap.group(serverEventLoopGroup)
         .channel(NioSocketChannel.class)
         .option(ChannelOption.SO_REUSEADDR, true)
-        .remoteAddress(super.sourceAddress)
+        .remoteAddress(sourceAddress)
         .localAddress(localAddress)
         .handler(channelInitializer(persistentEventLoopGroup, sendEventLoopGroup, bootstrap));
 
