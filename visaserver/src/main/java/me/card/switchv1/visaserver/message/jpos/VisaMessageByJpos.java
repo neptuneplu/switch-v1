@@ -23,6 +23,7 @@ public class VisaMessageByJpos implements Message {
     }
   }
 
+  private String seqNo;
   private final BASE1Header header;
   private final ISOMsg body;
 
@@ -47,6 +48,17 @@ public class VisaMessageByJpos implements Message {
     } catch (ISOException e) {
       throw new VisaMessageException("set visa mti exception");
     }
+  }
+
+
+  @Override
+  public String getSeqNo() {
+    return seqNo;
+  }
+
+  @Override
+  public void setSeqNo(String seqNo) {
+    this.seqNo = seqNo;
   }
 
   public String getDestinationId() {
@@ -129,6 +141,11 @@ public class VisaMessageByJpos implements Message {
     System.arraycopy(byteHeader, 0, msg, 0, headLength);
     System.arraycopy(byteBody, 0, msg, headLength, byteBody.length);
     return msg;
+  }
+
+  @Override
+  public String getDbKey() {
+    return body.getString(2);
   }
 
   @Override

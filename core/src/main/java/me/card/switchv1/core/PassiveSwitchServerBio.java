@@ -75,7 +75,7 @@ public class PassiveSwitchServerBio extends AbstractSwitchServer implements Swit
       ChannelPipeline ph = socketChannel.pipeline();
       ph.addLast(new StreamHandler(prefix));
       ph.addLast(new PersistentHandler(persistentWorker, null));
-      ph.addLast(new MessageHandler(messageSupplier));
+      ph.addLast(new MessageHandler(messageSupplier,id));
       ph.addLast(new ApiCodecHandler(apiCoder));
       ph.addLast(
           new BackOfficeHandlerBio(destinationURL, responseApiClz, sendNioEventLoopGroup));

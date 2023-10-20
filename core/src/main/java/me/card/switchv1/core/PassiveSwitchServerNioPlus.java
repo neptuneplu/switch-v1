@@ -72,7 +72,7 @@ public class PassiveSwitchServerNioPlus extends AbstractSwitchServer implements 
       ph.addLast(new StreamHandler(prefix));
       ph.addLast(
           new BackOfficeHandlerNioPlus(destinationURL, responseApiClz, sendEventLoopGroup,
-              messageSupplier, apiCoder, persistentWorker, null));
+              messageSupplier, apiCoder, persistentWorker, null,id));
       ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
       ph.addLast(new AdminPassiveServerHandler(heartBeat));
 

@@ -26,8 +26,8 @@ public class ActiveSwitchServerNio extends AbstractActiveSwitchServer {
       protected void initChannel(SocketChannel ch) {
         ChannelPipeline ph = ch.pipeline();
         ph.addLast(new StreamHandler(prefix));
+        ph.addLast(new MessageHandler(messageSupplier,id));
         ph.addLast(new PersistentHandler(persistentWorker, persistentEventLoopGroup));
-        ph.addLast(new MessageHandler(messageSupplier));
         ph.addLast(new ApiCodecHandler(apiCoder));
         ph.addLast(
             new BackOfficeHandlerNio(destinationURL, responseApiClz, sendEventLoopGroup));

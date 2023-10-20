@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
@@ -22,13 +23,14 @@ public class BackOfficeHandlerNioPlus extends SimpleChannelInboundHandler<byte[]
   private final ApiCoder apiCoder;
   private final PersistentWorker persistentWorker;
   private final EventLoopGroup persistentEventLoopGroup;
+  private final Id id;
 
   public BackOfficeHandlerNioPlus(DestinationURL destinationURL,
                                   Class<? extends Api> responseApiClz,
                                   EventLoopGroup sendEventLoopGroup,
                                   Supplier<Message> messageSupplier, ApiCoder apiCoder,
                                   PersistentWorker persistentWorker,
-                                  EventLoopGroup persistentEventLoopGroup) {
+                                  EventLoopGroup persistentEventLoopGroup, Id id) {
     this.destinationURL = destinationURL;
     this.responseApiClz = responseApiClz;
     this.sendEventLoopGroup = sendEventLoopGroup;
@@ -36,6 +38,7 @@ public class BackOfficeHandlerNioPlus extends SimpleChannelInboundHandler<byte[]
     this.apiCoder = apiCoder;
     this.persistentWorker = persistentWorker;
     this.persistentEventLoopGroup = persistentEventLoopGroup;
+    this.id = id;
   }
 
   @Override
@@ -48,7 +51,8 @@ public class BackOfficeHandlerNioPlus extends SimpleChannelInboundHandler<byte[]
           messageSupplier,
           apiCoder,
           persistentWorker,
-          persistentEventLoopGroup);
+          persistentEventLoopGroup,
+          id);
       try {
         client.send(ctx, msg);
       } catch (Exception e) {

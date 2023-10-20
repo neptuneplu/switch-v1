@@ -11,30 +11,32 @@ import java.util.function.Supplier;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BackOfficeClientNioPlus extends BackOfficeAbstractClient{
+public class BackOfficeClientNioPlus extends BackOfficeAbstractClient {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeClientNioPlus.class);
 
   private final Supplier<Message> messageSupplier;
   private final ApiCoder apiCoder;
   private final PersistentWorker persistentWorker;
   private final EventLoopGroup persistentEventLoopGroup;
+  private final Id id;
 
-  public BackOfficeClientNioPlus(DestinationURL destinationURL,
-                                 Class<? extends Api> responseApiClz,
+  public BackOfficeClientNioPlus(DestinationURL destinationURL, Class<? extends Api> responseApiClz,
                                  EventLoopGroup sendEventLoopGroup,
-                                 Supplier<Message> messageSupplier, ApiCoder apiCoder,
-                                 PersistentWorker persistentWorker,
-                                 EventLoopGroup persistentEventLoopGroup) {
+                                 Supplier<Message> messageSupplier,
+                                 ApiCoder apiCoder, PersistentWorker persistentWorker,
+                                 EventLoopGroup persistentEventLoopGroup, Id id) {
     super(destinationURL, responseApiClz, sendEventLoopGroup);
     this.messageSupplier = messageSupplier;
     this.apiCoder = apiCoder;
     this.persistentWorker = persistentWorker;
     this.persistentEventLoopGroup = persistentEventLoopGroup;
+    this.id = id;
   }
 
   @Override
@@ -48,8 +50,8 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClient{
         ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz));//in
         ph.addLast(new BackOfficeHttpRequestHandler(destinationURL));//out
         ph.addLast(new ApiCodecHandlerNioPlus(apiCoder)); //dup
-        ph.addLast(new MessageHandlerNioPlus(messageSupplier));//dup
         ph.addLast(new PersistentHandlerNioPlus(persistentWorker, persistentEventLoopGroup));//dup
+        ph.addLast(new MessageHandlerNioPlus(messageSupplier, id));//dup
         ph.addLast(new NioPlusClientToServerHandler(ctx));//in
 
 

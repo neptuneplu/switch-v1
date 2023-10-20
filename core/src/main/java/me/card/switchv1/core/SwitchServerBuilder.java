@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
@@ -26,6 +27,7 @@ public class SwitchServerBuilder {
   private Class responseApiClz;
   private String readIdleTime;
   private PersistentWorker persistentWorker;
+  private Id id;
 
 
   public SwitchServerBuilder name(String name) {
@@ -89,6 +91,11 @@ public class SwitchServerBuilder {
     return this;
   }
 
+  public SwitchServerBuilder id(Id id) {
+    this.id = id;
+    return this;
+  }
+
   public SwitchServer build() {
     logger.debug("server build start");
     return getServerByType(serverType);
@@ -138,6 +145,7 @@ public class SwitchServerBuilder {
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
+    server.setId(this.id);
   }
 
   private void activeSwitchServerBioPlusSetup(ActiveSwitchServerBioPlus server) {
@@ -152,6 +160,8 @@ public class SwitchServerBuilder {
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
+    server.setId(this.id);
+
   }
 
 
@@ -167,6 +177,8 @@ public class SwitchServerBuilder {
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
+    server.setId(this.id);
+
   }
 
   private void activeSwitchServerNioPlusSetup(ActiveSwitchServerNioPlus server) {
@@ -181,6 +193,8 @@ public class SwitchServerBuilder {
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
+    server.setId(this.id);
+
   }
 
   private void passiveServerBioSetup(PassiveSwitchServerBio server) {
@@ -195,6 +209,8 @@ public class SwitchServerBuilder {
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
+    server.setId(this.id);
+
 
   }
 
@@ -210,6 +226,7 @@ public class SwitchServerBuilder {
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
+    server.setId(this.id);
 
   }
 }

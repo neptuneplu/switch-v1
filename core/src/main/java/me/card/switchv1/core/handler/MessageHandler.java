@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import java.util.List;
 import java.util.function.Supplier;
+import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
@@ -14,9 +15,11 @@ public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
 
 
   private final Supplier<Message> messageSupplier;
+  private final Id id;
 
-  public MessageHandler(Supplier<Message> messageSupplier) {
+  public MessageHandler(Supplier<Message> messageSupplier, Id id) {
     this.messageSupplier = messageSupplier;
+    this.id = id;
   }
 
   @Override
@@ -42,6 +45,7 @@ public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
     try {
       Message message = messageSupplier.get();
       message.extract(msg);
+      message.setSeqNo(id.nextStrSeqNo());
       message.print();
       out.add(message);
     } catch (Exception e) {

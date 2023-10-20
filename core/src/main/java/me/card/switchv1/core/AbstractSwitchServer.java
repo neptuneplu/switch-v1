@@ -6,6 +6,7 @@ import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
@@ -24,7 +25,7 @@ public class AbstractSwitchServer {
   Class responseApiClz;
   String readIdleTime;
   PersistentWorker persistentWorker;
-
+  Id id;
 
   public AbstractSwitchServer() {
     this.serverMonitor = new ServerMonitor();
@@ -76,4 +77,7 @@ public class AbstractSwitchServer {
     this.persistentWorker = persistentWorker;
   }
 
+  public void setId(Id id) {
+    this.id = id;
+  }
 }

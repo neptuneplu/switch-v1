@@ -31,8 +31,8 @@ public class ActiveSwitchServerBioPlus extends AbstractActiveSwitchServer {
           @Override
           protected void initChannel(EmbeddedChannel ch) {
             ChannelPipeline ph = ch.pipeline();
+            ph.addLast(new MessageHandler(messageSupplier,id));
             ph.addLast(new PersistentHandler(persistentWorker, persistentEventLoopGroup));
-            ph.addLast(new MessageHandler(messageSupplier));
             ph.addLast(new ApiCodecHandler(apiCoder));
             ph.addLast(new BackOfficeHandlerBio(destinationURL, responseApiClz, null));
           }

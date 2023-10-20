@@ -6,6 +6,7 @@ import me.card.switchv1.core.SwitchServer;
 import me.card.switchv1.core.SwitchServerBuilder;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.visaapi.VisaApi;
@@ -39,7 +40,11 @@ public class VisaStarter {
   private PersistentWorker persistentWorker;
 
   @Resource
+  private Id id;
+
+  @Resource
   private SwitchServerBuilder switchServerBuilder;
+
 
   private SwitchServer switchServer;
 
@@ -66,6 +71,7 @@ public class VisaStarter {
         .apiCoder(apiCoder)
         .responseApiClz(apiClz)
         .persistentWorker(persistentWorker)
+        .id(id)
         .build();
 
     switchServer.start();

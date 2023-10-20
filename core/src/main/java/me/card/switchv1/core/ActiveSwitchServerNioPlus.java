@@ -25,7 +25,7 @@ public class ActiveSwitchServerNioPlus extends AbstractActiveSwitchServer {
         ph.addLast(new StreamHandler(prefix));
         ph.addLast(
             new BackOfficeHandlerNioPlus(destinationURL, responseApiClz, sendEventLoopGroup,
-                messageSupplier, apiCoder, persistentWorker, persistentEventLoopGroup));
+                messageSupplier, apiCoder, persistentWorker, persistentEventLoopGroup,id));
         ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
         ph.addLast(new AdminActiveServerHandler(heartBeat, bootstrap));
       }

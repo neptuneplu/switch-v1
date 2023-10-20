@@ -2,7 +2,7 @@ package me.card.switchv1.core.component;
 
 public interface PersistentWorker {
 
-  void saveInput(byte[] bytes);
+  void saveInput(Message message);
 
-  void saveOutput(byte[] bytes);
+  void saveOutput(Message message);
 }

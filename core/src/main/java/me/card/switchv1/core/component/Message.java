@@ -7,5 +7,11 @@ public interface Message {
 
   byte[] compress();
 
+  String getDbKey();
+
+  void setSeqNo(String no);
+
+  String getSeqNo();
+
   void print();
 }

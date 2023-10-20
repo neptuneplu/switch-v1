@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class VisaApi implements Api, Serializable {
 
+  private String seqNo;
   private String destinationId;
   private String sourceId;
   private String MTI;
@@ -104,6 +105,14 @@ public class VisaApi implements Api, Serializable {
     this.destinationId = this.sourceId;
     this.sourceId = id;
     this.F39 = code;
+  }
+
+  public String getSeqNo() {
+    return seqNo;
+  }
+
+  public void setSeqNo(String seqNo) {
+    this.seqNo = seqNo;
   }
 
   public String getDestinationId() {
@@ -790,7 +799,8 @@ public class VisaApi implements Api, Serializable {
   @Override
   public String toString() {
     return "VisaApi{" +
-        "destinationId='" + destinationId + '\'' +
+        "seqNo='" + seqNo + '\'' +
+        ", destinationId='" + destinationId + '\'' +
         ", sourceId='" + sourceId + '\'' +
         ", MTI='" + MTI + '\'' +
         ", F2='" + F2 + '\'' +

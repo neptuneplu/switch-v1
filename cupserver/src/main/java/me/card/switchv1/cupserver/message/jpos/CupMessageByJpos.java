@@ -23,6 +23,7 @@ public class CupMessageByJpos implements Message {
     }
   }
 
+  private String seqNo;
   private final CupHeader header;
   private final ISOMsg body;
 
@@ -47,6 +48,16 @@ public class CupMessageByJpos implements Message {
     } catch (ISOException e) {
       throw new CupMessageException("set cup mti exception");
     }
+  }
+
+  @Override
+  public String getSeqNo() {
+    return seqNo;
+  }
+
+  @Override
+  public void setSeqNo(String seqNo) {
+    this.seqNo = seqNo;
   }
 
   public byte[] getDestinationId() {
@@ -134,6 +145,11 @@ public class CupMessageByJpos implements Message {
     //copy body
     System.arraycopy(byteBody, 0, msg, headLength, byteBody.length);
     return msg;
+  }
+
+  @Override
+  public String getDbKey() {
+    return body.getString(2);
   }
 
   @Override

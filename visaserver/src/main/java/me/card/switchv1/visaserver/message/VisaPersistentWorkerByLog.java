@@ -1,4 +1,4 @@
-package me.card.switchv1.cupserver.message;
+package me.card.switchv1.visaserver.message;
 
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
@@ -6,8 +6,8 @@ import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CupPersistentWorker implements PersistentWorker {
-  private static final Logger logger = LoggerFactory.getLogger(CupPersistentWorker.class);
+public class VisaPersistentWorkerByLog implements PersistentWorker {
+  private static final Logger logger = LoggerFactory.getLogger(VisaPersistentWorkerByLog.class);
 
   @Override
   public void saveInput(Message message) {

@@ -30,6 +30,7 @@ public class VisaApiCoder implements ApiCoder<VisaApi, VisaMessageByJpos> {
 
     VisaApi visaApi = new VisaApi();
     visaApi.setMTI(visaMessage.getMti());
+    visaApi.setSeqNo(visaMessage.getSeqNo());
     visaApi.setDestinationId(visaMessage.getDestinationId());
     visaApi.setSourceId(visaMessage.getSourceId());
 
@@ -71,6 +72,7 @@ public class VisaApiCoder implements ApiCoder<VisaApi, VisaMessageByJpos> {
 
     VisaMessageByJpos visaMessage = new VisaMessageByJpos();
     visaMessage.setMti(visaApi.getMTI());
+    visaMessage.setSeqNo(visaApi.getSeqNo());
     //exchange destination and source
     visaMessage.setDestinationId(visaApi.getSourceId());
     visaMessage.setSourceId(visaMessage.getDestinationId());
