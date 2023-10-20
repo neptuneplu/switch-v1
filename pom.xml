@@ -21,18 +21,27 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <springboot.version>2.0.0.RELEASE</springboot.version>
-        <netty.version>4.1.86.Final</netty.version>
-        <jackson.annotation>2.9.4</jackson.annotation>
-        <fastjson.version>1.2.28</fastjson.version>
-        <slf4j.version>2.0.5</slf4j.version>
-        <logback.version>1.2.9</logback.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
-        <jpos.version>2.1.4</jpos.version>
-        <logback.version>1.2.4</logback.version>
+        <!--        -->
+        <springboot.version>2.6.6</springboot.version>
+        <mybatis-plus-boot.version>3.5.1</mybatis-plus-boot.version>
+        <mybatis-plus-boot-starter-test.version>3.5.3.1</mybatis-plus-boot-starter-test.version>
+        <mybatis-spring-boot.version>2.2.2</mybatis-spring-boot.version>
+        <mybatis-plus-annotation.version>3.5.1</mybatis-plus-annotation.version>
+        <mybatis-plus-generator.version>3.5.2</mybatis-plus-generator.version>
+        <mysql-jdbc.version>8.0.28</mysql-jdbc.version>
+        <!--        -->
+<!--        <jackson.annotation>2.9.4</jackson.annotation>-->
+<!--        <jackson.version>2.9.0</jackson.version>-->
+        <!--        -->
         <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.4</logback.version>
+        <!--        -->
+        <commons-lang3.version>3.11</commons-lang3.version>
+        <!--        -->
         <junit.version>4.13.2</junit.version>
-        <jackson.version>2.9.0</jackson.version>
+        <!--        -->
+        <netty.version>4.1.86.Final</netty.version>
+        <jpos.version>2.1.4</jpos.version>
     </properties>
 
     <dependencyManagement>
@@ -53,11 +62,6 @@
                 <version>${springboot.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.annotation}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-log4j2</artifactId>
                 <version>${springboot.version}</version>
@@ -66,6 +70,31 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-logging</artifactId>
                 <version>${springboot.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <groupId>com.baomidou</groupId>
+                <version>${mybatis-plus-boot.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>mybatis-plus</artifactId>
+                <groupId>com.baomidou</groupId>
+                <version>${mybatis-plus-boot.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>mybatis-plus-annotation</artifactId>
+                <groupId>com.baomidou</groupId>
+                <version>${mybatis-plus-annotation.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <groupId>com.baomidou</groupId>
+                <version>${mybatis-plus-generator.version}</version>
+            </dependency>
+            <dependency>
+                <artifactId>mysql-connector-java</artifactId>
+                <groupId>mysql</groupId>
+                <version>${mysql-jdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
@@ -97,21 +126,26 @@
                 <artifactId>jpos</artifactId>
                 <version>${jpos.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.annotation}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.annotation}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-annotations</artifactId>-->
+<!--                <version>${jackson.annotation}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-core</artifactId>-->
+<!--                <version>${jackson.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                <artifactId>jackson-databind</artifactId>-->
+<!--                <version>${jackson.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--                <artifactId>jackson-datatype-jsr310</artifactId>-->
+<!--                <version>${jackson.version}</version>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
     <dependencies>
