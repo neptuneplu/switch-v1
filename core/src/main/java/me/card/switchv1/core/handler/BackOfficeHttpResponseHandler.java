@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.List;
 import me.card.switchv1.core.component.Api;
 import org.slf4j.Logger;
@@ -24,19 +25,25 @@ public class BackOfficeHttpResponseHandler extends MessageToMessageDecoder<FullH
       throws Exception {
     logger.debug("BackOfficeHttpResponseHandler start");
 
-    byte[] byteContent = new byte[response.content().readableBytes()];
-    response.content().readBytes(byteContent);
+    if(response.status().equals(HttpResponseStatus.OK)) {
+      byte[] byteContent = new byte[response.content().readableBytes()];
+      response.content().readBytes(byteContent);
 
-    ObjectMapper mapper = new ObjectMapper();
-    Api api;
-    try {
-      api = mapper.readValue(byteContent, responseApiClz);
-    } catch (Exception e) {
-      logger.error("jackson parser read error", e);
-      throw new HandlerException("jackson parser read error");
+      ObjectMapper mapper = new ObjectMapper();
+      Api api;
+      try {
+        api = mapper.readValue(byteContent, responseApiClz);
+      } catch (Exception e) {
+        logger.error("jackson parser read error", e);
+        throw new HandlerException("jackson parser read error");
+      }
+
+      out.add(api);
+    } else {
+      logger.error("http response error: " + response.status());
+      throw new HandlerException("backoffice call error:" + response.status());
     }
 
-    out.add(api);
 
   }
 }
