@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -41,8 +40,10 @@ public class BackOfficeHttpRequestHandler extends MessageToMessageEncoder<Api> {
       logger.error("jackson parser write error", e);
       throw new HandlerException("jackson parser write error");
     }
-    logger.debug("strApi: " + strApi);
 
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("strApi: %s", strApi));
+    }
 
     ByteBuf bufRequest = Unpooled.copiedBuffer(strApi, CharsetUtil.UTF_8);
 
@@ -53,13 +54,17 @@ public class BackOfficeHttpRequestHandler extends MessageToMessageEncoder<Api> {
         bufRequest
     );
 
-    fullHttpRequest.headers().set(HttpHeaderNames.HOST, destinationURL.getDestinationAddress());
+
+    fullHttpRequest.headers()
+        .set(HttpHeaderNames.HOST, destinationURL.getHostStr());
     fullHttpRequest.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
     fullHttpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH,
         fullHttpRequest.content().readableBytes());
     fullHttpRequest.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
 
-    logger.debug("fullHttpRequest: " + fullHttpRequest);
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("fullHttpRequest: %s", fullHttpRequest));
+    }
 
     out.add(fullHttpRequest);
   }
