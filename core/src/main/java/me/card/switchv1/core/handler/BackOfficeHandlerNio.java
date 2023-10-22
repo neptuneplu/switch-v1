@@ -18,8 +18,7 @@ public class BackOfficeHandlerNio extends SimpleChannelInboundHandler<Api> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Api api) {
-    logger.debug(
-        "BackOfficeHandlerNio read start, ctx: " + ctx + " ctx executor: " + ctx.executor());
+    logger.debug("BackOfficeHandlerNio channelRead0 start");
     try {
       backOfficeClientNio.send(ctx, api);
     } catch (Exception e) {

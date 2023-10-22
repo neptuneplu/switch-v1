@@ -19,31 +19,27 @@ public class ApiCodecHandlerNioPlus extends MessageToMessageCodec<Api, Message> 
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
+  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
     logger.debug("api decode start");
 
     try {
       Api api = apiCoder.messageToApi(msg);
       out.add(api);
     } catch (Exception e) {
-      logger.warn("**************************");
       logger.warn("api decode failed!!!", e);
-      logger.warn("**************************");
       ctx.writeAndFlush(apiCoder.errorMessage(msg));
     }
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, Api api, List<Object> out) throws Exception {
+  protected void decode(ChannelHandlerContext ctx, Api api, List<Object> out) {
     logger.debug("api encode start");
 
     try {
       Message message = apiCoder.apiToMessage(api);
       out.add(message);
     } catch (Exception e) {
-      logger.warn("**************************");
       logger.warn("api encode failed!!!", e);
-      logger.warn("**************************");
     }
   }
 }

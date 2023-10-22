@@ -16,9 +16,8 @@ public class BackOfficeHandlerNioPlus extends SimpleChannelInboundHandler<byte[]
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-    logger.debug(
-        "BackOfficeHandlerNioPlus read start, ctx: " + ctx + " ctx executor: " + ctx.executor());
+  protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) {
+    logger.debug("BackOfficeHandlerNioPlus read start");
 
     try {
       backOfficeClientNioPlus.send(ctx, msg);

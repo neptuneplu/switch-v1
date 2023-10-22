@@ -18,7 +18,7 @@ public class PersistentHandlerNioPlus extends MessageToMessageCodec<Message, Mes
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
+  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
     logger.debug("persistent input start");
 
     persistentWorker.saveInput(msg);
@@ -26,7 +26,7 @@ public class PersistentHandlerNioPlus extends MessageToMessageCodec<Message, Mes
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
+  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
     logger.debug("persistent output start");
 
     persistentWorker.saveOutput(msg);

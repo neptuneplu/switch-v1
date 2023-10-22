@@ -18,16 +18,16 @@ public class PersistentHandler extends MessageToMessageCodec<Message, Message> {
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
-    logger.debug("persistent output start, ctx: " + ctx + " ctx executor: " + ctx.executor());
+  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
+    logger.debug("persistent output start");
 
     persistentWorker.saveOutput(msg);
     out.add(msg);
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
-    logger.debug("persistent input start, ctx: " +  ctx + " ctx executor: " + ctx.executor());
+  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
+    logger.debug("persistent input start");
 
     persistentWorker.saveInput(msg);
     out.add(msg);
