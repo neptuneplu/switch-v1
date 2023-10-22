@@ -22,7 +22,7 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
 
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, byte[] msg, ByteBuf out) throws Exception {
+  protected void encode(ChannelHandlerContext ctx, byte[] msg, ByteBuf out) {
 
     logger.debug("byte encode start");
 
@@ -45,7 +45,7 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List out) throws Exception {
+  protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
     logger.debug("byte decode start");
 
     if (logger.isDebugEnabled()) {

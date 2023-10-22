@@ -16,7 +16,7 @@ public class NioClientToServerHandler extends SimpleChannelInboundHandler<Api> {
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, Api api) throws Exception {
+  protected void channelRead0(ChannelHandlerContext ctx, Api api) {
     logger.debug("NioClientToServerHandler start");
     //write to server channel
     serverCtx.writeAndFlush(api);

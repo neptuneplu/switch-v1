@@ -1,6 +1,7 @@
-package me.card.switchv1.core;
+package me.card.switchv1.core.server;
 
 public interface SwitchServer {
+
   void start();
 
   void stop();

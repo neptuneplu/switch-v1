@@ -22,7 +22,7 @@ public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, byte[] msg, List<Object> out) throws Exception {
+  protected void encode(ChannelHandlerContext ctx, byte[] msg, List<Object> out) {
     logger.debug("extract mdg start");
 
     try {
@@ -40,7 +40,7 @@ public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
+  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
     logger.debug("compress mdg start");
 
     try {

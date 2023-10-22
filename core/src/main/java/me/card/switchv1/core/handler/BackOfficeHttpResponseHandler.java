@@ -3,7 +3,6 @@ package me.card.switchv1.core.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.List;
@@ -21,11 +20,10 @@ public class BackOfficeHttpResponseHandler extends MessageToMessageDecoder<FullH
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, FullHttpResponse response, List<Object> out)
-      throws Exception {
+  protected void decode(ChannelHandlerContext ctx, FullHttpResponse response, List<Object> out) {
     logger.debug("BackOfficeHttpResponseHandler start");
 
-    if(response.status().equals(HttpResponseStatus.OK)) {
+    if (response.status().equals(HttpResponseStatus.OK)) {
       byte[] byteContent = new byte[response.content().readableBytes()];
       response.content().readBytes(byteContent);
 
@@ -40,7 +38,9 @@ public class BackOfficeHttpResponseHandler extends MessageToMessageDecoder<FullH
 
       out.add(api);
     } else {
-      logger.error("http response error: " + response.status());
+      if (logger.isErrorEnabled()) {
+        logger.error(String.format("http response error: %s", response.status()));
+      }
       throw new HandlerException("backoffice call error:" + response.status());
     }
 

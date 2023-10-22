@@ -15,7 +15,8 @@ public class NioPlusClientToServerHandler extends SimpleChannelInboundHandler<by
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
+  protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) {
+    logger.debug("NioPlusClientToServerHandler start");
     //write to server channel
     serverCtx.writeAndFlush(msg);
   }

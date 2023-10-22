@@ -1,4 +1,4 @@
-package me.card.switchv1.core.handler;
+package me.card.switchv1.core.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -14,28 +14,33 @@ import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
+import me.card.switchv1.core.handler.ApiCodecHandlerNioPlus;
+import me.card.switchv1.core.handler.BackOfficeHttpRequestHandler;
+import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
+import me.card.switchv1.core.handler.MessageHandlerNioPlus;
+import me.card.switchv1.core.handler.NioPlusClientToServerHandler;
+import me.card.switchv1.core.handler.PersistentHandlerNioPlus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BackOfficeClientNioPlus extends BackOfficeAbstractClient {
+public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeClientNioPlus.class);
 
   private final Supplier<Message> messageSupplier;
   private final ApiCoder apiCoder;
   private final PersistentWorker persistentWorker;
-  private final EventLoopGroup persistentEventLoopGroup;
+  private final EventLoopGroup persistentGroup;
   private final Id id;
 
   public BackOfficeClientNioPlus(DestinationURL destinationURL, Class<? extends Api> responseApiClz,
-                                 EventLoopGroup sendEventLoopGroup,
                                  Supplier<Message> messageSupplier,
                                  ApiCoder apiCoder, PersistentWorker persistentWorker,
-                                 EventLoopGroup persistentEventLoopGroup, Id id) {
-    super(destinationURL, responseApiClz, sendEventLoopGroup);
+                                 EventLoopGroup persistentGroup, Id id) {
+    super(destinationURL, responseApiClz);
     this.messageSupplier = messageSupplier;
     this.apiCoder = apiCoder;
     this.persistentWorker = persistentWorker;
-    this.persistentEventLoopGroup = persistentEventLoopGroup;
+    this.persistentGroup = persistentGroup;
     this.id = id;
   }
 
@@ -50,11 +55,9 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClient {
         ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz));//in
         ph.addLast(new BackOfficeHttpRequestHandler(destinationURL));//out
         ph.addLast(new ApiCodecHandlerNioPlus(apiCoder)); //dup
-        ph.addLast(new PersistentHandlerNioPlus(persistentWorker, persistentEventLoopGroup));//dup
+        ph.addLast(persistentGroup, new PersistentHandlerNioPlus(persistentWorker));//dup
         ph.addLast(new MessageHandlerNioPlus(messageSupplier, id));//dup
         ph.addLast(new NioPlusClientToServerHandler(ctx));//in
-
-
       }
     };
   }

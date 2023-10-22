@@ -1,4 +1,4 @@
-package me.card.switchv1.core;
+package me.card.switchv1.core.server;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -6,6 +6,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import me.card.switchv1.core.client.BackOfficeClientNioPlus;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.BackOfficeHandlerNioPlus;
 import me.card.switchv1.core.handler.StreamHandler;
@@ -13,19 +14,17 @@ import me.card.switchv1.core.handler.StreamHandler;
 public class ActiveSwitchServerNioPlus extends AbstractActiveSwitchServer {
 
   @Override
-  protected ChannelInitializer<SocketChannel> channelInitializer(
-      EventLoopGroup persistentEventLoopGroup,
-      EventLoopGroup sendEventLoopGroup,
-      Bootstrap bootstrap) {
+  protected ChannelInitializer<SocketChannel> getChannelInitializer(
+      EventLoopGroup persistentGroup, EventLoopGroup sendGroup, Bootstrap bootstrap) {
 
     return new ChannelInitializer<>() {
       @Override
       protected void initChannel(SocketChannel ch) {
         ChannelPipeline ph = ch.pipeline();
         ph.addLast(new StreamHandler(prefix));
-        ph.addLast(
-            new BackOfficeHandlerNioPlus(destinationURL, responseApiClz, sendEventLoopGroup,
-                messageSupplier, apiCoder, persistentWorker, persistentEventLoopGroup,id));
+        ph.addLast(sendGroup, new BackOfficeHandlerNioPlus(new BackOfficeClientNioPlus(
+            destinationURL, responseApiClz, messageSupplier, apiCoder, persistentWorker,
+            persistentGroup, id)));
         ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
         ph.addLast(new AdminActiveServerHandler(heartBeat, bootstrap));
       }

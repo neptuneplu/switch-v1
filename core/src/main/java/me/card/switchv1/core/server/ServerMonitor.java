@@ -1,4 +1,4 @@
-package me.card.switchv1.core;
+package me.card.switchv1.core.server;
 
 public class ServerMonitor {
   private String desc;

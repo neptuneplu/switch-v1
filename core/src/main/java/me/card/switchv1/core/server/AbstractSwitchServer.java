@@ -1,4 +1,4 @@
-package me.card.switchv1.core;
+package me.card.switchv1.core.server;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
@@ -18,12 +18,12 @@ public class AbstractSwitchServer {
   InetSocketAddress localAddress;
   InetSocketAddress sourceAddress;
   DestinationURL destinationURL;
+  String readIdleTime;
   Prefix prefix;
   HeartBeat heartBeat;
   Supplier<Message> messageSupplier;
-  ApiCoder apiCoder;
   Class responseApiClz;
-  String readIdleTime;
+  ApiCoder apiCoder;
   PersistentWorker persistentWorker;
   Id id;
 

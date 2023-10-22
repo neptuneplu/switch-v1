@@ -1,21 +1,21 @@
-package me.card.switchv1.core.handler;
+package me.card.switchv1.core.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.handler.BackOfficeHttpRequestHandler;
+import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
+import me.card.switchv1.core.handler.NioClientToServerHandler;
 
-public class BackOfficeClientNio extends BackOfficeAbstractClient {
+public class BackOfficeClientNio extends BackOfficeAbstractClientNio {
 
-  public BackOfficeClientNio(DestinationURL destinationURL,
-                             Class<? extends Api> responseApiClz,
-                             EventLoopGroup sendEventLoopGroup) {
-    super(destinationURL, responseApiClz, sendEventLoopGroup);
+  public BackOfficeClientNio(DestinationURL destinationURL, Class<? extends Api> responseApiClz) {
+    super(destinationURL, responseApiClz);
   }
 
   public ChannelInitializer<SocketChannel> getChannelInitializer(ChannelHandlerContext ctx) {

@@ -1,6 +1,6 @@
 package me.card.switchv1.cupserver.config;
 
-import me.card.switchv1.core.SwitchServerBuilder;
+import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.cupapi.CupApi;

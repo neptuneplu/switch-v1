@@ -23,8 +23,8 @@ public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
-    logger.debug("compress mdg start");
+  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
+    logger.debug("compress msg start, ctx: " + ctx + " ctx executor: " + ctx.executor());
 
     try {
       byte[] byteMsg = msg.compress();
@@ -39,8 +39,8 @@ public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, byte[] msg, List<Object> out) throws Exception {
-    logger.debug("extract mdg start");
+  protected void decode(ChannelHandlerContext ctx, byte[] msg, List<Object> out) {
+    logger.debug("extract msg start, ctx: " + ctx + " ctx executor: " + ctx.executor());
 
     try {
       Message message = messageSupplier.get();

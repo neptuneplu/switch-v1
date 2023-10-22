@@ -1,9 +1,9 @@
 package me.card.switchv1.visaserver;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.ServerMonitor;
-import me.card.switchv1.core.SwitchServer;
-import me.card.switchv1.core.SwitchServerBuilder;
+import me.card.switchv1.core.server.ServerMonitor;
+import me.card.switchv1.core.server.SwitchServer;
+import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;

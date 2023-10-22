@@ -29,7 +29,7 @@ public class BackOfficeHttpRequestHandler extends MessageToMessageEncoder<Api> {
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Api api, List<Object> out) throws Exception {
+  protected void encode(ChannelHandlerContext ctx, Api api, List<Object> out) {
     logger.debug("BackOfficeHttpRequestHandler start");
 
     ObjectMapper mapper = new ObjectMapper();

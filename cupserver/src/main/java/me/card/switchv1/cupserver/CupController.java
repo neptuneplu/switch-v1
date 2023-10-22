@@ -1,7 +1,7 @@
 package me.card.switchv1.cupserver;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.ServerMonitor;
+import me.card.switchv1.core.server.ServerMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;

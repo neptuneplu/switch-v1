@@ -1,7 +1,7 @@
 package me.card.switchv1.visaserver.config;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.SwitchServerBuilder;
+import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.core.component.DefaultId;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
@@ -9,7 +9,6 @@ import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.VisaHeartBeat;
 import me.card.switchv1.visaserver.message.VisaPersistentWorkerByDB;
-import me.card.switchv1.visaserver.message.VisaPersistentWorkerByLog;
 import me.card.switchv1.visaserver.message.VisaPrefix;
 import me.card.switchv1.visaserver.message.jpos.VisaApiCoder;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
