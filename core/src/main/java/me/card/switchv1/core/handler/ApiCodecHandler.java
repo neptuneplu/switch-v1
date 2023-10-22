@@ -18,9 +18,10 @@ public class ApiCodecHandler extends MessageToMessageCodec<Message, Api> {
   public ApiCodecHandler(ApiCoder<Api, Message> apiCoder) {
     this.apiCoder = apiCoder;
   }
+
   @Override
   protected void encode(ChannelHandlerContext ctx, Api api, List<Object> out) throws Exception {
-    logger.debug("api encode start ,ctx: " + ctx + " ctx executor: " + ctx.executor());
+    logger.debug("api encode start");
 
     try {
       Message message = apiCoder.apiToMessage(api);
@@ -34,7 +35,7 @@ public class ApiCodecHandler extends MessageToMessageCodec<Message, Api> {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) throws Exception {
-    logger.debug("api decode start, ctx: " + ctx + " ctx executor: " + ctx.executor());
+    logger.debug("api decode start");
 
     try {
       Api api = apiCoder.messageToApi(msg);

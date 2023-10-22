@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import java.util.function.Supplier;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
@@ -56,7 +57,7 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
         ph.addLast(new BackOfficeHttpRequestHandler(destinationURL));//out
         ph.addLast(new ApiCodecHandlerNioPlus(apiCoder)); //dup
         ph.addLast(persistentGroup, new PersistentHandlerNioPlus(persistentWorker));//dup
-        ph.addLast(new MessageHandlerNioPlus(messageSupplier, id));//dup
+        ph.addLast(new MessageHandlerNioPlus(new DefaultMessageCoder(messageSupplier, id)));//dup
         ph.addLast(new NioPlusClientToServerHandler(ctx));//in
       }
     };

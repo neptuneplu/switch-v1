@@ -9,6 +9,7 @@ import java.net.URI;
 import me.card.switchv1.core.client.BackOfficeClientBio;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultId;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.handler.ApiCodecHandler;
 import me.card.switchv1.core.handler.BackOfficeHandlerBio;
@@ -29,7 +30,8 @@ public class EmbeddedChannelTest {
       @Override
       protected void initChannel(Channel ch) throws Exception {
         ch.pipeline()
-            .addLast(new MessageHandler(VisaMessageByJpos::new, new DefaultId()))
+            .addLast(new MessageHandler(
+                new DefaultMessageCoder(VisaMessageByJpos::new, new DefaultId())))
             .addLast(new ApiCodecHandler((ApiCoder) new VisaApiCoder()))
             .addLast(new BackOfficeHandlerBio(new BackOfficeClientBio(
                 new DestinationURL(new InetSocketAddress("127.0.0.1", 8088), new URI("/auth/visa")),

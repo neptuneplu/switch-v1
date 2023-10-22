@@ -7,6 +7,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import me.card.switchv1.core.client.BackOfficeClientNio;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.ApiCodecHandler;
 import me.card.switchv1.core.handler.BackOfficeHandlerNio;
@@ -25,7 +26,7 @@ public class ActiveSwitchServerNio extends AbstractActiveSwitchServer {
       protected void initChannel(SocketChannel ch) {
         ChannelPipeline ph = ch.pipeline();
         ph.addLast(new StreamHandler(prefix));
-        ph.addLast(new MessageHandler(messageSupplier, id));
+        ph.addLast(new MessageHandler(new DefaultMessageCoder(messageSupplier, id)));
         ph.addLast(persistentGroup, new PersistentHandler(persistentWorker));
         ph.addLast(new ApiCodecHandler(apiCoder));
         ph.addLast(sendGroup,

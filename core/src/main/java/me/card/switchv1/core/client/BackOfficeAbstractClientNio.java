@@ -27,6 +27,7 @@ public abstract class BackOfficeAbstractClientNio extends BackOfficeAbstractClie
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group((EventLoopGroup) ctx.executor())
         .channel(NioSocketChannel.class)
+        //todo create too much handlers
         .handler(getChannelInitializer(ctx));
 
     bootstrap.connect(destinationURL.getDestinationAddress()).addListener(

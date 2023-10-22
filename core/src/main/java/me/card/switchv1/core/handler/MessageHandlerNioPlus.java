@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.MessageCoder;
 import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +14,10 @@ import org.slf4j.LoggerFactory;
 public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]> {
   private static final Logger logger = LoggerFactory.getLogger(MessageHandlerNioPlus.class);
 
-  private final Supplier<Message> messageSupplier;
-  private final Id id;
+  private final MessageCoder messageCoder;
 
-  public MessageHandlerNioPlus(Supplier<Message> messageSupplier, Id id) {
-    this.messageSupplier = messageSupplier;
-    this.id = id;
+  public MessageHandlerNioPlus(MessageCoder messageCoder) {
+    this.messageCoder = messageCoder;
   }
 
   @Override
@@ -26,15 +25,10 @@ public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]
     logger.debug("extract mdg start");
 
     try {
-      Message message = messageSupplier.get();
-      message.extract(msg);
-      message.setSeqNo(id.nextStrSeqNo());
-      message.print();
+      Message message = messageCoder.extract(msg);
       out.add(message);
     } catch (Exception e) {
-      logger.warn("**************************");
       logger.warn("extract message failed!!!", e);
-      logger.warn("**************************");
       logger.error(String.format("extract message failed, msg: %s", ISOUtil.byte2hex(msg)));
     }
   }
@@ -44,13 +38,10 @@ public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]
     logger.debug("compress mdg start");
 
     try {
-      byte[] byteMsg = msg.compress();
+      byte[] byteMsg = messageCoder.compress(msg);
       out.add(byteMsg);
     } catch (Exception e) {
-      logger.warn("**************************");
       logger.warn("compress message failed!!!", e);
-      logger.warn("**************************");
-      //todo
       logger.error(String.format("extract message failed, msg: %s", msg.toString()));
     }
   }
