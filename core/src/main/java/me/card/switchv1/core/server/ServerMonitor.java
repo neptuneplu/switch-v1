@@ -22,6 +22,7 @@ public class ServerMonitor {
 
   public ServerMonitor copy() {
     ServerMonitor serverMonitor = new ServerMonitor();
+    serverMonitor.setDesc(this.desc);
     serverMonitor.setStatus(this.status);
     return serverMonitor;
   }

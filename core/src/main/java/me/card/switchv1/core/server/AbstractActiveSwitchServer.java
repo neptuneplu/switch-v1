@@ -1,8 +1,7 @@
 package me.card.switchv1.core.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultEventLoopGroup;
@@ -15,21 +14,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
-    implements SwitchServer {
+    implements SwitchServer, Reconnectable {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveSwitchServer.class);
 
-  private static final Bootstrap bootstrap = new Bootstrap();
+  protected final Bootstrap bootstrap = new Bootstrap();
 
-  private static final EventLoopGroup serverGroup = new NioEventLoopGroup(1,
-      new DefaultThreadFactory("switch-serverGroup", Thread.MAX_PRIORITY));
+  private final EventLoopGroup serverGroup =
+      new NioEventLoopGroup(1, new DefaultThreadFactory("switch-serverGroup", Thread.MAX_PRIORITY));
 
-  private static final EventLoopGroup sendGroup = new NioEventLoopGroup(3,
-      new DefaultThreadFactory("switch-sendGroup", Thread.MAX_PRIORITY));
+  protected final EventLoopGroup sendGroup =
+      new NioEventLoopGroup(3, new DefaultThreadFactory("switch-sendGroup", Thread.MAX_PRIORITY));
 
-  private static final EventLoopGroup persistentGroup = new DefaultEventLoopGroup(2,
+  protected final EventLoopGroup persistentGroup = new DefaultEventLoopGroup(2,
       new DefaultThreadFactory("switch-persistentGroup", Thread.MAX_PRIORITY));
 
-  private ChannelFuture connectChannelFuture;
+  private Channel channel;
 
   @Override
   public void start() {
@@ -39,32 +38,41 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
         .option(ChannelOption.SO_REUSEADDR, true)
         .remoteAddress(sourceAddress)
         .localAddress(localAddress)
-        .handler(getChannelInitializer(persistentGroup, sendGroup, bootstrap));
+        .handler(getChannelInitializer(this));
 
-
-    connectChannelFuture = bootstrap.connect().addListener(new ChannelFutureListener() {
-      @Override
-      public void operationComplete(ChannelFuture future) throws Exception {
-        logger.info("server connect successful");
-      }
-    });
-
+    connect();
   }
+
+  @Override
+  public void connect() {
+    bootstrap.connect().addListener(future -> logger.info("connecting"));
+  }
+
+  @Override
+  public void setChannel(Channel channel) {
+    this.channel = channel;
+    serverMonitor.setDesc(channel.toString());
+    serverMonitor.setStatus(channel.isActive());
+  }
+
 
   @Override
   public void stop() {
     logger.warn("server shutdown");
-    serverGroup.shutdownGracefully();
+    channel.close().syncUninterruptibly();
+    sendGroup.shutdownGracefully();
     persistentGroup.shutdownGracefully();
+    serverGroup.shutdownGracefully().syncUninterruptibly();
+
   }
 
   @Override
   public ServerMonitor status() {
     ServerMonitor monitor = serverMonitor.copy();
-    monitor.setStatus(connectChannelFuture.channel().isActive());
+    monitor.setStatus(channel.isActive());
     return monitor;
   }
 
   protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(
-      EventLoopGroup persistentGroup, EventLoopGroup sendGroup, Bootstrap bootstrap);
+      Reconnectable reconnectable);
 }

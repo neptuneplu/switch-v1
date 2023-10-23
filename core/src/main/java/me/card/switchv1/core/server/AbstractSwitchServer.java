@@ -13,19 +13,19 @@ import me.card.switchv1.core.component.Prefix;
 
 public class AbstractSwitchServer {
 
-  final ServerMonitor serverMonitor;
-  String name;
-  InetSocketAddress localAddress;
-  InetSocketAddress sourceAddress;
-  DestinationURL destinationURL;
-  String readIdleTime;
-  Prefix prefix;
-  HeartBeat heartBeat;
-  Supplier<Message> messageSupplier;
-  Class responseApiClz;
-  ApiCoder apiCoder;
-  PersistentWorker persistentWorker;
-  Id id;
+  protected final ServerMonitor serverMonitor;
+  protected String name;
+  protected InetSocketAddress localAddress;
+  protected InetSocketAddress sourceAddress;
+  protected DestinationURL destinationURL;
+  protected String readIdleTime;
+  protected Prefix prefix;
+  protected HeartBeat heartBeat;
+  protected Supplier<Message> messageSupplier;
+  protected Class responseApiClz;
+  protected ApiCoder apiCoder;
+  protected PersistentWorker persistentWorker;
+  protected Id id;
 
   public AbstractSwitchServer() {
     this.serverMonitor = new ServerMonitor();

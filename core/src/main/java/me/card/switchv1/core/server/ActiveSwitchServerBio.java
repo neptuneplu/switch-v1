@@ -18,8 +18,7 @@ import me.card.switchv1.core.handler.StreamHandler;
 public class ActiveSwitchServerBio extends AbstractActiveSwitchServer {
 
   @Override
-  protected ChannelInitializer<SocketChannel> getChannelInitializer(
-      EventLoopGroup persistentGroup, EventLoopGroup sendGroup, Bootstrap bootstrap) {
+  protected ChannelInitializer<SocketChannel> getChannelInitializer(Reconnectable reconnectable) {
     return new ChannelInitializer<>() {
       @Override
       protected void initChannel(SocketChannel ch) {
@@ -31,7 +30,7 @@ public class ActiveSwitchServerBio extends AbstractActiveSwitchServer {
         ph.addLast(sendGroup,
             new BackOfficeHandlerBio(new BackOfficeClientBio(destinationURL, responseApiClz)));
         ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
-        ph.addLast(new AdminActiveServerHandler(heartBeat, bootstrap));
+        ph.addLast(new AdminActiveServerHandler(heartBeat, reconnectable));
       }
     };
   }

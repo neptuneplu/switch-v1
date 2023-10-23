@@ -1,7 +1,7 @@
 package me.card.switchv1.visaserver;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.ServerMonitor;
+import me.card.switchv1.core.server.ServerMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,47 +15,24 @@ public class VisaController {
   private static final Logger logger = LoggerFactory.getLogger(VisaController.class);
 
   @Resource
-  private VisaStarter visaStarter;
+  private VisaManager visaStarter;
 
   @RequestMapping("/start")
   public ServerMonitor start() {
     logger.debug("visa start request");
-
-    //todo - prevent from repeat start
-    visaStarter.start();
-
-    return getNewServerMonitor("visa server is starting");
+    return visaStarter.start();
   }
-
 
   @RequestMapping("/stop")
   public ServerMonitor stop() {
     logger.debug("visa stop request");
-
-    if (visaStarter.isServerNull()) {
-      return getNewServerMonitor("visa server not start");
-    }
-
-    visaStarter.stop();
-
-    return getNewServerMonitor("visa server is stopping");
-
+    return visaStarter.stop();
   }
 
   @RequestMapping("/status")
   public ServerMonitor status() {
     logger.debug("visa status request");
-
-    if (visaStarter.isServerNull()) {
-      return getNewServerMonitor("visa server not start");
-    }
     return visaStarter.status();
-
   }
 
-  public ServerMonitor getNewServerMonitor(String desc) {
-    ServerMonitor serverMonitor = new ServerMonitor();
-    serverMonitor.setDesc(desc);
-    return serverMonitor;
-  }
 }

@@ -5,6 +5,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.core.server.Queryable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +14,20 @@ public class AdminPassiveServerHandler extends ChannelInboundHandlerAdapter {
 
   private final HeartBeat heartBeat;
   private int idleCount;
+  private final Queryable queryable;
 
-  public AdminPassiveServerHandler(HeartBeat heartBeat) {
+  public AdminPassiveServerHandler(HeartBeat heartBeat, Queryable queryable) {
     this.heartBeat = heartBeat;
+    this.queryable = queryable;
   }
+
 
   @Override
   public void channelActive(ChannelHandlerContext ctx) {
-    logger.info("channelActive start");
+    if (logger.isInfoEnabled()) {
+      logger.info(String.format("channelActive start, channel: %s", ctx.channel().toString()));
+    }
+    queryable.setChannel(ctx.channel());
   }
 
   @Override

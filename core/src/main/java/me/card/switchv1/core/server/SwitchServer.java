@@ -7,4 +7,5 @@ public interface SwitchServer {
   void stop();
 
   ServerMonitor status();
+
 }
