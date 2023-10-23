@@ -21,8 +21,7 @@ public abstract class BackOfficeAbstractClientNio extends BackOfficeAbstractClie
   }
 
   public <T> void send(ChannelHandlerContext ctx, T t) {
-    logger.debug(
-        "send to backoffice bootstrap start, ctx: " + ctx + " executor: " + ctx.executor());
+    logger.debug("send to backoffice bootstrap start");
 
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group((EventLoopGroup) ctx.executor())

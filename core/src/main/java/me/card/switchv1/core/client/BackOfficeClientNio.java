@@ -26,8 +26,8 @@ public class BackOfficeClientNio extends BackOfficeAbstractClientNio {
         ph.addLast(new HttpClientCodec()); //dup
         ph.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); //dup
         ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz)); //in
-        ph.addLast(new NioClientToServerHandler(ctx)); //in
         ph.addLast(new BackOfficeHttpRequestHandler(destinationURL)); //out
+        ph.addLast(new NioClientToServerHandler(ctx)); //in
       }
     };
   }
