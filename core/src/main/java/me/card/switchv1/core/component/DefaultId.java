@@ -6,8 +6,8 @@ public class DefaultId implements Id {
 
   private static final String ID_SUFFIX = "10";
   private static final String SEQ_NO_SUFFIX = "0a";
-  private AtomicInteger nextValue = new AtomicInteger(0);
-  private final int max = 9999;
+  private static final int MAX = 9999;
+  private final AtomicInteger nextValue = new AtomicInteger(0);
 
   @Override
   public synchronized String nextStrId() {
@@ -27,11 +27,8 @@ public class DefaultId implements Id {
   }
 
   private int seqPart() {
-    if (max == 0) {
-      resetValue();
-    }
 
-    if (nextValue.intValue() < max) {
+    if (nextValue.intValue() < MAX) {
       return nextValue.incrementAndGet();
     }
 

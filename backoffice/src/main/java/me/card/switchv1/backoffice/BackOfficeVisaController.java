@@ -4,28 +4,20 @@ package me.card.switchv1.backoffice;
 import me.card.switchv1.visaapi.VisaApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/auth", method = RequestMethod.POST)
 public class BackOfficeVisaController {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeVisaController.class);
 
-  @RequestMapping("/visa")
+  @PostMapping("/auth/visa")
   public VisaApi visaAuth(@RequestBody VisaApi visaRequest) {
 
     if (logger.isDebugEnabled()) {
       logger.debug(String.format("visa request content: %s", visaRequest.toString()));
     }
-
-//    try {
-//      Thread.sleep(30000);
-//    } catch (Exception e) {
-//    }
-
 
     if (visaRequest.getMTI().equals("0100")) {
       visaRequest.setMTI("0110");

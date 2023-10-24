@@ -21,21 +21,17 @@ import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
 import me.card.switchv1.core.handler.MessageHandlerNioPlus;
 import me.card.switchv1.core.handler.NioPlusClientToServerHandler;
 import me.card.switchv1.core.handler.PersistentHandlerNioPlus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
-  private static final Logger logger = LoggerFactory.getLogger(BackOfficeClientNioPlus.class);
-
   private final Supplier<Message> messageSupplier;
-  private final ApiCoder apiCoder;
+  private final ApiCoder<Api, Message> apiCoder;
   private final PersistentWorker persistentWorker;
   private final EventLoopGroup persistentGroup;
   private final Id id;
 
   public BackOfficeClientNioPlus(DestinationURL destinationURL, Class<? extends Api> responseApiClz,
                                  Supplier<Message> messageSupplier,
-                                 ApiCoder apiCoder, PersistentWorker persistentWorker,
+                                 ApiCoder<Api,Message> apiCoder, PersistentWorker persistentWorker,
                                  EventLoopGroup persistentGroup, Id id) {
     super(destinationURL, responseApiClz);
     this.messageSupplier = messageSupplier;

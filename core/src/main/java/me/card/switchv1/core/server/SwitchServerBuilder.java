@@ -25,12 +25,12 @@ public class SwitchServerBuilder {
   private HeartBeat heartBeat;
   private Prefix prefix;
   private Supplier<Message> messageSupplier;
-  private Class responseApiClz;
-  private ApiCoder apiCoder;
+  private Class<Api> responseApiClz;
+  private ApiCoder<Api, Message> apiCoder;
   private PersistentWorker persistentWorker;
   private Id id;
-  protected  Supplier<Message> signOnMessageSupplier;
-  protected  Supplier<Message> signOffMessageSupplier;
+  protected Supplier<Message> signOnMessageSupplier;
+  protected Supplier<Message> signOffMessageSupplier;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -72,12 +72,12 @@ public class SwitchServerBuilder {
     return this;
   }
 
-  public SwitchServerBuilder apiCoder(ApiCoder apiCoder) {
+  public SwitchServerBuilder apiCoder(ApiCoder<Api, Message> apiCoder) {
     this.apiCoder = apiCoder;
     return this;
   }
 
-  public SwitchServerBuilder responseApiClz(Class responseApiClz) {
+  public SwitchServerBuilder responseApiClz(Class<Api> responseApiClz) {
     this.responseApiClz = responseApiClz;
     return this;
   }

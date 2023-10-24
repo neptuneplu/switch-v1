@@ -15,8 +15,6 @@ import org.jpos.iso.ISOFieldPackager;
 
 public class CupPackager extends ISOBasePackager {
 
-  private static final boolean PAD = false;
-
   protected static ISOFieldPackager[] field = {
       /*000*/ new IFA_NUMERIC(4, "MTI"),
       /*001*/ new IFB_BITMAP(16, "BITMAP"),

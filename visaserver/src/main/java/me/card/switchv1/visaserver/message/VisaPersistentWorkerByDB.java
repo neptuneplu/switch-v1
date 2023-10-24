@@ -1,12 +1,9 @@
 package me.card.switchv1.visaserver.message;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import javax.annotation.Resource;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
-import me.card.switchv1.visaserver.db.VisaLogDao;
-import me.card.switchv1.visaserver.db.VisaLogPo;
 import me.card.switchv1.visaserver.db.VisaLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

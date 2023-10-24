@@ -1,13 +1,12 @@
 package me.card.switchv1.visaserver.config;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.component.DefaultMessageCoder;
-import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.server.SwitchServerBuilder;
+import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultId;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
+import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.VisaHeartBeat;
 import me.card.switchv1.visaserver.message.VisaPersistentWorkerByDB;
@@ -29,7 +28,7 @@ public class VisaInternalConfig {
   }
 
   @Bean
-  public VisaApiCoder visaApiCoder() {
+  public ApiCoder<VisaApi, VisaMessageByJpos> apiCoder() {
     return new VisaApiCoder();
   }
 
@@ -44,7 +43,7 @@ public class VisaInternalConfig {
   }
 
   @Bean
-  public Class<VisaApi> api() {
+  public Class<VisaApi> apiClz() {
     return VisaApi.class;
   }
 

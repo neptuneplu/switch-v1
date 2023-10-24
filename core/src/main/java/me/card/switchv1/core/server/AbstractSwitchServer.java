@@ -1,6 +1,5 @@
 package me.card.switchv1.core.server;
 
-import io.netty.util.AttributeKey;
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
 import me.card.switchv1.core.component.Api;
@@ -23,12 +22,12 @@ public class AbstractSwitchServer {
   protected Prefix prefix;
   protected HeartBeat heartBeat;
   protected Supplier<Message> messageSupplier;
-  protected Class responseApiClz;
-  protected ApiCoder apiCoder;
+  protected Class<Api> responseApiClz;
+  protected ApiCoder<Api, Message> apiCoder;
   protected PersistentWorker persistentWorker;
   protected Id id;
-  protected  Supplier<Message> signOnMessageSupplier;
-  protected  Supplier<Message> signOffMessageSupplier;
+  protected Supplier<Message> signOnMessageSupplier;
+  protected Supplier<Message> signOffMessageSupplier;
 
 
   public AbstractSwitchServer() {
@@ -64,12 +63,12 @@ public class AbstractSwitchServer {
     this.messageSupplier = messageSupplier;
   }
 
-  void setApiCoder(ApiCoder<? extends Api, ? extends Message> apiCoder) {
+  void setApiCoder(ApiCoder<Api, Message> apiCoder) {
     this.apiCoder = apiCoder;
   }
 
 
-  public void setResponseApiClz(Class<? extends Api> responseApiClz) {
+  public void setResponseApiClz(Class<Api> responseApiClz) {
     this.responseApiClz = responseApiClz;
   }
 

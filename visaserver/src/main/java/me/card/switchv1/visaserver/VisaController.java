@@ -7,11 +7,8 @@ import me.card.switchv1.visaserver.db.VisaLogPo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -62,24 +59,5 @@ public class VisaController {
     return visaManager.queryApi(request.getSeqNo(), request.getDirection());
   }
 
-  static class VisaQueryRequest {
-    private String seqNo;
-    private String direction;
 
-    public String getSeqNo() {
-      return seqNo;
-    }
-
-    public void setSeqNo(String seqNo) {
-      this.seqNo = seqNo;
-    }
-
-    public String getDirection() {
-      return direction;
-    }
-
-    public void setDirection(String direction) {
-      this.direction = direction;
-    }
-  }
 }

@@ -19,7 +19,7 @@ public class VisaLogDao {
     int rs = mapper.insert(visaLogPo);
     if (rs != 1) {
       logger.error("insert log error");
-      throw new RuntimeException("insert log error: " + rs);
+      throw new VisaDbException("insert log error: " + rs);
     }
   }
 

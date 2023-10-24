@@ -1,12 +1,16 @@
 package me.card.switchv1.cupserver;
 
 import javax.annotation.Resource;
-
-import me.card.switchv1.core.component.*;
+import me.card.switchv1.core.component.Api;
+import me.card.switchv1.core.component.ApiCoder;
+import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.core.component.Id;
+import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.PersistentWorker;
+import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
-import me.card.switchv1.cupapi.CupApi;
 import me.card.switchv1.cupserver.config.CupExternalConfig;
 import me.card.switchv1.cupserver.message.jpos.CupMessageByJpos;
 import org.slf4j.Logger;
@@ -22,7 +26,7 @@ public class CupManager {
   private CupExternalConfig cupConfig;
 
   @Resource
-  private ApiCoder apiCoder;
+  private ApiCoder<Api, Message> apiCoder;
 
   @Resource
   private HeartBeat heartBeat;
@@ -31,7 +35,7 @@ public class CupManager {
   private Prefix prefix;
 
   @Resource
-  private Class<CupApi> apiClz;
+  private Class<Api> apiClz;
 
   @Resource
   private PersistentWorker persistentWorker;
@@ -99,20 +103,20 @@ public class CupManager {
 
   private SwitchServer getServer() {
     switchServer = switchServerBuilder
-            .name(cupConfig.name())
-            .serverType(cupConfig.serverType())
-            .localAddress(cupConfig.localAddress())
-            .sourceAddress(cupConfig.sourceAddress())
-            .destinationURL(cupConfig.destinationURL())
-            .readIdleTime(cupConfig.readIdleTime())
-            .prefix(prefix)
-            .heartBeat(heartBeat)
-            .messageSupplier(CupMessageByJpos::new)
-            .apiCoder(apiCoder)
-            .responseApiClz(apiClz)
-            .persistentWorker(persistentWorker)
-            .id(id)
-            .build();
+        .name(cupConfig.name())
+        .serverType(cupConfig.serverType())
+        .localAddress(cupConfig.localAddress())
+        .sourceAddress(cupConfig.sourceAddress())
+        .destinationURL(cupConfig.destinationURL())
+        .readIdleTime(cupConfig.readIdleTime())
+        .prefix(prefix)
+        .heartBeat(heartBeat)
+        .messageSupplier(CupMessageByJpos::new)
+        .apiCoder(apiCoder)
+        .responseApiClz(apiClz)
+        .persistentWorker(persistentWorker)
+        .id(id)
+        .build();
 
     return switchServer;
   }

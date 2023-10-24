@@ -2,10 +2,12 @@ package me.card.switchv1.visaserver;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
+import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
@@ -33,7 +35,7 @@ public class VisaManager {
   private VisaExternalConfig visaConfig;
 
   @Resource
-  private ApiCoder apiCoder;
+  private ApiCoder<Api, Message> apiCoder;
 
   @Resource
   private HeartBeat heartBeat;
@@ -42,7 +44,7 @@ public class VisaManager {
   private Prefix prefix;
 
   @Resource
-  private Class<VisaApi> apiClz;
+  private Class<Api> apiClz;
 
   @Resource
   private PersistentWorker persistentWorker;
@@ -55,7 +57,6 @@ public class VisaManager {
 
   @Resource
   private VisaLogService visaLogService;
-
 
   private SwitchServer switchServer;
 
@@ -171,9 +172,8 @@ public class VisaManager {
     VisaMessageByJpos visaMessageByJpos =
         (VisaMessageByJpos) messageCoder.extract(ISOUtil.decodeHexDump(visaLogPo.getHexMessage()));
 
-    VisaApi visaApi = (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
+    return (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
 
-    return visaApi;
   }
 
 

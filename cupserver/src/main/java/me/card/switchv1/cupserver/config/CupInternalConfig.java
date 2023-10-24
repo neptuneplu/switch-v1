@@ -1,10 +1,11 @@
 package me.card.switchv1.cupserver.config;
 
+import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultId;
 import me.card.switchv1.core.component.Id;
-import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
+import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.cupapi.CupApi;
 import me.card.switchv1.cupserver.message.CupHeartBeat;
 import me.card.switchv1.cupserver.message.CupPersistentWorker;
@@ -24,7 +25,7 @@ public class CupInternalConfig {
   }
 
   @Bean
-  public CupApiCoder cupApiCoder() {
+  public ApiCoder<CupApi, CupMessageByJpos> apiCoder() {
     return new CupApiCoder();
   }
 
@@ -39,7 +40,7 @@ public class CupInternalConfig {
   }
 
   @Bean
-  public Class<CupApi> api() {
+  public Class<CupApi> apiClz() {
     return CupApi.class;
   }
 
