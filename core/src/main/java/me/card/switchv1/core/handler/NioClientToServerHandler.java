@@ -20,5 +20,6 @@ public class NioClientToServerHandler extends SimpleChannelInboundHandler<Api> {
     logger.debug("NioClientToServerHandler start");
     //write to server channel
     serverCtx.writeAndFlush(api);
+    ctx.close().addListener(future -> logger.info("backoffice connection closed"));
   }
 }
