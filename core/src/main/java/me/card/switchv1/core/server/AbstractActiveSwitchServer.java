@@ -85,6 +85,8 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
   @Override
   public void signOff() {
     logger.debug("sing off message start");
+    channel.pipeline().context(PersistentHandler.NAME).writeAndFlush(signOffMessageSupplier.get());
+
   }
 
   @Override
