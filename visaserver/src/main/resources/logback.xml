@@ -78,25 +78,25 @@
         </layout>
     </appender>
 
-    <appender name="FILE-trace"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>TRACE</level>
-        </filter>
-        <File>${LOG_HOME}/visa.server.trace.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/visa.server.trace.%i.log</FileNamePattern>
-            <MinIndex>1</MinIndex>
-            <MaxIndex>10</MaxIndex>
-        </rollingPolicy>
-        <triggeringPolicy
-                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>25MB</MaxFileSize>
-        </triggeringPolicy>
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %level [%thread] [%logger{50}.%method:%line] %msg%n</Pattern>
-        </layout>
-    </appender>
+<!--    <appender name="FILE-trace"-->
+<!--              class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+<!--            <level>TRACE</level>-->
+<!--        </filter>-->
+<!--        <File>${LOG_HOME}/visa.server.trace.log</File>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">-->
+<!--            <FileNamePattern>${LOG_HOME}/visa.server.trace.%i.log</FileNamePattern>-->
+<!--            <MinIndex>1</MinIndex>-->
+<!--            <MaxIndex>10</MaxIndex>-->
+<!--        </rollingPolicy>-->
+<!--        <triggeringPolicy-->
+<!--                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">-->
+<!--            <MaxFileSize>25MB</MaxFileSize>-->
+<!--        </triggeringPolicy>-->
+<!--        <layout class="ch.qos.logback.classic.PatternLayout">-->
+<!--            <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %level [%thread] [%logger{50}.%method:%line] %msg%n</Pattern>-->
+<!--        </layout>-->
+<!--    </appender>-->
 
 
     <appender name="FILE-tran"
@@ -119,7 +119,27 @@
         </layout>
     </appender>
 
-    <logger name="me.card.switchv1" level="warn" additivity="false">
+    <appender name="FILE-db"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
+        <File>${LOG_HOME}/visa.server.db</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/visa.server.tran.%i</FileNamePattern>
+            <MinIndex>1</MinIndex>
+            <MaxIndex>10</MaxIndex>
+        </rollingPolicy>
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>25MB</MaxFileSize>
+        </triggeringPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <logger name="me.card.switchv1" level="debug" additivity="false">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE-debug"/>
         <appender-ref ref="FILE-info"/>
@@ -127,10 +147,12 @@
         <!--        <appender-ref ref="FILE-trace"/>-->
     </logger>
 
-    <logger name="me.card.switchv1.visaserver.message.VisaPersistentWorker" level="info" additivity="false">
+    <logger name="me.card.switchv1.visaserver.message.VisaPersistentWorkerByLog" level="info" additivity="false">
         <appender-ref ref="FILE-tran"/>
     </logger>
-
+    <logger name="me.card.switchv1.visaserver.message.VisaPersistentWorkerByDB" level="info" additivity="false">
+        <appender-ref ref="FILE-db"/>
+    </logger>
 
     <!-- 日志输出级别 -->
     <root level="warn">
