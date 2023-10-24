@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class PersistentHandlerNioPlus extends MessageToMessageCodec<Message, Message> {
   private static final Logger logger = LoggerFactory.getLogger(PersistentHandlerNioPlus.class);
+  public static final String NAME = "PersistentHandlerNioPlus";
 
   private final PersistentWorker persistentWorker;
 

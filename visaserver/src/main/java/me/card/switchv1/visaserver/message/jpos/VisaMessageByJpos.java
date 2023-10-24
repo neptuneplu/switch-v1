@@ -131,6 +131,7 @@ public class VisaMessageByJpos implements Message {
     try {
       byteBody = this.body.pack();
     } catch (ISOException e) {
+      logger.error("visa message body pack error", e);
       throw new VisaMessageException("visa message body pack error");
     }
 

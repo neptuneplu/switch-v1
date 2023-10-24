@@ -38,7 +38,6 @@ public class AdminPassiveServerHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void channelUnregistered(final ChannelHandlerContext ctx) {
     logger.warn("channelUnregistered");
-    ctx.close();
   }
 
   @Override

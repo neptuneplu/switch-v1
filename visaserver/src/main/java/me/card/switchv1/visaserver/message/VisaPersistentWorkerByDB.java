@@ -29,7 +29,11 @@ public class VisaPersistentWorkerByDB implements PersistentWorker {
   @Override
   public void saveOutput(Message message) {
     logger.debug("VisaPersistentWorkerByDB save output start");
-    visaLogService.addOutput(message);
+    try {
+      visaLogService.addOutput(message);
+    } catch (Exception e) {
+      logger.error("save output error", e);
+    }
   }
 
 }

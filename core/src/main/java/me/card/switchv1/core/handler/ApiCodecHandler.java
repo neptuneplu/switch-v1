@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class ApiCodecHandler extends MessageToMessageCodec<Message, Api> {
   private static final Logger logger = LoggerFactory.getLogger(ApiCodecHandler.class);
-
+  public static final String NAME = "ApiCodecHandler";
 
   private final ApiCoder<Api, Message> apiCoder;
 

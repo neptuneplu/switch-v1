@@ -8,4 +8,8 @@ public interface SwitchServer {
 
   ServerMonitor status();
 
+  void signOn();
+
+  void signOff();
+
 }

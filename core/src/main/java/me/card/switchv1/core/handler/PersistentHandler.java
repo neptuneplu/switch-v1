@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class PersistentHandler extends MessageToMessageCodec<Message, Message> {
   private static final Logger logger = LoggerFactory.getLogger(PersistentHandler.class);
+  public static final String NAME = "PersistentHandler";
 
   private final PersistentWorker persistentWorker;
 
@@ -23,6 +24,8 @@ public class PersistentHandler extends MessageToMessageCodec<Message, Message> {
 
     persistentWorker.saveOutput(msg);
     out.add(msg);
+    logger.debug("persistent output end");
+
   }
 
   @Override

@@ -6,9 +6,11 @@ import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.server.ServerException;
 import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
+import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.config.VisaExternalConfig;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
@@ -83,6 +85,26 @@ public class VisaManager {
     return switchServer.status();
   }
 
+  public ServerMonitor signOn() {
+    try {
+      statusCheck();
+      switchServer.signOn();
+    } catch (IllegalArgumentException | ServerException e) {
+      return getNewServerMonitor(e.getMessage());
+    }
+    return getNewServerMonitor("visa server signOn message send");
+  }
+
+  public ServerMonitor signOff() {
+    try {
+      statusCheck();
+      switchServer.signOff();
+    } catch (IllegalArgumentException | ServerException e) {
+      return getNewServerMonitor(e.getMessage());
+    }
+    return getNewServerMonitor("visa server signOff message send");
+  }
+
   private void startCheck() {
     Assert.isNull(switchServer, "visa server already exist");
     Assert.notNull(switchServerBuilder, "switchServerBuilder is null");
@@ -116,6 +138,8 @@ public class VisaManager {
         .responseApiClz(apiClz)
         .persistentWorker(persistentWorker)
         .id(id)
+        .signOnMessageSupplier(SignOnAndOffMessage::signOnMessage)
+        .signOffMessageSupplier(SignOnAndOffMessage::signOffMessage)
         .build();
 
     return switchServer;

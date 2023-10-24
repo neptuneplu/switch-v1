@@ -15,24 +15,35 @@ public class VisaController {
   private static final Logger logger = LoggerFactory.getLogger(VisaController.class);
 
   @Resource
-  private VisaManager visaStarter;
+  private VisaManager visaManager;
 
   @RequestMapping("/start")
   public ServerMonitor start() {
     logger.debug("visa start request");
-    return visaStarter.start();
+    return visaManager.start();
   }
 
   @RequestMapping("/stop")
   public ServerMonitor stop() {
     logger.debug("visa stop request");
-    return visaStarter.stop();
+    return visaManager.stop();
   }
 
   @RequestMapping("/status")
   public ServerMonitor status() {
     logger.debug("visa status request");
-    return visaStarter.status();
+    return visaManager.status();
   }
 
+  @RequestMapping("/signOn")
+  public ServerMonitor signOn() {
+    logger.debug("visa signOn request");
+    return visaManager.signOn();
+  }
+
+  @RequestMapping("/signOff")
+  public ServerMonitor signOff() {
+    logger.debug("visa signOff request");
+    return visaManager.signOff();
+  }
 }

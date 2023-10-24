@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]> {
   private static final Logger logger = LoggerFactory.getLogger(MessageHandlerNioPlus.class);
+  public static final String NAME = "MessageHandlerNioPlus";
 
   private final MessageCoder messageCoder;
 

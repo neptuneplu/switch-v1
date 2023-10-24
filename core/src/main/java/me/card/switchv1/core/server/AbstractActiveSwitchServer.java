@@ -9,13 +9,17 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import java.util.Objects;
+import me.card.switchv1.core.handler.PersistentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
     implements SwitchServer, Reconnectable {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveSwitchServer.class);
+  public static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
 
   protected final Bootstrap bootstrap = new Bootstrap();
 
@@ -35,6 +39,7 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
 
     bootstrap.group(serverGroup)
         .channel(NioSocketChannel.class)
+        .attr(ON_LINE_FLAG, true)
         .option(ChannelOption.SO_REUSEADDR, true)
         .remoteAddress(sourceAddress)
         .localAddress(localAddress)
@@ -58,12 +63,28 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
 
   @Override
   public void stop() {
-    logger.warn("server shutdown");
-    channel.close().syncUninterruptibly();
+    logger.warn("server shutdown start");
+
+    if (Objects.nonNull(channel) && channel.isActive()) {
+      channel.attr(ON_LINE_FLAG).getAndSet(false);
+      channel.close().syncUninterruptibly();
+    }
+
     sendGroup.shutdownGracefully();
     persistentGroup.shutdownGracefully();
-    serverGroup.shutdownGracefully().syncUninterruptibly();
+    serverGroup.shutdownGracefully();
 
+  }
+
+  @Override
+  public void signOn() {
+    logger.debug("sing on message start");
+    channel.pipeline().context(PersistentHandler.NAME).writeAndFlush(signOnMessageSupplier.get());
+  }
+
+  @Override
+  public void signOff() {
+    logger.debug("sing off message start");
   }
 
   @Override

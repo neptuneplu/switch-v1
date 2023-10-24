@@ -17,10 +17,11 @@ public class PassiveSwitchServerNioPlus extends AbstractPassiveSwitchServer {
       @Override
       protected void initChannel(SocketChannel ch) {
         ChannelPipeline ph = ch.pipeline();
-        ph.addLast(new StreamHandler(prefix));
-        ph.addLast(sendGroup, new BackOfficeHandlerNioPlus(new BackOfficeClientNioPlus(
-            destinationURL, responseApiClz, messageSupplier, apiCoder, persistentWorker,
-            persistentGroup, id)));
+        ph.addLast(StreamHandler.NAME, new StreamHandler(prefix));
+        ph.addLast(sendGroup, BackOfficeHandlerNioPlus.NAME,
+            new BackOfficeHandlerNioPlus(new BackOfficeClientNioPlus(
+                destinationURL, responseApiClz, messageSupplier, apiCoder, persistentWorker,
+                persistentGroup, id)));
         ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
         ph.addLast(new AdminPassiveServerHandler(heartBeat, queryable));
       }

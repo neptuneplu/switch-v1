@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class BackOfficeHandlerBio extends SimpleChannelInboundHandler<Api> {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeHandlerBio.class);
+  public static final String NAME = "BackOfficeHandlerBio";
 
   private final BackOfficeClientBio backOfficeClientBio;
 

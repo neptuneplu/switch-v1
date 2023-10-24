@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class BackOfficeHandlerNioPlus extends SimpleChannelInboundHandler<byte[]> {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeHandlerNioPlus.class);
+  public static final String NAME = "BackOfficeHandlerNioPlus";
 
   private final BackOfficeClientNioPlus backOfficeClientNioPlus;
 

@@ -2,6 +2,7 @@ package me.card.switchv1.core.server;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
+import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.HeartBeat;
@@ -28,7 +29,8 @@ public class SwitchServerBuilder {
   private ApiCoder apiCoder;
   private PersistentWorker persistentWorker;
   private Id id;
-
+  protected  Supplier<Message> signOnMessageSupplier;
+  protected  Supplier<Message> signOffMessageSupplier;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -96,6 +98,18 @@ public class SwitchServerBuilder {
     return this;
   }
 
+  public SwitchServerBuilder signOnMessageSupplier(
+      Supplier<Message> signOnMessageSupplier) {
+    this.signOnMessageSupplier = signOnMessageSupplier;
+    return this;
+  }
+
+  public SwitchServerBuilder signOffMessageSupplier(
+      Supplier<Message> signOffMessageSupplier) {
+    this.signOffMessageSupplier = signOffMessageSupplier;
+    return this;
+  }
+
   public SwitchServer build() {
     logger.debug("server build start");
     return getServerByType(serverType);
@@ -139,6 +153,8 @@ public class SwitchServerBuilder {
     server.setReadIdleTime(this.readIdleTime);
     server.setPersistentWorker(this.persistentWorker);
     server.setId(this.id);
+    server.setSignOnMessageSupplier(signOnMessageSupplier);
+    server.setSignOffMessageSupplier(signOffMessageSupplier);
   }
 
 }

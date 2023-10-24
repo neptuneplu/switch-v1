@@ -1,5 +1,6 @@
 package me.card.switchv1.core.server;
 
+import io.netty.util.AttributeKey;
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
 import me.card.switchv1.core.component.Api;
@@ -26,6 +27,9 @@ public class AbstractSwitchServer {
   protected ApiCoder apiCoder;
   protected PersistentWorker persistentWorker;
   protected Id id;
+  protected  Supplier<Message> signOnMessageSupplier;
+  protected  Supplier<Message> signOffMessageSupplier;
+
 
   public AbstractSwitchServer() {
     this.serverMonitor = new ServerMonitor();
@@ -79,5 +83,15 @@ public class AbstractSwitchServer {
 
   public void setId(Id id) {
     this.id = id;
+  }
+
+  public void setSignOnMessageSupplier(
+      Supplier<Message> signOnMessageSupplier) {
+    this.signOnMessageSupplier = signOnMessageSupplier;
+  }
+
+  public void setSignOffMessageSupplier(
+      Supplier<Message> signOffMessageSupplier) {
+    this.signOffMessageSupplier = signOffMessageSupplier;
   }
 }

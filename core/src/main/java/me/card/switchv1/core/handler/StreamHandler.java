@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class StreamHandler extends ByteToMessageCodec<byte[]> {
   private static final Logger logger = LoggerFactory.getLogger(StreamHandler.class);
+  public static final String NAME = "StreamHandler";
 
   private final Prefix prefix;
 

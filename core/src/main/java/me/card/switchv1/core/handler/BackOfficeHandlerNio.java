@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class BackOfficeHandlerNio extends SimpleChannelInboundHandler<Api> {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeHandlerNio.class);
+  public static final String NAME = "BackOfficeHandlerNio";
 
   private final BackOfficeClientNio backOfficeClientNio;
 

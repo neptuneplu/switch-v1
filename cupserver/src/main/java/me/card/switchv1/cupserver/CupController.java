@@ -15,47 +15,23 @@ public class CupController {
   private static final Logger logger = LoggerFactory.getLogger(CupController.class);
 
   @Resource
-  private CupStarter cupStarter;
+  private CupManager cupManager;
 
   @RequestMapping("/start")
   public ServerMonitor start() {
     logger.debug("cup start request");
-
-    //todo - prevent from repeat start
-    cupStarter.start();
-
-    return getNewServerMonitor("cup server is starting");
+    return cupManager.start();
   }
-
 
   @RequestMapping("/stop")
   public ServerMonitor stop() {
     logger.debug("cup stop request");
-
-    if (cupStarter.isServerNull()) {
-      return getNewServerMonitor("cup server not start");
-    }
-
-    cupStarter.stop();
-
-    return getNewServerMonitor("cup server is stopping");
-
+    return cupManager.stop();
   }
 
   @RequestMapping("/status")
   public ServerMonitor status() {
     logger.debug("cup status request");
-
-    if (cupStarter.isServerNull()) {
-      return getNewServerMonitor("cup server not start");
-    }
-    return cupStarter.status();
-
-  }
-
-  public ServerMonitor getNewServerMonitor(String desc) {
-    ServerMonitor serverMonitor = new ServerMonitor();
-    serverMonitor.setDesc(desc);
-    return serverMonitor;
+    return cupManager.status();
   }
 }

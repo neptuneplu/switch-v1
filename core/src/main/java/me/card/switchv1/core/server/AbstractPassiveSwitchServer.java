@@ -50,8 +50,8 @@ public abstract class AbstractPassiveSwitchServer extends AbstractSwitchServer
     channel.close().syncUninterruptibly();
     sendGroup.shutdownGracefully();
     persistentGroup.shutdownGracefully();
-    workerGroup.shutdownGracefully().syncUninterruptibly();
-    bossGroup.shutdownGracefully().syncUninterruptibly();
+    bossGroup.shutdownGracefully();
+    workerGroup.shutdownGracefully();
   }
 
 
@@ -65,10 +65,19 @@ public abstract class AbstractPassiveSwitchServer extends AbstractSwitchServer
   @Override
   public ServerMonitor status() {
     ServerMonitor monitor = serverMonitor.copy();
-    //todo
+    monitor.setStatus(channel.isActive());
     return monitor;
   }
 
+  @Override
+  public void signOn() {
+    throw new ServerException("passive server, do not support send signOn message");
+  }
+
+  @Override
+  public void signOff() {
+    throw new ServerException("passive server, do not support send signOff message");
+  }
 
   protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(Queryable queryable);
 }
