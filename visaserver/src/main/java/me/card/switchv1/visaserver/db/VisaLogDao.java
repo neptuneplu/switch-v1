@@ -1,5 +1,7 @@
 package me.card.switchv1.visaserver.db;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import java.util.Optional;
 import javax.annotation.Resource;
 import me.card.switchv1.visaserver.db.mapper.VisaLogMapper;
 import org.slf4j.Logger;
@@ -21,4 +23,12 @@ public class VisaLogDao {
     }
   }
 
+  public VisaLogPo query(String seqNo, String direction) {
+    LambdaQueryWrapper<VisaLogPo> queryWrapper = new LambdaQueryWrapper<>();
+    queryWrapper.eq(VisaLogPo::getSeqNo, seqNo);
+    queryWrapper.eq(VisaLogPo::getDirection, direction);
+
+    Optional<VisaLogPo> optional = Optional.ofNullable(mapper.selectOne(queryWrapper));
+    return optional.orElse(null);
+  }
 }

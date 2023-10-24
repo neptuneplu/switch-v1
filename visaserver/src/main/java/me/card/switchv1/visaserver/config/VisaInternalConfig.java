@@ -1,6 +1,8 @@
 package me.card.switchv1.visaserver.config;
 
 import javax.annotation.Resource;
+import me.card.switchv1.core.component.DefaultMessageCoder;
+import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.core.component.DefaultId;
 import me.card.switchv1.core.component.Id;

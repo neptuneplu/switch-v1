@@ -2,48 +2,84 @@ package me.card.switchv1.visaserver;
 
 import javax.annotation.Resource;
 import me.card.switchv1.core.server.ServerMonitor;
+import me.card.switchv1.visaapi.VisaApi;
+import me.card.switchv1.visaserver.db.VisaLogPo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/visa", method = RequestMethod.GET)
 public class VisaController {
   private static final Logger logger = LoggerFactory.getLogger(VisaController.class);
 
   @Resource
   private VisaManager visaManager;
 
-  @RequestMapping("/start")
+  @GetMapping("/visa/start")
   public ServerMonitor start() {
     logger.debug("visa start request");
     return visaManager.start();
   }
 
-  @RequestMapping("/stop")
+  @GetMapping("/visa/stop")
   public ServerMonitor stop() {
     logger.debug("visa stop request");
     return visaManager.stop();
   }
 
-  @RequestMapping("/status")
+  @GetMapping("/visa/status")
   public ServerMonitor status() {
     logger.debug("visa status request");
     return visaManager.status();
   }
 
-  @RequestMapping("/signOn")
+  @GetMapping("/visa/signOn")
   public ServerMonitor signOn() {
     logger.debug("visa signOn request");
     return visaManager.signOn();
   }
 
-  @RequestMapping("/signOff")
+  @GetMapping("/visa/signOff")
   public ServerMonitor signOff() {
     logger.debug("visa signOff request");
     return visaManager.signOff();
+  }
+
+  @PostMapping("/visa/query/raw")
+  public VisaLogPo queryRaw(@RequestBody VisaQueryRequest request) {
+    return visaManager.queryRawMessage(request.getSeqNo(), request.getDirection());
+  }
+
+  @PostMapping("/visa/query/api")
+  public VisaApi queryApi(@RequestBody VisaQueryRequest request) {
+    return visaManager.queryApi(request.getSeqNo(), request.getDirection());
+  }
+
+  static class VisaQueryRequest {
+    private String seqNo;
+    private String direction;
+
+    public String getSeqNo() {
+      return seqNo;
+    }
+
+    public void setSeqNo(String seqNo) {
+      this.seqNo = seqNo;
+    }
+
+    public String getDirection() {
+      return direction;
+    }
+
+    public void setDirection(String direction) {
+      this.direction = direction;
+    }
   }
 }

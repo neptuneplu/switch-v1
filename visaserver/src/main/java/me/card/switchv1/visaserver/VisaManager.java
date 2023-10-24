@@ -1,19 +1,25 @@
 package me.card.switchv1.visaserver;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import me.card.switchv1.core.component.ApiCoder;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
+import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.server.ServerException;
 import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
-import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.config.VisaExternalConfig;
+import me.card.switchv1.visaserver.db.VisaLogPo;
+import me.card.switchv1.visaserver.db.VisaLogService;
+import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
+import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -47,8 +53,13 @@ public class VisaManager {
   @Resource
   private SwitchServerBuilder switchServerBuilder;
 
+  @Resource
+  private VisaLogService visaLogService;
+
 
   private SwitchServer switchServer;
+
+  private MessageCoder messageCoder;
 
 
   public ServerMonitor start() {
@@ -151,4 +162,23 @@ public class VisaManager {
     return serverMonitor;
   }
 
+  public VisaLogPo queryRawMessage(String seqNo, String direction) {
+    return visaLogService.query(seqNo, direction);
+  }
+
+  public VisaApi queryApi(String seqNo, String direction) {
+    VisaLogPo visaLogPo = queryRawMessage(seqNo, direction);
+    VisaMessageByJpos visaMessageByJpos =
+        (VisaMessageByJpos) messageCoder.extract(ISOUtil.decodeHexDump(visaLogPo.getHexMessage()));
+
+    VisaApi visaApi = (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
+
+    return visaApi;
+  }
+
+
+  @PostConstruct
+  public void init() {
+    messageCoder = new DefaultMessageCoder(VisaMessageByJpos::new, id);
+  }
 }

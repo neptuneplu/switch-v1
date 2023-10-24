@@ -42,6 +42,10 @@ public class VisaLogService {
     }
   }
 
+  public VisaLogPo query(String seqNo, String direction) {
+    return visaLogDao.query(seqNo,direction);
+  }
+
   private VisaLogPo getPo(Message message) {
     VisaLogPo visaLogPo = new VisaLogPo();
     visaLogPo.setId(id.nextStrId());
