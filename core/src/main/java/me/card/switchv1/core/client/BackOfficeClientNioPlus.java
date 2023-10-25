@@ -2,7 +2,6 @@ package me.card.switchv1.core.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
@@ -31,7 +30,7 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
 
   public BackOfficeClientNioPlus(DestinationURL destinationURL, Class<? extends Api> responseApiClz,
                                  Supplier<Message> messageSupplier,
-                                 ApiCoder<Api,Message> apiCoder, PersistentWorker persistentWorker,
+                                 ApiCoder<Api, Message> apiCoder, PersistentWorker persistentWorker,
                                  EventLoopGroup persistentGroup, Id id) {
     super(destinationURL, responseApiClz);
     this.messageSupplier = messageSupplier;
@@ -46,15 +45,15 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
     return new ChannelInitializer<>() {
       @Override
       public void initChannel(SocketChannel ch) {
-        ChannelPipeline ph = ch.pipeline();
-        ph.addLast(new HttpClientCodec());
-        ph.addLast(new HttpObjectAggregator(10 * 1024 * 1024));
-        ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz));//in
-        ph.addLast(new BackOfficeHttpRequestHandler(destinationURL));//out
-        ph.addLast(new ApiCodecHandlerNioPlus(apiCoder)); //dup
-        ph.addLast(persistentGroup, new PersistentHandlerNioPlus(persistentWorker));//dup
-        ph.addLast(new MessageHandlerNioPlus(new DefaultMessageCoder(messageSupplier, id)));//dup
-        ph.addLast(new NioPlusClientToServerHandler(ctx));//in
+        ch.pipeline()
+            .addLast(new HttpClientCodec())
+            .addLast(new HttpObjectAggregator(10 * 1024 * 1024))
+            .addLast(new BackOfficeHttpResponseHandler(responseApiClz))//in
+            .addLast(new BackOfficeHttpRequestHandler(destinationURL))//out
+            .addLast(new ApiCodecHandlerNioPlus(apiCoder)) //dup
+            .addLast(persistentGroup, new PersistentHandlerNioPlus(persistentWorker))//dup
+            .addLast(new MessageHandlerNioPlus(new DefaultMessageCoder(messageSupplier, id)))//dup
+            .addLast(new NioPlusClientToServerHandler(ctx));//in
       }
     };
   }

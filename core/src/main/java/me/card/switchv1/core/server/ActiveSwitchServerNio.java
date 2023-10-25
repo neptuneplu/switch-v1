@@ -1,7 +1,6 @@
 package me.card.switchv1.core.server;
 
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import me.card.switchv1.core.client.BackOfficeClientNio;
@@ -21,17 +20,17 @@ public class ActiveSwitchServerNio extends AbstractActiveSwitchServer {
     return new ChannelInitializer<>() {
       @Override
       protected void initChannel(SocketChannel ch) {
-        ChannelPipeline ph = ch.pipeline();
-        ph.addLast(StreamHandler.NAME, new StreamHandler(prefix));
-        ph.addLast(MessageHandler.NAME,
-            new MessageHandler(new DefaultMessageCoder(messageSupplier, id)));
-        ph.addLast(persistentGroup, PersistentHandler.NAME,
-            new PersistentHandler(persistentWorker));
-        ph.addLast(ApiCodecHandler.NAME, new ApiCodecHandler(apiCoder));
-        ph.addLast(sendGroup, BackOfficeHandlerNio.NAME,
-            new BackOfficeHandlerNio(new BackOfficeClientNio(destinationURL, responseApiClz)));
-        ph.addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0));
-        ph.addLast(new AdminActiveServerHandler(heartBeat, reconnectable));
+        ch.pipeline()
+            .addLast(StreamHandler.NAME, new StreamHandler(prefix))
+            .addLast(MessageHandler.NAME,
+                new MessageHandler(new DefaultMessageCoder(messageSupplier, id)))
+            .addLast(persistentGroup, PersistentHandler.NAME,
+                new PersistentHandler(persistentWorker))
+            .addLast(ApiCodecHandler.NAME, new ApiCodecHandler(apiCoder))
+            .addLast(sendGroup, BackOfficeHandlerNio.NAME,
+                new BackOfficeHandlerNio(new BackOfficeClientNio(destinationURL, responseApiClz)))
+            .addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0))
+            .addLast(new AdminActiveServerHandler(heartBeat, reconnectable));
       }
     };
   }

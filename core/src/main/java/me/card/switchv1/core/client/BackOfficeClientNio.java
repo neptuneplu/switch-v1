@@ -2,7 +2,6 @@ package me.card.switchv1.core.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -22,12 +21,12 @@ public class BackOfficeClientNio extends BackOfficeAbstractClientNio {
     return new ChannelInitializer<>() {
       @Override
       public void initChannel(SocketChannel ch) {
-        ChannelPipeline ph = ch.pipeline();
-        ph.addLast(new HttpClientCodec()); //dup
-        ph.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); //dup
-        ph.addLast(new BackOfficeHttpResponseHandler(responseApiClz)); //in
-        ph.addLast(new BackOfficeHttpRequestHandler(destinationURL)); //out
-        ph.addLast(new NioClientToServerHandler(ctx)); //in
+        ch.pipeline()
+            .addLast(new HttpClientCodec()) //dup
+            .addLast(new HttpObjectAggregator(10 * 1024 * 1024)) //dup
+            .addLast(new BackOfficeHttpResponseHandler(responseApiClz)) //in
+            .addLast(new BackOfficeHttpRequestHandler(destinationURL)) //out
+            .addLast(new NioClientToServerHandler(ctx)); //in
       }
     };
   }
