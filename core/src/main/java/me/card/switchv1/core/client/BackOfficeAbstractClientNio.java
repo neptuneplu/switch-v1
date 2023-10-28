@@ -7,6 +7,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Promise;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.DestinationURL;
 import org.slf4j.Logger;
@@ -20,22 +22,26 @@ public abstract class BackOfficeAbstractClientNio extends BackOfficeAbstractClie
     super(destinationURL, responseApiClz);
   }
 
-  public <T> void send(ChannelHandlerContext ctx, T t) {
-    logger.debug("send to backoffice bootstrap start");
+  public <T> void sendAsync(ChannelHandlerContext ctx, T t) {
+    logger.debug("sendSync to backoffice bootstrap start");
+
+    Promise<Object> promise = new DefaultPromise<>(ctx.executor()).addListener(future -> {
+      ctx.writeAndFlush(future.get());
+    });
 
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group((EventLoopGroup) ctx.executor())
         .channel(NioSocketChannel.class)
         //todo create too much handlers
-        .handler(getChannelInitializer(ctx));
+        .handler(getChannelInitializer(promise));
+
 
     bootstrap.connect(destinationURL.getDestinationAddress()).addListener(
         (ChannelFutureListener) future -> future.channel().writeAndFlush(t));
 
-    logger.debug("send to backoffice bootstrap end");
   }
 
-  protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(
-      ChannelHandlerContext ctx);
 
+  protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(
+      Promise<Object> promise);
 }

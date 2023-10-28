@@ -119,9 +119,9 @@ public class SwitchServerBuilder {
     SwitchServer server;
 
     switch (serverType) {
-      case "activeBio":
-        server = new ActiveSwitchServerBio();
-        break;
+//      case "activeBio":
+//        server = new ActiveSwitchServerBio();
+//        break;
       case "activeNio":
         server = new ActiveSwitchServerNio();
         break;

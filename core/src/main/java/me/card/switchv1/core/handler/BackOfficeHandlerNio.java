@@ -21,11 +21,12 @@ public class BackOfficeHandlerNio extends SimpleChannelInboundHandler<Api> {
   protected void channelRead0(ChannelHandlerContext ctx, Api api) {
     logger.debug("BackOfficeHandlerNio channelRead0 start");
     try {
-      backOfficeClientNio.send(ctx, api);
+      backOfficeClientNio.sendAsync(ctx, api);
     } catch (Exception e) {
       logger.error("get http request error", e);
       throw new HandlerException("get http request error");
     }
-  }
 
+
+  }
 }

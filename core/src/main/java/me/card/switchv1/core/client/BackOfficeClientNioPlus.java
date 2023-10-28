@@ -1,11 +1,11 @@
 package me.card.switchv1.core.client;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.util.concurrent.Promise;
 import java.util.function.Supplier;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
@@ -41,7 +41,7 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
   }
 
   @Override
-  protected ChannelInitializer<SocketChannel> getChannelInitializer(ChannelHandlerContext ctx) {
+  protected ChannelInitializer<SocketChannel> getChannelInitializer(Promise<Object> promise) {
     return new ChannelInitializer<>() {
       @Override
       public void initChannel(SocketChannel ch) {
@@ -53,8 +53,9 @@ public class BackOfficeClientNioPlus extends BackOfficeAbstractClientNio {
             .addLast(new ApiCodecHandlerNioPlus(apiCoder)) //dup
             .addLast(persistentGroup, new PersistentHandlerNioPlus(persistentWorker))//dup
             .addLast(new MessageHandlerNioPlus(new DefaultMessageCoder(messageSupplier, id)))//dup
-            .addLast(new NioClientActionHandler(ctx::writeAndFlush));//in
+            .addLast(new NioClientActionHandler(promise));//in
       }
     };
   }
+
 }

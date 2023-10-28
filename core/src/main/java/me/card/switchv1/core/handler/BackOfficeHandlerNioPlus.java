@@ -21,7 +21,7 @@ public class BackOfficeHandlerNioPlus extends SimpleChannelInboundHandler<byte[]
     logger.debug("BackOfficeHandlerNioPlus read start");
 
     try {
-      backOfficeClientNioPlus.send(ctx, msg);
+      backOfficeClientNioPlus.sendAsync(ctx, msg);
     } catch (Exception e) {
       logger.error("get http request error", e);
       throw new HandlerException("get http request error");
