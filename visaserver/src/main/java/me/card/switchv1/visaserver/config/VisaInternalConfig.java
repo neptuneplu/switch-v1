@@ -46,7 +46,7 @@ public class VisaInternalConfig {
   }
 
   @Bean
-  public PersistentWorker persistentWorker() {
+  public VisaPersistentWorkerByDB persistentWorker() {
     return new VisaPersistentWorkerByDB();
   }
 
