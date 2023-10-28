@@ -9,13 +9,13 @@ import me.card.switchv1.core.component.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApiCodecHandlerNioPlus extends MessageToMessageCodec<Api, Message> {
-  private static final Logger logger = LoggerFactory.getLogger(ApiCodecHandlerNioPlus.class);
+public class ApiCodecHandlerPlus extends MessageToMessageCodec<Api, Message> {
+  private static final Logger logger = LoggerFactory.getLogger(ApiCodecHandlerPlus.class);
   public static final String NAME = "ApiCodecHandlerNioPlus";
 
   private final ApiCoder<Api, Message> apiCoder;
 
-  public ApiCodecHandlerNioPlus(ApiCoder<Api, Message> apiCoder) {
+  public ApiCodecHandlerPlus(ApiCoder<Api, Message> apiCoder) {
     this.apiCoder = apiCoder;
   }
 

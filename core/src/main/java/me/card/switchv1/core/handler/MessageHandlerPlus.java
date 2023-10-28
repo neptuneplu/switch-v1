@@ -9,13 +9,13 @@ import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageHandlerNioPlus extends MessageToMessageCodec<Message, byte[]> {
-  private static final Logger logger = LoggerFactory.getLogger(MessageHandlerNioPlus.class);
+public class MessageHandlerPlus extends MessageToMessageCodec<Message, byte[]> {
+  private static final Logger logger = LoggerFactory.getLogger(MessageHandlerPlus.class);
   public static final String NAME = "MessageHandlerNioPlus";
 
   private final MessageCoder messageCoder;
 
-  public MessageHandlerNioPlus(MessageCoder messageCoder) {
+  public MessageHandlerPlus(MessageCoder messageCoder) {
     this.messageCoder = messageCoder;
   }
 

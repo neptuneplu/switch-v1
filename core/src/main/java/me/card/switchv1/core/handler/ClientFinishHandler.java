@@ -4,20 +4,21 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Promise;
 import java.util.Objects;
+import me.card.switchv1.core.component.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NioClientActionHandler extends SimpleChannelInboundHandler<Object> {
-  private static final Logger logger = LoggerFactory.getLogger(NioClientActionHandler.class);
+public class ClientFinishHandler extends SimpleChannelInboundHandler<Api> {
+  private static final Logger logger = LoggerFactory.getLogger(ClientFinishHandler.class);
 
-  private final Promise<Object> promise;
+  private final Promise<Api> promise;
 
-  public NioClientActionHandler(Promise<Object> promise) {
+  public ClientFinishHandler(Promise<Api> promise) {
     this.promise = promise;
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+  protected void channelRead0(ChannelHandlerContext ctx, Api msg) {
     if (Objects.nonNull(promise)) {
       promise.setSuccess(msg);
       ctx.close().addListener(f -> logger.debug("backoffice connection closed"));

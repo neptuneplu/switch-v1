@@ -119,17 +119,14 @@ public class SwitchServerBuilder {
     SwitchServer server;
 
     switch (serverType) {
-//      case "activeBio":
-//        server = new ActiveSwitchServerBio();
-//        break;
       case "activeNio":
-        server = new ActiveSwitchServerNio();
+        server = new ActiveSwitchServer();
         break;
       case "activeNioPlus":
-        server = new ActiveSwitchServerNioPlus();
+        server = new ActiveSwitchServerPlus();
         break;
       case "passiveNioPlus":
-        server = new PassiveSwitchServerNioPlus();
+        server = new PassiveSwitchServerPlus();
         break;
       default:
         throw new ServerException("server type error");

@@ -8,13 +8,13 @@ import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PersistentHandlerNioPlus extends MessageToMessageCodec<Message, Message> {
-  private static final Logger logger = LoggerFactory.getLogger(PersistentHandlerNioPlus.class);
+public class PersistentHandlerPlus extends MessageToMessageCodec<Message, Message> {
+  private static final Logger logger = LoggerFactory.getLogger(PersistentHandlerPlus.class);
   public static final String NAME = "PersistentHandlerNioPlus";
 
   private final PersistentWorker persistentWorker;
 
-  public PersistentHandlerNioPlus(PersistentWorker persistentWorker) {
+  public PersistentHandlerPlus(PersistentWorker persistentWorker) {
     this.persistentWorker = persistentWorker;
   }
 
