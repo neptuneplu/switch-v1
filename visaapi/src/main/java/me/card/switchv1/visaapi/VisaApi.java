@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import me.card.switchv1.core.component.Api;
-import org.springframework.util.Assert;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
@@ -99,7 +98,6 @@ public class VisaApi implements Api, Serializable {
 
   @Override
   public void toResponse(String code) {
-    Assert.isTrue(!code.equals("00"), "must not approve response code");
     this.MTI = me.card.switchv1.visaapi.MTI.mapResponseMTI(this.MTI);
     String id = this.destinationId;
     this.destinationId = this.sourceId;
