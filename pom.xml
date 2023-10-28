@@ -30,8 +30,7 @@
         <mybatis-plus-generator.version>3.5.2</mybatis-plus-generator.version>
         <mysql-jdbc.version>8.0.28</mysql-jdbc.version>
         <!--        -->
-<!--        <jackson.annotation>2.9.4</jackson.annotation>-->
-<!--        <jackson.version>2.9.0</jackson.version>-->
+        <jackson.version>2.9.0</jackson.version>
         <!--        -->
         <slf4j.version>1.7.25</slf4j.version>
         <logback.version>1.2.4</logback.version>
@@ -57,21 +56,6 @@
                 <version>${springboot.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-jpa</artifactId>
-                <version>${springboot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-log4j2</artifactId>
-                <version>${springboot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-logging</artifactId>
-                <version>${springboot.version}</version>
-            </dependency>
-            <dependency>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <groupId>com.baomidou</groupId>
                 <version>${mybatis-plus-boot.version}</version>
@@ -87,19 +71,9 @@
                 <version>${mybatis-plus-annotation.version}</version>
             </dependency>
             <dependency>
-                <artifactId>mybatis-plus-generator</artifactId>
-                <groupId>com.baomidou</groupId>
-                <version>${mybatis-plus-generator.version}</version>
-            </dependency>
-            <dependency>
                 <artifactId>mysql-connector-java</artifactId>
                 <groupId>mysql</groupId>
                 <version>${mysql-jdbc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
-                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -112,19 +86,29 @@
                 <version>${logback.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>${fastjson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
             </dependency>
             <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jpos</groupId>
                 <artifactId>jpos</artifactId>
                 <version>${jpos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

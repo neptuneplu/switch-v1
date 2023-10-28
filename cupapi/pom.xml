@@ -15,13 +15,14 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <switch.version>1.0-SNAPSHOT</switch.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>me.card.switchv1</groupId>
             <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${switch.version}</version>
         </dependency>
     </dependencies>
 </project>
