@@ -125,6 +125,8 @@ public class VisaManager {
     Assert.notNull(heartBeat, "heartBeat is null");
     Assert.notNull(prefix, "prefix is null");
     Assert.notNull(apiClz, "apiClz is null");
+    Assert.notNull(persistentWorker, "persistentWorker is null");
+
   }
 
   private void stopCheck() {
