@@ -1,6 +1,8 @@
 package me.card.switchv1.visaapi;
 
-public class F3 {
+import java.io.Serializable;
+
+public class F3 implements Serializable {
   private String processingCode;
   private String fromAccountNum;
   private String toAccountNum;

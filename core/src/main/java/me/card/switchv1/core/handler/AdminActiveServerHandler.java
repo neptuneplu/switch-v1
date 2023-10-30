@@ -1,28 +1,23 @@
 package me.card.switchv1.core.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import java.util.concurrent.TimeUnit;
 import me.card.switchv1.core.component.HeartBeat;
-import me.card.switchv1.core.server.Reconnectable;
+import me.card.switchv1.core.server.AutoConnectable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AdminActiveServerHandler extends ChannelInboundHandlerAdapter {
+public class AdminActiveServerHandler extends AdminHandler {
   private static final Logger logger = LoggerFactory.getLogger(AdminActiveServerHandler.class);
 
   private static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
 
-  private final HeartBeat heartBeat;
-  private final Reconnectable reconnectable;
-  private int idleCount;
+  private final AutoConnectable autoConnectable;
 
-  public AdminActiveServerHandler(HeartBeat heartBeat, Reconnectable reconnectable) {
-    this.heartBeat = heartBeat;
-    this.reconnectable = reconnectable;
+  public AdminActiveServerHandler(HeartBeat heartBeat, AutoConnectable autoConnectable) {
+    super(heartBeat);
+    this.autoConnectable = autoConnectable;
   }
 
   @Override
@@ -30,7 +25,7 @@ public class AdminActiveServerHandler extends ChannelInboundHandlerAdapter {
     if (logger.isInfoEnabled()) {
       logger.info(String.format("channelActive start, channel: %s", ctx.channel().toString()));
     }
-    reconnectable.setChannel(ctx.channel());
+    autoConnectable.setupChannel(ctx.channel());
   }
 
   @Override
@@ -48,35 +43,8 @@ public class AdminActiveServerHandler extends ChannelInboundHandlerAdapter {
   }
 
   private void reconnect() {
-    reconnectable.connect();
+    autoConnectable.connect();
   }
-
-
-  @Override
-  public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
-    if (!(evt instanceof IdleStateEvent)) {
-      return;
-    }
-
-    IdleStateEvent e = (IdleStateEvent) evt;
-    if (e.state() == IdleState.READER_IDLE) {
-      idleCount++;
-      if (idleCount == 2) {
-        if (heartBeat.isRequireHeartBeat()) {
-          logger.debug("send heart beat msg");
-          ctx.writeAndFlush(heartBeat.getHeartBeatCode());
-        }
-        return;
-      }
-      if (idleCount == 3) {
-        idleCount = 0;
-        ctx.close();
-      }
-
-    }
-  }
-
-
 
 
 }

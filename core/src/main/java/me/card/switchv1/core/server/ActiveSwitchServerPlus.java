@@ -14,7 +14,8 @@ import me.card.switchv1.core.handler.StreamHandler;
 public class ActiveSwitchServerPlus extends AbstractActiveSwitchServer {
 
   @Override
-  protected ChannelInitializer<SocketChannel> getChannelInitializer(Reconnectable reconnectable) {
+  protected ChannelInitializer<SocketChannel> getChannelInitializer(
+      AutoConnectable autoConnectable) {
     MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);
 
     Client<byte[]> client = new BackOfficeClientPlus()
@@ -23,7 +24,8 @@ public class ActiveSwitchServerPlus extends AbstractActiveSwitchServer {
         .persistentGroup(persistentGroup)
         .persistentWorker(persistentWorker)
         .destinationURL(destinationURL)
-        .responseApiClz(responseApiClz);
+        .responseApiClz(responseApiClz)
+        .init();
 
 
     return new ChannelInitializer<>() {
@@ -32,8 +34,8 @@ public class ActiveSwitchServerPlus extends AbstractActiveSwitchServer {
         ch.pipeline()
             .addLast(StreamHandler.NAME, new StreamHandler(prefix))
             .addLast(sendGroup, BackOfficeHandlerPlus.NAME, new BackOfficeHandlerPlus(client))
-            .addLast(new IdleStateHandler(Integer.parseInt(readIdleTime), 0, 0))
-            .addLast(new AdminActiveServerHandler(heartBeat, reconnectable));
+            .addLast(new IdleStateHandler(readIdleTime, 0, 0))
+            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
       }
     };
   }

@@ -4,5 +4,5 @@ import io.netty.channel.Channel;
 
 public interface Queryable {
 
-  void setChannel(Channel channel);
+  void setupChannel(Channel channel);
 }

@@ -119,13 +119,16 @@ public class SwitchServerBuilder {
     SwitchServer server;
 
     switch (serverType) {
-      case "activeNio":
+      case "active":
         server = new ActiveSwitchServer();
         break;
-      case "activeNioPlus":
+      case "activePlus":
         server = new ActiveSwitchServerPlus();
         break;
-      case "passiveNioPlus":
+      case "passive":
+        server = new PassiveSwitchServer();
+        break;
+      case "passivePlus":
         server = new PassiveSwitchServerPlus();
         break;
       default:

@@ -7,8 +7,11 @@ import io.netty.channel.EventLoop;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Promise;
+import java.util.Objects;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.handler.BackOfficeHttpRequestHandler;
+import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,8 @@ public abstract class BackOfficeAbstractClient<T> implements Client<T> {
 
   protected DestinationURL destinationURL;
   protected Class<? extends Api> responseApiClz;
+  protected BackOfficeHttpResponseHandler backOfficeHttpResponseHandler;
+  protected BackOfficeHttpRequestHandler backOfficeHttpRequestHandler;
 
   @Override
   public void sendAsync(Promise<T> promise, EventLoop eventLoop, T t) {
@@ -25,7 +30,6 @@ public abstract class BackOfficeAbstractClient<T> implements Client<T> {
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group(eventLoop)
         .channel(NioSocketChannel.class)
-        //todo create too much handlers
         .handler(getChannelInitializer(promise));
 
     bootstrap.connect(destinationURL.getDestinationAddress()).addListener(
@@ -42,6 +46,21 @@ public abstract class BackOfficeAbstractClient<T> implements Client<T> {
       Class<? extends Api> responseApiClz) {
     this.responseApiClz = responseApiClz;
     return this;
+  }
+
+  protected void init0() {
+    initCheck0();
+    backOfficeHttpResponseHandler = new BackOfficeHttpResponseHandler(responseApiClz);
+    backOfficeHttpRequestHandler = new BackOfficeHttpRequestHandler(destinationURL);
+  }
+
+  private void initCheck0() {
+    if (Objects.isNull(responseApiClz)) {
+      throw new ClientException("init error, responseApiClz is null");
+    }
+    if (Objects.isNull(destinationURL)) {
+      throw new ClientException("init error, destinationURL is null");
+    }
   }
 
   protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(

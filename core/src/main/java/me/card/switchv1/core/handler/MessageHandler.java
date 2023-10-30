@@ -1,5 +1,6 @@
 package me.card.switchv1.core.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ChannelHandler.Sharable
 public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
   private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
   public static final String NAME = "MessageHandler";

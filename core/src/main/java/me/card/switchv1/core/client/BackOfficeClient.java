@@ -6,8 +6,6 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.util.concurrent.Promise;
 import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.handler.BackOfficeHttpRequestHandler;
-import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
 import me.card.switchv1.core.handler.ClientFinishHandler;
 
 public class BackOfficeClient extends BackOfficeAbstractClient<Api> {
@@ -19,10 +17,17 @@ public class BackOfficeClient extends BackOfficeAbstractClient<Api> {
         ch.pipeline()
             .addLast(new HttpClientCodec()) //dup
             .addLast(new HttpObjectAggregator(10 * 1024 * 1024)) //dup
-            .addLast(new BackOfficeHttpResponseHandler(responseApiClz)) //in
-            .addLast(new BackOfficeHttpRequestHandler(destinationURL)) //out
+            .addLast(backOfficeHttpResponseHandler) //in
+            .addLast(backOfficeHttpRequestHandler) //out
             .addLast(new ClientFinishHandler(promise)); //in
       }
     };
   }
+
+  @Override
+  public BackOfficeClient init() {
+    super.init0();
+    return this;
+  }
+
 }

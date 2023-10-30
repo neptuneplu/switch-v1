@@ -21,6 +21,8 @@ public class ClientFinishHandlerPlus extends SimpleChannelInboundHandler<byte[]>
     if (Objects.nonNull(promise)) {
       promise.setSuccess(msg);
       ctx.close().addListener(f -> logger.debug("backoffice connection closed"));
+    } else {
+      throw new HandlerException("promise is null");
     }
   }
 }

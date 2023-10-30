@@ -1,5 +1,6 @@
 package me.card.switchv1.core.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import java.util.List;
@@ -8,6 +9,7 @@ import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ChannelHandler.Sharable
 public class PersistentHandler extends MessageToMessageCodec<Message, Message> {
   private static final Logger logger = LoggerFactory.getLogger(PersistentHandler.class);
   public static final String NAME = "PersistentHandler";

@@ -4,13 +4,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
-import io.netty.util.ReferenceCountUtil;
 import java.util.List;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.handler.event.EchoEvent;
 import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// can not share
 public class StreamHandler extends ByteToMessageCodec<byte[]> {
   private static final Logger logger = LoggerFactory.getLogger(StreamHandler.class);
   public static final String NAME = "StreamHandler";
@@ -63,10 +64,11 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
       byteBuf.readBytes(byteLen);
       int intLen = prefix.getIntPrefix(byteLen);
 
-      // discard echo message
+      // echo message
       if (intLen == 0) {
         logger.debug("echo msg");
-        ReferenceCountUtil.release(byteBuf);
+        //not need to release byte buf
+        ctx.fireUserEventTriggered(new EchoEvent());
         return;
       }
       //

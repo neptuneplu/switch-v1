@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -19,6 +20,7 @@ import me.card.switchv1.core.component.DestinationURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ChannelHandler.Sharable
 public class BackOfficeHttpRequestHandler extends MessageToMessageEncoder<Api> {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeHttpRequestHandler.class);
 

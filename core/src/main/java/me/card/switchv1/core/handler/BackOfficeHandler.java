@@ -24,9 +24,8 @@ public class BackOfficeHandler extends SimpleChannelInboundHandler<Api> {
   protected void channelRead0(ChannelHandlerContext ctx, Api api) {
     logger.debug("BackOfficeHandlerNio channelRead0 start");
 
-    Promise<Api> promise = new DefaultPromise<Api>(ctx.executor()).addListener(future -> {
-      ctx.writeAndFlush(future.get());
-    });
+    Promise<Api> promise = new DefaultPromise<Api>(ctx.executor())
+        .addListener(future -> ctx.writeAndFlush(future.get()));
 
     try {
       client.sendAsync(promise, (EventLoop) ctx.executor(), api);

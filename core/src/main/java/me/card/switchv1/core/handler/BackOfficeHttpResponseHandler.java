@@ -1,6 +1,7 @@
 package me.card.switchv1.core.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -10,6 +11,7 @@ import me.card.switchv1.core.component.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ChannelHandler.Sharable
 public class BackOfficeHttpResponseHandler extends MessageToMessageDecoder<FullHttpResponse> {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeHttpResponseHandler.class);
 
@@ -35,7 +37,6 @@ public class BackOfficeHttpResponseHandler extends MessageToMessageDecoder<FullH
         logger.error("jackson parser read error", e);
         throw new HandlerException("jackson parser read error");
       }
-
       out.add(api);
     } else {
       if (logger.isErrorEnabled()) {
@@ -43,7 +44,5 @@ public class BackOfficeHttpResponseHandler extends MessageToMessageDecoder<FullH
       }
       throw new HandlerException("backoffice call error:" + response.status());
     }
-
-
   }
 }

@@ -1,6 +1,6 @@
 package me.card.switchv1.core.server;
 
-public interface Reconnectable extends Queryable{
+public interface AutoConnectable extends Queryable{
   
   void connect();
 }

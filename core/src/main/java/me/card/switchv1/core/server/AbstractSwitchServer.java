@@ -18,7 +18,7 @@ public class AbstractSwitchServer {
   protected InetSocketAddress localAddress;
   protected InetSocketAddress sourceAddress;
   protected DestinationURL destinationURL;
-  protected String readIdleTime;
+  protected int readIdleTime;
   protected Prefix prefix;
   protected HeartBeat heartBeat;
   protected Supplier<Message> messageSupplier;
@@ -73,7 +73,7 @@ public class AbstractSwitchServer {
   }
 
   public void setReadIdleTime(String readIdleTime) {
-    this.readIdleTime = readIdleTime;
+    this.readIdleTime = Integer.parseInt(readIdleTime);
   }
 
   public void setPersistentWorker(PersistentWorker persistentWorker) {

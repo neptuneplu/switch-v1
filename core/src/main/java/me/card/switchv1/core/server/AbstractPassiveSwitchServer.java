@@ -56,7 +56,7 @@ public abstract class AbstractPassiveSwitchServer extends AbstractSwitchServer
 
 
   @Override
-  public void setChannel(Channel channel) {
+  public void setupChannel(Channel channel) {
     this.channel = channel;
     serverMonitor.setDesc(channel.toString());
     serverMonitor.setStatus(channel.isActive());

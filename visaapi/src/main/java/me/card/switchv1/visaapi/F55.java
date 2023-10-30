@@ -1,9 +1,10 @@
 package me.card.switchv1.visaapi;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class F55 {
+public class F55 implements Serializable {
 
   private List<TagValue> tagValues = new ArrayList<>();
 

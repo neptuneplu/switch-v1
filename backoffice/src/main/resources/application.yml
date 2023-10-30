@@ -5,6 +5,10 @@ spring:
 server:
   address: 127.0.0.1
   port: 8088
+  tomcat:
+    threads:
+      max: 12
+      min-spare: 6
 
 logging:
   level:

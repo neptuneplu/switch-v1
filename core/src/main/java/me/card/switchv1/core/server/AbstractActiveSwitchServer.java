@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
-    implements SwitchServer, Reconnectable {
+    implements SwitchServer, AutoConnectable {
   private static final Logger logger = LoggerFactory.getLogger(AbstractActiveSwitchServer.class);
   public static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
 
@@ -46,6 +46,7 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
         .handler(getChannelInitializer(this));
 
     connect();
+
   }
 
   @Override
@@ -54,7 +55,7 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
   }
 
   @Override
-  public void setChannel(Channel channel) {
+  public void setupChannel(Channel channel) {
     this.channel = channel;
     serverMonitor.setDesc(channel.toString());
     serverMonitor.setStatus(channel.isActive());
@@ -97,5 +98,5 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
   }
 
   protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(
-      Reconnectable reconnectable);
+      AutoConnectable autoConnectable);
 }

@@ -13,8 +13,6 @@ import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.handler.ApiCodecHandlerPlus;
-import me.card.switchv1.core.handler.BackOfficeHttpRequestHandler;
-import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
 import me.card.switchv1.core.handler.ClientFinishHandlerPlus;
 import me.card.switchv1.core.handler.MessageHandlerPlus;
 import me.card.switchv1.core.handler.PersistentHandlerPlus;
@@ -24,11 +22,13 @@ public class BackOfficeClientPlus extends BackOfficeAbstractClient<byte[]> {
   private PersistentWorker persistentWorker;
   private EventLoopGroup persistentGroup;
   private MessageCoder messageCoder;
+  private ApiCodecHandlerPlus apiCodecHandlerPlus;
+  private PersistentHandlerPlus persistentHandlerPlus;
+  private MessageHandlerPlus messageHandlerPlus;
 
 
   @Override
   protected ChannelInitializer<SocketChannel> getChannelInitializer(Promise<byte[]> promise) {
-    check();
 
     return new ChannelInitializer<>() {
       @Override
@@ -36,33 +36,39 @@ public class BackOfficeClientPlus extends BackOfficeAbstractClient<byte[]> {
         ch.pipeline()
             .addLast(new HttpClientCodec())
             .addLast(new HttpObjectAggregator(10 * 1024 * 1024))
-            .addLast(new BackOfficeHttpResponseHandler(responseApiClz))//in
-            .addLast(new BackOfficeHttpRequestHandler(destinationURL))//out
-            .addLast(new ApiCodecHandlerPlus(apiCoder)) //dup
-            .addLast(persistentGroup, new PersistentHandlerPlus(persistentWorker))//dup
-            .addLast(new MessageHandlerPlus(messageCoder))//dup
+            .addLast(backOfficeHttpResponseHandler)//in
+            .addLast(backOfficeHttpRequestHandler)//out
+            .addLast(apiCodecHandlerPlus) //dup
+            .addLast(persistentGroup, persistentHandlerPlus)//dup
+            .addLast(messageHandlerPlus)//dup
             .addLast(new ClientFinishHandlerPlus(promise));//in
       }
     };
   }
 
-  private void check() {
-    if (Objects.isNull(responseApiClz)) {
-      throw new ClientException("client, responseApiClz is null");
-    }
-    if (Objects.isNull(destinationURL)) {
-      throw new ClientException("client, destinationURL is null");
-    }
+  @Override
+  public BackOfficeClientPlus init() {
+    initCheck();
+    super.init0();
+    apiCodecHandlerPlus = new ApiCodecHandlerPlus(apiCoder);
+    persistentHandlerPlus = new PersistentHandlerPlus(persistentWorker);
+    messageHandlerPlus = new MessageHandlerPlus(messageCoder);
+    return this;
+  }
+
+  private void initCheck() {
     if (Objects.isNull(apiCoder)) {
-      throw new ClientException("client, apiCoder is null");
+      throw new ClientException("init error, apiCoder is null");
     }
     if (Objects.isNull(persistentWorker)) {
-      throw new ClientException("client, persistentWorker is null");
+      throw new ClientException("init error, persistentWorker is null");
+    }
+    if (Objects.isNull(persistentGroup)) {
+      throw new ClientException("init error, persistentGroup is null");
     }
     if (Objects.isNull(messageCoder)) {
-      throw new ClientException("client, messageCoder is null");
+      throw new ClientException("init error, messageCoder is null");
     }
-
   }
 
   public BackOfficeClientPlus messageCoder(
