@@ -1,5 +1,7 @@
 package me.card.switchv1.core.handler;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoop;
@@ -11,21 +13,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class BackOfficeHandlerPlus extends SimpleChannelInboundHandler<byte[]> {
+public class BackOfficeHandlerPlus extends SimpleChannelInboundHandler<ByteBuf> {
   private static final Logger logger = LoggerFactory.getLogger(BackOfficeHandlerPlus.class);
   public static final String NAME = "BackOfficeHandlerNioPlus";
 
-  private final Client<byte[]> client;
+  private final Client<ByteBuf> client;
 
-  public BackOfficeHandlerPlus(Client<byte[]> client) {
+  public BackOfficeHandlerPlus(Client<ByteBuf> client) {
     this.client = client;
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) {
+  protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
     logger.debug("BackOfficeHandlerNioPlus read start");
 
-    Promise<byte[]> promise = new DefaultPromise<byte[]>(ctx.executor())
+    Promise<ByteBuf> promise = new DefaultPromise<ByteBuf>(ctx.executor())
         .addListener(future -> ctx.writeAndFlush(future.get()));
 
     try {

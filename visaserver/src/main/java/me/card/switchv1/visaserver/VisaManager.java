@@ -1,5 +1,7 @@
 package me.card.switchv1.visaserver;
 
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import me.card.switchv1.core.component.Api;
@@ -21,7 +23,6 @@ import me.card.switchv1.visaserver.db.VisaLogPo;
 import me.card.switchv1.visaserver.db.VisaLogService;
 import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
-import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -173,8 +174,8 @@ public class VisaManager {
 
   public VisaApi queryApi(String seqNo, String direction) {
     VisaLogPo visaLogPo = queryRawMessage(seqNo, direction);
-    VisaMessageByJpos visaMessageByJpos =
-        (VisaMessageByJpos) messageCoder.extract(ISOUtil.decodeHexDump(visaLogPo.getHexMessage()));
+    VisaMessageByJpos visaMessageByJpos = (VisaMessageByJpos) messageCoder.extract(
+            Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(visaLogPo.getHexMessage())));
 
     return (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
 

@@ -1,5 +1,6 @@
 package me.card.switchv1.core.client;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -17,7 +18,7 @@ import me.card.switchv1.core.handler.ClientFinishHandlerPlus;
 import me.card.switchv1.core.handler.MessageHandlerPlus;
 import me.card.switchv1.core.handler.PersistentHandlerPlus;
 
-public class BackOfficeClientPlus extends BackOfficeAbstractClient<byte[]> {
+public class BackOfficeClientPlus extends BackOfficeAbstractClient<ByteBuf> {
   private ApiCoder<Api, Message> apiCoder;
   private PersistentWorker persistentWorker;
   private EventLoopGroup persistentGroup;
@@ -28,7 +29,7 @@ public class BackOfficeClientPlus extends BackOfficeAbstractClient<byte[]> {
 
 
   @Override
-  protected ChannelInitializer<SocketChannel> getChannelInitializer(Promise<byte[]> promise) {
+  protected ChannelInitializer<SocketChannel> getChannelInitializer(Promise<ByteBuf> promise) {
 
     return new ChannelInitializer<>() {
       @Override

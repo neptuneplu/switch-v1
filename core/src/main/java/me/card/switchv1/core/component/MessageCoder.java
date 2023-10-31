@@ -1,8 +1,10 @@
 package me.card.switchv1.core.component;
 
+import io.netty.buffer.ByteBuf;
+
 public interface MessageCoder {
 
-  Message extract(byte[] bytes);
+  Message extract(ByteBuf byteBuf);
 
-  byte[] compress(Message message);
+  ByteBuf compress(Message message);
 }

@@ -1,6 +1,8 @@
 package me.card.switchv1.core.handler;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
@@ -11,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
+public class MessageHandler extends MessageToMessageCodec<ByteBuf, Message> {
   private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
   public static final String NAME = "MessageHandler";
 
@@ -26,8 +28,7 @@ public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
     logger.debug("compress msg start");
 
     try {
-      byte[] byteMsg = messageCoder.compress(msg);
-      out.add(byteMsg);
+      out.add(Unpooled.unreleasableBuffer(messageCoder.compress(msg)));
     } catch (Exception e) {
       logger.warn("compress message failed!!!", e);
       logger.error(String.format("extract message failed, msg: %s", msg.toString()));
@@ -35,12 +36,11 @@ public class MessageHandler extends MessageToMessageCodec<byte[], Message> {
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, byte[] msg, List<Object> out) {
+  protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) {
     logger.debug("extract msg start");
 
     try {
-      Message message = messageCoder.extract(msg);
-      out.add(message);
+      out.add(messageCoder.extract(msg));
     } catch (Exception e) {
       logger.warn("extract message failed!!!", e);
       logger.error(String.format("extract message failed, msg: %s", ByteBufUtil.hexDump(msg)));

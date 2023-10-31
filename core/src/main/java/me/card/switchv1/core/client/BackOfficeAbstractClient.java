@@ -1,6 +1,8 @@
 package me.card.switchv1.core.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoop;
@@ -33,7 +35,9 @@ public abstract class BackOfficeAbstractClient<T> implements Client<T> {
         .handler(getChannelInitializer(promise));
 
     bootstrap.connect(destinationURL.getDestinationAddress()).addListener(
-        (ChannelFutureListener) future -> future.channel().writeAndFlush(t));
+        (ChannelFutureListener) future -> {
+          future.channel().writeAndFlush(t);
+        });
   }
 
   public BackOfficeAbstractClient<T> destinationURL(

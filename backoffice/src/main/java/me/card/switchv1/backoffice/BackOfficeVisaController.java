@@ -19,11 +19,11 @@ public class BackOfficeVisaController {
       logger.debug(String.format("visa request content: %s", visaRequest.toString()));
     }
 
-    try {
-      Thread.sleep(200);
-    } catch (Exception e) {
-      throw new RuntimeException("interrupted");
-    }
+//    try {
+//      Thread.sleep(2000);
+//    } catch (Exception e) {
+//      throw new RuntimeException("interrupted");
+//    }
 
     if (visaRequest.getMTI().equals("0100")) {
       visaRequest.setMTI("0110");
