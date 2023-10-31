@@ -1,5 +1,6 @@
 package me.card.switchv1.core.server;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -17,7 +18,7 @@ public class PassiveSwitchServerPlus extends AbstractPassiveSwitchServer {
   protected ChannelInitializer<SocketChannel> getChannelInitializer(Queryable queryable) {
     MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);
 
-    Client<byte[]> client = new BackOfficeClientPlus()
+    Client<ByteBuf> client = new BackOfficeClientPlus()
         .messageCoder(messageCoder)
         .apiCoder(apiCoder)
         .persistentGroup(persistentGroup)

@@ -2,6 +2,7 @@ package me.card.switchv1.core.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import java.util.List;
@@ -11,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // can not share
-public class StreamHandler extends ByteToMessageCodec<byte[]> {
+// can not share
+public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
   private static final Logger logger = LoggerFactory.getLogger(StreamHandler.class);
   public static final String NAME = "StreamHandler";
 
@@ -23,7 +25,7 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
 
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, byte[] msg, ByteBuf out) {
+  protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
 
     logger.debug("byte encode start");
 
@@ -33,8 +35,8 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
     }
 
     try {
-      if (msg.length != prefix.getPrefixLength()) {
-        byte[] byteLength = prefix.getBytePrefix(msg.length);
+      if (msg.array().length != prefix.getPrefixLength()) {
+        byte[] byteLength = prefix.getBytePrefix(msg.array().length);
         out.writeBytes(byteLength);
       }
       out.writeBytes(msg);
@@ -59,9 +61,9 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
       }
       byteBuf.markReaderIndex();
 
-      byte[] byteLen = new byte[prefixLength];
+      ByteBuf byteLen = Unpooled.buffer(prefixLength);
       byteBuf.readBytes(byteLen);
-      int intLen = prefix.getIntPrefix(byteLen);
+      int intLen = prefix.getIntPrefix(byteLen.array());
 
       // echo message
       if (intLen == 0) {
@@ -78,8 +80,10 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
         return;
       }
 
-      byte[] byteMsg = new byte[intLen];
+
+      ByteBuf byteMsg = Unpooled.unreleasableBuffer(Unpooled.buffer(intLen));
       byteBuf.readBytes(byteMsg);
+
       out.add(byteMsg);
 
       if (logger.isDebugEnabled()) {
