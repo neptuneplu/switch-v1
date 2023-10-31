@@ -80,6 +80,7 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
   @Override
   public void signOn() {
     logger.debug("sing on message start");
+    // consider to generate an event instead of write a message directly
     channel.pipeline().context(PersistentHandler.NAME).writeAndFlush(signOnMessageSupplier.get());
   }
 
