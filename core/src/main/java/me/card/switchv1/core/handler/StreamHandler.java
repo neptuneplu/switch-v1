@@ -7,7 +7,6 @@ import io.netty.handler.codec.ByteToMessageCodec;
 import java.util.List;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.handler.event.EchoEvent;
-import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
 
 
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("return encode hex msg: %s", ISOUtil.byte2hex(msg)));
+      logger.debug(String.format("return encode hex msg: %s", ByteBufUtil.hexDump(msg)));
     }
 
     try {
@@ -84,7 +83,7 @@ public class StreamHandler extends ByteToMessageCodec<byte[]> {
       out.add(byteMsg);
 
       if (logger.isDebugEnabled()) {
-        logger.debug(String.format("split finished, msg hex: %s ", ISOUtil.byte2hex(byteMsg)));
+        logger.debug(String.format("split finished, msg hex: %s ", ByteBufUtil.hexDump(byteMsg)));
       }
     }
   }

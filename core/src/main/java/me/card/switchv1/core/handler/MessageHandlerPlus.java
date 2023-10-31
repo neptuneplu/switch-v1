@@ -1,12 +1,12 @@
 package me.card.switchv1.core.handler;
 
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import java.util.List;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
-import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class MessageHandlerPlus extends MessageToMessageCodec<Message, byte[]> {
       out.add(message);
     } catch (Exception e) {
       logger.warn("extract message failed!!!", e);
-      logger.error(String.format("extract message failed, msg: %s", ISOUtil.byte2hex(msg)));
+      logger.error(String.format("extract message failed, msg: %s", ByteBufUtil.hexDump(msg)));
     }
   }
 
