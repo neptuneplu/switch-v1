@@ -18,20 +18,25 @@ public abstract class AbstractPassiveSwitchServer extends AbstractSwitchServer
   private static final Logger logger = LoggerFactory.getLogger(AbstractPassiveSwitchServer.class);
 
   private final ServerBootstrap serverBootstrap = new ServerBootstrap();
-
-  private final EventLoopGroup bossGroup =
-      new NioEventLoopGroup(1, new DefaultThreadFactory("switch-bossGroup", Thread.MAX_PRIORITY));
-
-  private final EventLoopGroup workerGroup =
-      new NioEventLoopGroup(1, new DefaultThreadFactory("switch-workerGroup", Thread.MAX_PRIORITY));
-
-  protected final EventLoopGroup sendGroup =
-      new NioEventLoopGroup(8, new DefaultThreadFactory("switch-sendGroup", Thread.MAX_PRIORITY));
-
-  protected final EventLoopGroup persistentGroup = new DefaultEventLoopGroup(2,
-      new DefaultThreadFactory("switch-persistentGroup", Thread.MAX_PRIORITY));
-
+  private final EventLoopGroup bossGroup;
+  private final EventLoopGroup workerGroup;
+  protected final EventLoopGroup sendGroup;
+  protected final EventLoopGroup persistentGroup;
   private Channel channel;
+
+  protected AbstractPassiveSwitchServer(int sendThreads, int persistentThreads) {
+    bossGroup =
+        new NioEventLoopGroup(1, new DefaultThreadFactory("switch-bossGroup", Thread.MAX_PRIORITY));
+
+    workerGroup = new NioEventLoopGroup(1,
+        new DefaultThreadFactory("switch-workerGroup", Thread.MAX_PRIORITY));
+
+    sendGroup = new NioEventLoopGroup(sendThreads,
+        new DefaultThreadFactory("switch-sendGroup", Thread.MAX_PRIORITY));
+
+    persistentGroup = new DefaultEventLoopGroup(persistentThreads,
+        new DefaultThreadFactory("switch-persistentGroup", Thread.MAX_PRIORITY));
+  }
 
   @Override
   public void start() {

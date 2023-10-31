@@ -17,6 +17,10 @@ import me.card.switchv1.core.handler.StreamHandler;
 
 public class PassiveSwitchServer extends AbstractPassiveSwitchServer {
 
+  protected PassiveSwitchServer(int sendThreads, int persistentThreads) {
+    super(sendThreads, persistentThreads);
+  }
+
   @Override
   protected ChannelInitializer<SocketChannel> getChannelInitializer(Queryable queryable) {
     Client<Api> client = new BackOfficeClient()

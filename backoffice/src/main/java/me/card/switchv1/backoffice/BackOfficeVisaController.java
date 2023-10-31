@@ -20,7 +20,7 @@ public class BackOfficeVisaController {
     }
 
     try {
-      Thread.sleep(2000);
+      Thread.sleep(200);
     } catch (Exception e) {
       throw new RuntimeException("interrupted");
     }

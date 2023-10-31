@@ -109,6 +109,8 @@ public class CupManager {
         .sourceAddress(cupConfig.sourceAddress())
         .destinationURL(cupConfig.destinationURL())
         .readIdleTime(cupConfig.readIdleTime())
+        .sendThreads(cupConfig.sendThreads())
+        .persistentThreads(cupConfig.persistentThreads())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(CupMessageByJpos::new)

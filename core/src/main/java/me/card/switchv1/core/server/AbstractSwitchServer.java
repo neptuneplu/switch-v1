@@ -29,7 +29,6 @@ public class AbstractSwitchServer {
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
 
-
   public AbstractSwitchServer() {
     this.serverMonitor = new ServerMonitor();
   }
@@ -72,8 +71,8 @@ public class AbstractSwitchServer {
     this.responseApiClz = responseApiClz;
   }
 
-  public void setReadIdleTime(String readIdleTime) {
-    this.readIdleTime = Integer.parseInt(readIdleTime);
+  public void setReadIdleTime(int readIdleTime) {
+    this.readIdleTime = readIdleTime;
   }
 
   public void setPersistentWorker(PersistentWorker persistentWorker) {
@@ -93,4 +92,5 @@ public class AbstractSwitchServer {
       Supplier<Message> signOffMessageSupplier) {
     this.signOffMessageSupplier = signOffMessageSupplier;
   }
+
 }

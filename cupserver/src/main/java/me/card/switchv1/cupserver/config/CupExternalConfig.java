@@ -46,6 +46,12 @@ public class CupExternalConfig {
   @Value("${cup.serverType}")
   private String serverType;
 
+  @Value("${cup.sendThreads}")
+  private String sendThreads;
+
+  @Value("${cup.persistentThreads}")
+  private String persistentThreads;
+
   public InetSocketAddress localAddress() {
     return new InetSocketAddress(localAddress, Integer.parseInt(localPort));
   }
@@ -77,6 +83,14 @@ public class CupExternalConfig {
     return serverType;
   }
 
+  public String sendThreads() {
+    return sendThreads;
+  }
+
+  public String persistentThreads() {
+    return persistentThreads;
+  }
+
   @PostConstruct
   public void print() {
     if (logger.isInfoEnabled()) {
@@ -97,6 +111,8 @@ public class CupExternalConfig {
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
         ", serverType='" + serverType + '\'' +
+        ", sendThreads='" + sendThreads + '\'' +
+        ", persistentThreads='" + persistentThreads + '\'' +
         '}';
   }
 }

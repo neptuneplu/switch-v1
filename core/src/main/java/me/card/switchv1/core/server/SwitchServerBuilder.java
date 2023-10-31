@@ -21,7 +21,7 @@ public class SwitchServerBuilder {
   private InetSocketAddress localAddress;
   private InetSocketAddress sourceAddress;
   private DestinationURL destinationURL;
-  private String readIdleTime;
+  private int readIdleTime;
   private HeartBeat heartBeat;
   private Prefix prefix;
   private Supplier<Message> messageSupplier;
@@ -31,6 +31,8 @@ public class SwitchServerBuilder {
   private Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
+  private int sendThreads;
+  private int persistentThreads;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -83,7 +85,7 @@ public class SwitchServerBuilder {
   }
 
   public SwitchServerBuilder readIdleTime(String readIdleTime) {
-    this.readIdleTime = readIdleTime;
+    this.readIdleTime = Integer.parseInt(readIdleTime);
     return this;
   }
 
@@ -110,9 +112,24 @@ public class SwitchServerBuilder {
     return this;
   }
 
+  public SwitchServerBuilder sendThreads(String sendThreads) {
+    this.sendThreads = Integer.parseInt(sendThreads);
+    return this;
+  }
+
+  public SwitchServerBuilder persistentThreads(String persistentThreads) {
+    this.persistentThreads = Integer.parseInt(persistentThreads);
+    return this;
+  }
+
   public SwitchServer build() {
     logger.debug("server build start");
+    check();
     return getServerByType(serverType);
+  }
+
+  private void check() {
+
   }
 
   private SwitchServer getServerByType(String serverType) {
@@ -120,16 +137,16 @@ public class SwitchServerBuilder {
 
     switch (serverType) {
       case "active":
-        server = new ActiveSwitchServer();
+        server = new ActiveSwitchServer(sendThreads,persistentThreads);
         break;
       case "activePlus":
-        server = new ActiveSwitchServerPlus();
+        server = new ActiveSwitchServerPlus(sendThreads,persistentThreads);
         break;
       case "passive":
-        server = new PassiveSwitchServer();
+        server = new PassiveSwitchServer(sendThreads,persistentThreads);
         break;
       case "passivePlus":
-        server = new PassiveSwitchServerPlus();
+        server = new PassiveSwitchServerPlus(sendThreads,persistentThreads);
         break;
       default:
         throw new ServerException("server type error");

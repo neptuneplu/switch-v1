@@ -13,6 +13,10 @@ import me.card.switchv1.core.handler.StreamHandler;
 
 public class PassiveSwitchServerPlus extends AbstractPassiveSwitchServer {
 
+  protected PassiveSwitchServerPlus(int sendThreads, int persistentThreads) {
+    super(sendThreads, persistentThreads);
+  }
+
   @Override
   protected ChannelInitializer<SocketChannel> getChannelInitializer(Queryable queryable) {
     MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);

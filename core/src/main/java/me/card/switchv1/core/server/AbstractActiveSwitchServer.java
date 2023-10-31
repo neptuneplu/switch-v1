@@ -22,17 +22,21 @@ public abstract class AbstractActiveSwitchServer extends AbstractSwitchServer
   public static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
 
   protected final Bootstrap bootstrap = new Bootstrap();
-
-  private final EventLoopGroup serverGroup =
-      new NioEventLoopGroup(1, new DefaultThreadFactory("switch-serverGroup", Thread.MAX_PRIORITY));
-
-  protected final EventLoopGroup sendGroup =
-      new NioEventLoopGroup(3, new DefaultThreadFactory("switch-sendGroup", Thread.MAX_PRIORITY));
-
-  protected final EventLoopGroup persistentGroup = new DefaultEventLoopGroup(2,
-      new DefaultThreadFactory("switch-persistentGroup", Thread.MAX_PRIORITY));
-
+  private final EventLoopGroup serverGroup;
+  protected final EventLoopGroup sendGroup;
+  protected final EventLoopGroup persistentGroup;
   private Channel channel;
+
+  protected AbstractActiveSwitchServer(int sendThreads, int persistentThreads) {
+    serverGroup = new NioEventLoopGroup(1,
+        new DefaultThreadFactory("switch-serverGroup", Thread.MAX_PRIORITY));
+
+    sendGroup = new NioEventLoopGroup(sendThreads,
+        new DefaultThreadFactory("switch-sendGroup", Thread.MAX_PRIORITY));
+
+    persistentGroup = new DefaultEventLoopGroup(persistentThreads,
+        new DefaultThreadFactory("switch-persistentGroup", Thread.MAX_PRIORITY));
+  }
 
   @Override
   public void start() {

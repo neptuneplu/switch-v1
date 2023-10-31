@@ -13,6 +13,10 @@ import me.card.switchv1.core.handler.StreamHandler;
 
 public class ActiveSwitchServerPlus extends AbstractActiveSwitchServer {
 
+  protected ActiveSwitchServerPlus(int sendThreads, int persistentThreads) {
+    super(sendThreads, persistentThreads);
+  }
+
   @Override
   protected ChannelInitializer<SocketChannel> getChannelInitializer(
       AutoConnectable autoConnectable) {
