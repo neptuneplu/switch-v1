@@ -4,7 +4,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.concurrent.Promise;
+import java.util.concurrent.TimeUnit;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.handler.ClientFinishHandler;
 
@@ -19,7 +21,9 @@ public class BackOfficeClient extends BackOfficeAbstractClient<Api> {
             .addLast(new HttpObjectAggregator(10 * 1024 * 1024)) //dup
             .addLast(backOfficeHttpResponseHandler) //in
             .addLast(backOfficeHttpRequestHandler) //out
-            .addLast(new ClientFinishHandler(promise)); //in
+            .addLast(new ClientFinishHandler(promise)) //in
+            .addLast(new ReadTimeoutHandler(2, TimeUnit.SECONDS))
+        ;
       }
     };
   }

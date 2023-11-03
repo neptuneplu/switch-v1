@@ -1,19 +1,18 @@
 package me.card.switchv1.core.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoop;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Promise;
-import java.util.Objects;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.handler.BackOfficeHttpRequestHandler;
 import me.card.switchv1.core.handler.BackOfficeHttpResponseHandler;
+import me.card.switchv1.core.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +31,17 @@ public abstract class BackOfficeAbstractClient<T> implements Client<T> {
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group(eventLoop)
         .channel(NioSocketChannel.class)
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
         .handler(getChannelInitializer(promise));
 
-    bootstrap.connect(destinationURL.getDestinationAddress()).addListener(
-        (ChannelFutureListener) future -> {
-          future.channel().writeAndFlush(t);
-        });
+    bootstrap.connect(destinationURL.getDestinationAddress()).addListener(future -> {
+      if (future.isSuccess()) {
+        ((ChannelFuture) future).channel().writeAndFlush(t);
+      } else {
+        logger.error("backoffice not connected", future.cause());
+        throw new ClientException("connect error");
+      }
+    });
   }
 
   public BackOfficeAbstractClient<T> destinationURL(
@@ -59,12 +63,8 @@ public abstract class BackOfficeAbstractClient<T> implements Client<T> {
   }
 
   private void initCheck0() {
-    if (Objects.isNull(responseApiClz)) {
-      throw new ClientException("init error, responseApiClz is null");
-    }
-    if (Objects.isNull(destinationURL)) {
-      throw new ClientException("init error, destinationURL is null");
-    }
+    Assert.notNull(responseApiClz, "init error, responseApiClz is null");
+    Assert.notNull(destinationURL, "init error, destinationURL is null");
   }
 
   protected abstract ChannelInitializer<SocketChannel> getChannelInitializer(

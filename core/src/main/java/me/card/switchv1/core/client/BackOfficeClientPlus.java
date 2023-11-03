@@ -6,8 +6,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.concurrent.Promise;
-import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.Message;
@@ -17,6 +18,7 @@ import me.card.switchv1.core.handler.ApiCodecHandlerPlus;
 import me.card.switchv1.core.handler.ClientFinishHandlerPlus;
 import me.card.switchv1.core.handler.MessageHandlerPlus;
 import me.card.switchv1.core.handler.PersistentHandlerPlus;
+import me.card.switchv1.core.util.Assert;
 
 public class BackOfficeClientPlus extends BackOfficeAbstractClient<ByteBuf> {
   private ApiCoder<Api, Message> apiCoder;
@@ -26,6 +28,7 @@ public class BackOfficeClientPlus extends BackOfficeAbstractClient<ByteBuf> {
   private ApiCodecHandlerPlus apiCodecHandlerPlus;
   private PersistentHandlerPlus persistentHandlerPlus;
   private MessageHandlerPlus messageHandlerPlus;
+
 
 
   @Override
@@ -42,7 +45,9 @@ public class BackOfficeClientPlus extends BackOfficeAbstractClient<ByteBuf> {
             .addLast(apiCodecHandlerPlus) //dup
             .addLast(persistentGroup, persistentHandlerPlus)//dup
             .addLast(messageHandlerPlus)//dup
-            .addLast(new ClientFinishHandlerPlus(promise));//in
+            .addLast(new ClientFinishHandlerPlus(promise))//in
+            .addLast(new ReadTimeoutHandler(2, TimeUnit.SECONDS))
+        ;
       }
     };
   }
@@ -58,18 +63,10 @@ public class BackOfficeClientPlus extends BackOfficeAbstractClient<ByteBuf> {
   }
 
   private void initCheck() {
-    if (Objects.isNull(apiCoder)) {
-      throw new ClientException("init error, apiCoder is null");
-    }
-    if (Objects.isNull(persistentWorker)) {
-      throw new ClientException("init error, persistentWorker is null");
-    }
-    if (Objects.isNull(persistentGroup)) {
-      throw new ClientException("init error, persistentGroup is null");
-    }
-    if (Objects.isNull(messageCoder)) {
-      throw new ClientException("init error, messageCoder is null");
-    }
+    Assert.notNull(apiCoder, "init error, apiCoder is null");
+    Assert.notNull(persistentWorker, "init error, persistentWorker is null");
+    Assert.notNull(persistentGroup, "init error, persistentGroup is null");
+    Assert.notNull(messageCoder, "init error, messageCoder is null");
   }
 
   public BackOfficeClientPlus messageCoder(
