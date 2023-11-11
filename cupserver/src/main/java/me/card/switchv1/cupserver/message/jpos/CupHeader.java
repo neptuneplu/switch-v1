@@ -9,24 +9,15 @@ public class CupHeader {
   public static final int H3_LEN = 4;
   public static final int H4_LEN = 11;
   public static final int H5_LEN = 11;
-  public static final int H6_LEN = 3;
-  public static final int H7_LEN = 1;
-  public static final int H8_LEN = 8;
-  public static final int H9_LEN = 1;
-  public static final int H10_LEN = 5;
+
 
   private byte[] value;
 
-  private String headerLength;
-  private String version;
+
   private int messageLength;
   private byte[] destinationId;
   private byte[] sourceId;
-  private String h6;
-  private String batchNumber;
-  private String transactionInformation;
-  private String userInformation;
-  private String rejectCode;
+
 
 
   public CupHeader() {
