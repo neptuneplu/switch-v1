@@ -77,7 +77,8 @@ public class VisaBase1Packager extends ISOBasePackager {
       /*045*/ new IFB_LLHECHAR(76, "F45"),
       /*046*/ null,
       /*047*/ null,
-      /*048*/ new IFB_LLLCHAR(999, "F48"),
+//      check F48
+      /*048*/ new IFB_LLHECHAR(255, "F48"),
       /*049*/ new IFB_NUMERIC(3, "F49", true),
       /*050*/ null,
       /*051*/ new IFB_NUMERIC(3, "F51", true),
@@ -134,7 +135,8 @@ public class VisaBase1Packager extends ISOBasePackager {
       /*101*/ new IFB_LLCHAR(17, "F101"),
       /*102*/ new IFB_LLCHAR(28, "F102"),
       /*103*/ new IFB_LLCHAR(28, "F103"),
-      /*104*/ new IFB_LLLCHAR(100, "F104"),
+//      check F104
+      /*104*/ new IFB_LLHECHAR(255, "F104"),
       /*105*/ new IFB_NUMERIC(16, "F105", PAD),
       /*106*/ new IFB_NUMERIC(16, "F106", PAD),
       /*107*/ new IFB_NUMERIC(10, "F107", PAD),
