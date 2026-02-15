@@ -1,5 +1,5 @@
 use
-visa;
+switch;
 DROP TABLE IF EXISTS visa_log;
 CREATE TABLE visa_log
 (
