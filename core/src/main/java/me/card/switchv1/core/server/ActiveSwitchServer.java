@@ -49,6 +49,21 @@ public class ActiveSwitchServer extends AbstractSwitchServer
 
   }
 
+  private ChannelInitializer<SocketChannel> getChannelInitializer(
+      AutoConnectable autoConnectable) {
+
+    return new ChannelInitializer<>() {
+      @Override
+      protected void initChannel(SocketChannel ch) {
+        ch.pipeline()
+            .addLast(StreamHandler.NAME, new StreamHandler(prefix))
+            .addLast(BackOfficeHandler.NAME, new BackOfficeHandler(processor))
+            .addLast(new IdleStateHandler(readIdleTime, 0, 0))
+            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
+      }
+    };
+  }
+
   @Override
   public void connect() {
     bootstrap.connect().addListener(future -> logger.info("connecting"));
@@ -94,23 +109,5 @@ public class ActiveSwitchServer extends AbstractSwitchServer
     ServerMonitor monitor = serverMonitor.copy();
     monitor.setStatus(channel.isActive());
     return monitor;
-  }
-
-  private ChannelInitializer<SocketChannel> getChannelInitializer(
-      AutoConnectable autoConnectable) {
-    MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);
-
-
-    return new ChannelInitializer<>() {
-      @Override
-      protected void initChannel(SocketChannel ch) {
-        ch.pipeline()
-            .addLast(StreamHandler.NAME, new StreamHandler(prefix))
-            .addLast(BackOfficeHandler.NAME,
-                new BackOfficeHandler(apiCoder, messageCoder, responseApiClz,destinationURL))
-            .addLast(new IdleStateHandler(readIdleTime, 0, 0))
-            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
-      }
-    };
   }
 }

@@ -2,14 +2,20 @@ package me.card.switchv1.core.server;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
+import me.card.switchv1.core.client.ApiClient;
+import me.card.switchv1.core.client.ApiClientOkHttp;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.processor.DefaultProcessor;
+import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +36,7 @@ public class SwitchServerBuilder {
   private Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
-  private int sendThreads;
+  private int processorThreads;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -105,11 +111,10 @@ public class SwitchServerBuilder {
     return this;
   }
 
-  public SwitchServerBuilder sendThreads(String sendThreads) {
-    this.sendThreads = Integer.parseInt(sendThreads);
+  public SwitchServerBuilder processorThreads(String processorThreads) {
+    this.processorThreads = Integer.parseInt(processorThreads);
     return this;
   }
-
 
 
   public SwitchServer build() {
@@ -152,6 +157,15 @@ public class SwitchServerBuilder {
     server.setId(this.id);
     server.setSignOnMessageSupplier(signOnMessageSupplier);
     server.setSignOffMessageSupplier(signOffMessageSupplier);
+
+    MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);
+
+    ApiClient apiClient = new ApiClientOkHttp(responseApiClz);
+
+    Processor processor = new DefaultProcessor(this.apiCoder,
+        messageCoder, this.destinationURL, apiClient);
+
+    server.setProcessor(processor);
   }
 
 }

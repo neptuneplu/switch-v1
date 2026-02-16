@@ -47,7 +47,7 @@ public class CupExternalConfig {
   private String serverType;
 
   @Value("${cup.sendThreads}")
-  private String sendThreads;
+  private String processorThreads;
 
   @Value("${cup.persistentThreads}")
   private String persistentThreads;
@@ -111,7 +111,7 @@ public class CupExternalConfig {
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
         ", serverType='" + serverType + '\'' +
-        ", sendThreads='" + sendThreads + '\'' +
+        ", processorThreads='" + processorThreads + '\'' +
         ", persistentThreads='" + persistentThreads + '\'' +
         '}';
   }

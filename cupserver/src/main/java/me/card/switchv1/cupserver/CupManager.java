@@ -109,7 +109,7 @@ public class CupManager {
         .sourceAddress(cupConfig.sourceAddress())
         .destinationURL(cupConfig.destinationURL())
         .readIdleTime(cupConfig.readIdleTime())
-        .sendThreads(cupConfig.sendThreads())
+        .processorThreads(cupConfig.processorThreads())
         .persistentThreads(cupConfig.persistentThreads())
         .prefix(prefix)
         .heartBeat(heartBeat)

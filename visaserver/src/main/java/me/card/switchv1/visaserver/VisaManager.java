@@ -146,7 +146,7 @@ public class VisaManager {
         .sourceAddress(visaConfig.sourceAddress())
         .destinationURL(visaConfig.destinationURL())
         .readIdleTime(visaConfig.readIdleTime())
-        .sendThreads(visaConfig.sendThreads())
+        .processorThreads(visaConfig.processorThreads())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(VisaMessageByJpos::new)

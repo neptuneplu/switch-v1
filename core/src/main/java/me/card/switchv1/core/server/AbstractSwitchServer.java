@@ -10,6 +10,7 @@ import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.processor.Processor;
 
 public class AbstractSwitchServer {
 
@@ -27,11 +28,15 @@ public class AbstractSwitchServer {
   protected Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
+  protected Processor processor;
 
   public AbstractSwitchServer() {
     this.serverMonitor = new ServerMonitor();
   }
 
+  void setProcessor(Processor processor) {
+    this.processor = processor;
+  }
 
   void setName(String name) {
     this.name = name;
