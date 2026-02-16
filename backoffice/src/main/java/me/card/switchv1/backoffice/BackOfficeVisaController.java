@@ -16,11 +16,12 @@ public class BackOfficeVisaController {
   public VisaApi visaAuth(@RequestBody VisaApi visaRequest) {
 
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("visa request content: %s", visaRequest.toString()));
+      logger.debug(String.format("received visa request content: %s", visaRequest.toString()));
     }
 
+
 //    try {
-//      Thread.sleep(2000);
+//      Thread.sleep(1000);
 //    } catch (Exception e) {
 //      throw new RuntimeException("interrupted");
 //    }
@@ -36,6 +37,10 @@ public class BackOfficeVisaController {
     if (visaRequest.getMTI().equals("0800")) {
       visaRequest.setMTI("0810");
       visaRequest.setF39("00");
+    }
+
+    if (logger.isDebugEnabled()) {
+      logger.debug("finished");
     }
 
     return visaRequest;

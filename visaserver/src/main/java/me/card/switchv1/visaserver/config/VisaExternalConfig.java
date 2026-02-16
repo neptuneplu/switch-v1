@@ -49,8 +49,6 @@ public class VisaExternalConfig {
   @Value("${visa.sendThreads}")
   private String sendThreads;
 
-  @Value("${visa.persistentThreads}")
-  private String persistentThreads;
 
   public InetSocketAddress localAddress() {
     return new InetSocketAddress(localAddress, Integer.parseInt(localPort));
@@ -87,9 +85,6 @@ public class VisaExternalConfig {
     return sendThreads;
   }
 
-  public String persistentThreads() {
-    return persistentThreads;
-  }
 
   @PostConstruct
   public void print() {
@@ -112,7 +107,6 @@ public class VisaExternalConfig {
         ", readIdleTime='" + readIdleTime + '\'' +
         ", serverType='" + serverType + '\'' +
         ", sendThreads='" + sendThreads + '\'' +
-        ", persistentThreads='" + persistentThreads + '\'' +
         '}';
   }
 }

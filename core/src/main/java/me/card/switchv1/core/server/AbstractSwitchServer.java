@@ -24,7 +24,6 @@ public class AbstractSwitchServer {
   protected Supplier<Message> messageSupplier;
   protected Class<Api> responseApiClz;
   protected ApiCoder<Api, Message> apiCoder;
-  protected PersistentWorker persistentWorker;
   protected Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
@@ -73,10 +72,6 @@ public class AbstractSwitchServer {
 
   public void setReadIdleTime(int readIdleTime) {
     this.readIdleTime = readIdleTime;
-  }
-
-  public void setPersistentWorker(PersistentWorker persistentWorker) {
-    this.persistentWorker = persistentWorker;
   }
 
   public void setId(Id id) {

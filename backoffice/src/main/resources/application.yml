@@ -13,4 +13,4 @@ server:
 logging:
   level:
     ROOT: warn
-    me.card.switchv1: warn
+    me.card.switchv1: debug

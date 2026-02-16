@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class MessageHandler extends MessageToMessageCodec<ByteBuf, Message> {
+public class MessageHandler extends MessageToMessageCodec<Message, ByteBuf> {
   private static final Logger logger = LoggerFactory.getLogger(MessageHandler.class);
-  public static final String NAME = "MessageHandler";
+  public static final String NAME = "MessageHandlerNioPlus";
 
   private final MessageCoder messageCoder;
 
@@ -24,8 +24,20 @@ public class MessageHandler extends MessageToMessageCodec<ByteBuf, Message> {
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
-    logger.debug("compress msg start");
+  protected void encode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) {
+    logger.debug("extract mdg start");
+
+    try {
+      out.add(messageCoder.extract(msg));
+    } catch (Exception e) {
+      logger.warn("extract message failed!!!", e);
+      logger.error(String.format("extract message failed, msg: %s", ByteBufUtil.hexDump(msg)));
+    }
+  }
+
+  @Override
+  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
+    logger.debug("compress mdg start");
 
     try {
       out.add(Unpooled.unreleasableBuffer(messageCoder.compress(msg)));
@@ -35,15 +47,4 @@ public class MessageHandler extends MessageToMessageCodec<ByteBuf, Message> {
     }
   }
 
-  @Override
-  protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) {
-    logger.debug("extract msg start");
-
-    try {
-      out.add(messageCoder.extract(msg));
-    } catch (Exception e) {
-      logger.warn("extract message failed!!!", e);
-      logger.error(String.format("extract message failed, msg: %s", ByteBufUtil.hexDump(msg)));
-    }
-  }
 }
