@@ -48,13 +48,12 @@ public class ActiveSwitchServer extends AbstractSwitchServer
   }
 
   private ChannelInitializer<SocketChannel> getChannelInitializer(AutoConnectable autoConnectable) {
-
     return new ChannelInitializer<>() {
       @Override
       protected void initChannel(SocketChannel ch) {
         ch.pipeline()
             .addLast(StreamHandler.NAME, new StreamHandler(prefix))
-            .addLast(ProcessHandler.NAME, new ProcessHandler(processor))
+            .addLast(ProcessHandler.NAME, new ProcessHandler(processor, destinationURL))
             .addLast(new IdleStateHandler(readIdleTime, 0, 0))
             .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
       }

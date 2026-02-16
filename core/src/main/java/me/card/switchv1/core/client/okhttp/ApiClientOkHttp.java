@@ -48,8 +48,12 @@ public class ApiClientOkHttp implements ApiClient {
         .build();
 
     this.responseApiClz = responseApiClz;
+
   }
 
+  public void setResponseApiClz(Class<Api> responseApiClz) {
+    this.responseApiClz = responseApiClz;
+  }
 
   public void call(RequestContext context,
                    Consumer<RequestContext> responseConsumer,

@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("/application-cup.properties")
-public class CupExternalConfig {
-  private static final Logger logger = LoggerFactory.getLogger(CupExternalConfig.class);
+public class CupBeanConfig {
+  private static final Logger logger = LoggerFactory.getLogger(CupBeanConfig.class);
 
   @Value("${cup.name}")
   private String name;

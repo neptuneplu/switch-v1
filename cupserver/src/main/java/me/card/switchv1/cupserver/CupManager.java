@@ -6,12 +6,11 @@ import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
-import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
-import me.card.switchv1.cupserver.config.CupExternalConfig;
+import me.card.switchv1.cupserver.config.CupBeanConfig;
 import me.card.switchv1.cupserver.message.jpos.CupMessageByJpos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class CupManager {
   private static final Logger logger = LoggerFactory.getLogger(CupManager.class);
 
   @Resource
-  private CupExternalConfig cupConfig;
+  private CupBeanConfig cupConfig;
 
   @Resource
   private ApiCoder<Api, Message> apiCoder;
@@ -112,7 +111,6 @@ public class CupManager {
         .messageSupplier(CupMessageByJpos::new)
         .apiCoder(apiCoder)
         .responseApiClz(apiClz)
-        .id(id)
         .build();
 
     return switchServer;

@@ -21,19 +21,17 @@ public class DefaultProcessor implements Processor {
   private static final Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
 
   private final ExecutorService businessExecutor;
-  private final ApiCoder<Api, Message> apiCoder;
+  private final ApiCoder apiCoder;
   private final MessageCoder messageCoder;
-  private final DestinationURL destinationURL;
   private final ApiClient apiClient;
 
-  public DefaultProcessor(ApiCoder<Api, Message> apiCoder,
+
+  public DefaultProcessor(ApiCoder<? extends Api, ? extends Message> apiCoder,
                           MessageCoder messageCoder,
-                          DestinationURL destinationURL,
                           ApiClient apiClient) {
 
     this.apiCoder = apiCoder;
     this.messageCoder = messageCoder;
-    this.destinationURL = destinationURL;
     this.apiClient = apiClient;
 
     this.businessExecutor = Executors.newFixedThreadPool(3,
@@ -65,16 +63,12 @@ public class DefaultProcessor implements Processor {
 
     context.markBusinessPre();
 
-    context.setDestinationURL(destinationURL);
+    //
+    Api api = apiCoder.messageToApi(messageCoder.extract(context.getIncomeMsg()));
+    context.setRequestApi(api);
 
     try {
-      //
-      Api api = apiCoder.messageToApi(messageCoder.extract(context.getIncomeMsg()));
-      context.setRequestApi(api);
-
-      //
       apiClient.call(context, this::processSuccessResponse, this::processErrorResponse);
-
     } catch (Exception e) {
       logger.error("业务预处理失败", e);
       sendErrorResponse(context, "业务处理失败: " + e.getMessage());
@@ -87,16 +81,14 @@ public class DefaultProcessor implements Processor {
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
 
     Api api = context.getReponseApi();
+    //
+    Message message = apiCoder.apiToMessage(api);
+    ByteBuf byteMsg = Unpooled.unreleasableBuffer(messageCoder.compress(message));
+    context.setOutgoMsg(byteMsg);
 
+    //
     try {
-
-      //
-      Message message = apiCoder.apiToMessage(api);
-      ByteBuf byteMsg = Unpooled.unreleasableBuffer(messageCoder.compress(message));
-
-      //
-      sendSuccessResponse(context, byteMsg);
-
+      sendSuccessResponse(context);
     } catch (Exception e) {
       logger.error("业务后处理失败", e);
       sendErrorResponse(context, "后处理失败: " + e.getMessage());
@@ -107,7 +99,7 @@ public class DefaultProcessor implements Processor {
     sendErrorResponse(context, "error response");
   }
 
-  private void sendSuccessResponse(RequestContext context, ByteBuf byteMsg) {
+  private void sendSuccessResponse(RequestContext context) {
     //
     EventLoop nettyEventLoop = context.getCtx().channel().eventLoop();
 
@@ -119,7 +111,7 @@ public class DefaultProcessor implements Processor {
       logger.info("[阶段5/5] Netty写回: 线程={}", Thread.currentThread().getName());
 
       context.getCtx()
-          .writeAndFlush(byteMsg)
+          .writeAndFlush(context.getOutgoMsg())
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();

@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultMessageCoder;
@@ -11,14 +12,14 @@ import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.server.ServerException;
 import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.visaapi.VisaApi;
-import me.card.switchv1.visaserver.config.VisaExternalConfig;
+import me.card.switchv1.visaserver.config.VisaParamsConfig;
 import me.card.switchv1.visaserver.db.VisaLogPo;
 import me.card.switchv1.visaserver.db.VisaLogService;
 import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
@@ -33,10 +34,7 @@ public class VisaManager {
   private static final Logger logger = LoggerFactory.getLogger(VisaManager.class);
 
   @Resource
-  private VisaExternalConfig visaConfig;
-
-  @Resource
-  private ApiCoder<Api, Message> apiCoder;
+  private VisaParamsConfig visaParamsConfig;
 
   @Resource
   private HeartBeat heartBeat;
@@ -45,20 +43,30 @@ public class VisaManager {
   private Prefix prefix;
 
   @Resource
+  private ApiCoder<Api, Message> apiCoder;
+
+  @Resource
   private Class<Api> apiClz;
 
   @Resource
   private Id id;
 
   @Resource
+  private VisaLogService visaLogService;
+
+  @Resource
   private SwitchServerBuilder switchServerBuilder;
 
   @Resource
-  private VisaLogService visaLogService;
+  private MessageCoder messageCoder;
+
+  @Resource
+  private ApiClient apiClient;
+
+  @Resource
+  private Processor processor;
 
   private SwitchServer switchServer;
-
-  private MessageCoder messageCoder;
 
 
   public ServerMonitor start() {
@@ -118,7 +126,7 @@ public class VisaManager {
   private void startCheck() {
     Assert.isNull(switchServer, "visa server already exist");
     Assert.notNull(switchServerBuilder, "switchServerBuilder is null");
-    Assert.notNull(visaConfig, "visaConfig is null");
+    Assert.notNull(visaParamsConfig, "visaParamsConfig is null");
     Assert.notNull(apiCoder, "apiCoder is null");
     Assert.notNull(heartBeat, "heartBeat is null");
     Assert.notNull(prefix, "prefix is null");
@@ -136,21 +144,23 @@ public class VisaManager {
 
   private SwitchServer getServer() {
     switchServer = switchServerBuilder
-        .name(visaConfig.name())
-        .serverType(visaConfig.serverType())
-        .localAddress(visaConfig.localAddress())
-        .sourceAddress(visaConfig.sourceAddress())
-        .destinationURL(visaConfig.destinationURL())
-        .readIdleTime(visaConfig.readIdleTime())
-        .processorThreads(visaConfig.processorThreads())
+        .name(visaParamsConfig.name())
+        .serverType(visaParamsConfig.serverType())
+        .localAddress(visaParamsConfig.localAddress())
+        .sourceAddress(visaParamsConfig.sourceAddress())
+        .destinationURL(visaParamsConfig.destinationURL())
+        .readIdleTime(visaParamsConfig.readIdleTime())
+        .processorThreads(visaParamsConfig.processorThreads())
+        .destinationURL(visaParamsConfig.destinationURL())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(VisaMessageByJpos::new)
         .apiCoder(apiCoder)
         .responseApiClz(apiClz)
-        .id(id)
         .signOnMessageSupplier(SignOnAndOffMessage::signOnMessage)
         .signOffMessageSupplier(SignOnAndOffMessage::signOffMessage)
+        .messageCoder(messageCoder)
+        .processor(processor)
         .build();
 
     return switchServer;
@@ -169,15 +179,10 @@ public class VisaManager {
   public VisaApi queryApi(String seqNo, String direction) {
     VisaLogPo visaLogPo = queryRawMessage(seqNo, direction);
     VisaMessageByJpos visaMessageByJpos = (VisaMessageByJpos) messageCoder.extract(
-            Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(visaLogPo.getHexMessage())));
+        Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(visaLogPo.getHexMessage())));
 
     return (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
 
   }
 
-
-  @PostConstruct
-  public void init() {
-    messageCoder = new DefaultMessageCoder(VisaMessageByJpos::new, id);
-  }
 }

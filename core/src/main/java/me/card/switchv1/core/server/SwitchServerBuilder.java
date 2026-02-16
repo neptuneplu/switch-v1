@@ -29,13 +29,15 @@ public class SwitchServerBuilder {
   private int readIdleTime;
   private HeartBeat heartBeat;
   private Prefix prefix;
+  private Id id;
   private Supplier<Message> messageSupplier;
   private Class<Api> responseApiClz;
   private ApiCoder<Api, Message> apiCoder;
-  private Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
+  protected MessageCoder messageCoder;
   private int processorThreads;
+  private Processor processor;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -59,6 +61,11 @@ public class SwitchServerBuilder {
 
   public SwitchServerBuilder destinationURL(DestinationURL destinationURL) {
     this.destinationURL = destinationURL;
+    return this;
+  }
+
+  public SwitchServerBuilder setId(Id id) {
+    this.id = id;
     return this;
   }
 
@@ -93,11 +100,6 @@ public class SwitchServerBuilder {
   }
 
 
-  public SwitchServerBuilder id(Id id) {
-    this.id = id;
-    return this;
-  }
-
   public SwitchServerBuilder signOnMessageSupplier(
       Supplier<Message> signOnMessageSupplier) {
     this.signOnMessageSupplier = signOnMessageSupplier;
@@ -110,11 +112,20 @@ public class SwitchServerBuilder {
     return this;
   }
 
+  public SwitchServerBuilder messageCoder(MessageCoder messageCoder) {
+    this.messageCoder = messageCoder;
+    return this;
+  }
+
   public SwitchServerBuilder processorThreads(String processorThreads) {
     this.processorThreads = Integer.parseInt(processorThreads);
     return this;
   }
 
+  public SwitchServerBuilder processor(Processor processor) {
+    this.processor = processor;
+    return this;
+  }
 
   public SwitchServer build() {
     logger.debug("server build start");
@@ -153,17 +164,9 @@ public class SwitchServerBuilder {
     server.setApiCoder(this.apiCoder);
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
-    server.setId(this.id);
     server.setSignOnMessageSupplier(signOnMessageSupplier);
     server.setSignOffMessageSupplier(signOffMessageSupplier);
-
-    MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);
-
-    ApiClient apiClient = new ApiClientOkHttp(responseApiClz);
-
-    Processor processor = new DefaultProcessor(this.apiCoder,
-        messageCoder, this.destinationURL, apiClient);
-
+    server.setId(this.id);
     server.setProcessor(processor);
   }
 

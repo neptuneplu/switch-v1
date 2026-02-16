@@ -1,9 +1,18 @@
 package me.card.switchv1.visaserver.config;
 
+import javax.annotation.PostConstruct;
+import me.card.switchv1.core.client.ApiClient;
+import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
+import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultId;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.MessageCoder;
+import me.card.switchv1.core.processor.DefaultProcessor;
+import me.card.switchv1.core.processor.Processor;
+import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.VisaHeartBeat;
@@ -15,7 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class VisaInternalConfig {
+public class VisaBeanConfig {
 
   @Bean
   public SwitchServerBuilder switchServerBuilder() {
@@ -47,17 +56,30 @@ public class VisaInternalConfig {
     return new VisaPersistentWorkerByDB();
   }
 
-  @Bean
-  public Id id() {
-    return new DefaultId();
-  }
-
-
   // for check iso packager
   @Bean
   public Message message() {
     return new VisaMessageByJpos();
   }
 
+  @Bean
+  public Id id() {
+    return new DefaultId();
+  }
 
+
+  @Bean
+  public MessageCoder messageCoder() {
+    return new DefaultMessageCoder(VisaMessageByJpos::new, id());
+  }
+
+  @Bean
+  public ApiClient apiClient() {
+    return new ApiClientOkHttp((Class<Api>) (Class<?>) apiClz());
+  }
+
+  @Bean
+  public Processor processor() {
+    return new DefaultProcessor(apiCoder(), messageCoder(), apiClient());
+  }
 }

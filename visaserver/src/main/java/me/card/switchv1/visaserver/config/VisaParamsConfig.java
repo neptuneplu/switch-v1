@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("/application-visa.properties")
-public class VisaExternalConfig {
-  private static final Logger logger = LoggerFactory.getLogger(VisaExternalConfig.class);
+public class VisaParamsConfig {
+  private static final Logger logger = LoggerFactory.getLogger(VisaParamsConfig.class);
 
   @Value("${visa.name}")
   private String name;
