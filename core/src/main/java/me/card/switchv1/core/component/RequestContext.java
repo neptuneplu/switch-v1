@@ -12,8 +12,10 @@ public class RequestContext {
 
   private ChannelHandlerContext ctx;
   private DestinationURL destinationURL;
-  private ByteBuf incomeMsg;
-  private ByteBuf outgoMsg;
+  private ByteBuf incomeBytes;
+  private ByteBuf outgoBytes;
+  private Message incomeMsg;
+  private Message outgoMsg;
   private Api requestApi;
   private Api reponseApi;
   private final Map<String, Object> businessData;
@@ -26,9 +28,9 @@ public class RequestContext {
   long httpEndTime;
   long processResponseStartTime;
 
-  public RequestContext(ChannelHandlerContext ctx, ByteBuf incomeMsg) {
+  public RequestContext(ChannelHandlerContext ctx, ByteBuf incomeBytes) {
     this.ctx = ctx;
-    this.incomeMsg = incomeMsg;
+    this.incomeBytes = incomeBytes;
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
@@ -59,19 +61,35 @@ public class RequestContext {
     this.ctx = ctx;
   }
 
-  public ByteBuf getIncomeMsg() {
+  public ByteBuf getIncomeBytes() {
+    return incomeBytes;
+  }
+
+  public void setIncomeBytes(ByteBuf incomeBytes) {
+    this.incomeBytes = incomeBytes;
+  }
+
+  public ByteBuf getOutgoBytes() {
+    return outgoBytes;
+  }
+
+  public void setOutgoBytes(ByteBuf outgoBytes) {
+    this.outgoBytes = outgoBytes;
+  }
+
+  public Message getIncomeMsg() {
     return incomeMsg;
   }
 
-  public void setIncomeMsg(ByteBuf incomeMsg) {
+  public void setIncomeMsg(Message incomeMsg) {
     this.incomeMsg = incomeMsg;
   }
 
-  public ByteBuf getOutgoMsg() {
+  public Message getOutgoMsg() {
     return outgoMsg;
   }
 
-  public void setOutgoMsg(ByteBuf outgoMsg) {
+  public void setOutgoMsg(Message outgoMsg) {
     this.outgoMsg = outgoMsg;
   }
 
