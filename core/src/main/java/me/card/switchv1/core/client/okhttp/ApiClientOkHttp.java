@@ -83,6 +83,7 @@ public class ApiClientOkHttp implements ApiClient {
         public void onResponse(@NotNull Call call, @NotNull Response response) {
           //
           context.markHttpEnd();
+
           logger.info("[stage4/5] HTTP invoke successful: thread={}, status code={}",
               Thread.currentThread().getName(), response.code());
 

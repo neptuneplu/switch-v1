@@ -30,15 +30,15 @@ public class DefaultProcessor implements Processor {
                           MessageCoder messageCoder,
                           ApiClient apiClient) {
 
-    this.apiCoder = apiCoder;
-    this.messageCoder = messageCoder;
-    this.apiClient = apiClient;
-
     this.businessExecutor = Executors.newFixedThreadPool(3,
         new ThreadFactoryBuilder()
             .setNameFormat("business-pool-%d")
             .setDaemon(true)
             .build());
+
+    this.apiCoder = apiCoder;
+    this.messageCoder = messageCoder;
+    this.apiClient = apiClient;
   }
 
 
@@ -59,9 +59,10 @@ public class DefaultProcessor implements Processor {
 
 
   private void processRequest0(RequestContext context) {
+    context.markProcessRequestStart();
+
     logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
 
-    context.markBusinessPre();
 
     //
     Api api = apiCoder.messageToApi(messageCoder.extract(context.getIncomeMsg()));
@@ -77,7 +78,8 @@ public class DefaultProcessor implements Processor {
 
 
   private void processSuccessResponse0(RequestContext context) {
-    context.markBusinessPost();
+    context.markProcessResponseStart();
+
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
 
     Api api = context.getReponseApi();
@@ -93,6 +95,8 @@ public class DefaultProcessor implements Processor {
       logger.error("业务后处理失败", e);
       sendErrorResponse(context, "后处理失败: " + e.getMessage());
     }
+
+
   }
 
   private void processErrorResponse0(RequestContext context) {

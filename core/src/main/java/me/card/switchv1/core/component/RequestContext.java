@@ -21,10 +21,10 @@ public class RequestContext {
 
   private final long startTime;
   long nettyReceiveTime;
-  long businessPreTime;
+  long processRequestStartTime;
   long httpStartTime;
   long httpEndTime;
-  long businessPostTime;
+  long processResponseStartTime;
 
   public RequestContext(ChannelHandlerContext ctx, ByteBuf incomeMsg) {
     this.ctx = ctx;
@@ -99,9 +99,8 @@ public class RequestContext {
     return startTime;
   }
 
-  // 记录各阶段时间
-  public void markBusinessPre() {
-    businessPreTime = System.currentTimeMillis();
+  public void markProcessRequestStart() {
+    processRequestStartTime = System.currentTimeMillis();
   }
 
   public void markHttpStart() {
@@ -112,16 +111,15 @@ public class RequestContext {
     httpEndTime = System.currentTimeMillis();
   }
 
-  public void markBusinessPost() {
-    businessPostTime = System.currentTimeMillis();
+  public void markProcessResponseStart() {
+    processResponseStartTime = System.currentTimeMillis();
   }
 
-  // 打印性能日志
   public void logPerformance() {
     logger.info("性能统计 - 总耗时: {}ms, 业务预处理: {}ms, HTTP调用: {}ms, 业务后处理: {}ms",
-        (businessPostTime - nettyReceiveTime),
-        (httpStartTime - businessPreTime),
+        (processResponseStartTime - nettyReceiveTime),
+        (httpStartTime - processRequestStartTime),
         (httpEndTime - httpStartTime),
-        (businessPostTime - httpEndTime));
+        (processResponseStartTime - httpEndTime));
   }
 }
