@@ -10,14 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class BackOfficeHandler extends SimpleChannelInboundHandler<ByteBuf> {
-  private static final Logger logger = LoggerFactory.getLogger(BackOfficeHandler.class);
+public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
+  private static final Logger logger = LoggerFactory.getLogger(ProcessHandler.class);
   public static final String NAME = "BackOfficeHandler";
 
   private final Processor processor;
 
 
-  public BackOfficeHandler(Processor processor) {
+  public ProcessHandler(Processor processor) {
     this.processor = processor;
   }
 

@@ -12,7 +12,10 @@ public class RequestContext {
 
   private ChannelHandlerContext ctx;
   private DestinationURL destinationURL;
-  private ByteBuf originalRequest;
+  private ByteBuf incomeMsg;
+  private ByteBuf outgoMsg;
+  private Api requestApi;
+  private Api reponseApi;
   private final Map<String, Object> businessData;
   private Throwable error;
 
@@ -23,9 +26,9 @@ public class RequestContext {
   long httpEndTime;
   long businessPostTime;
 
-  public RequestContext(ChannelHandlerContext ctx, ByteBuf request) {
+  public RequestContext(ChannelHandlerContext ctx, ByteBuf incomeMsg) {
     this.ctx = ctx;
-    this.originalRequest = request;
+    this.incomeMsg = incomeMsg;
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
@@ -56,12 +59,36 @@ public class RequestContext {
     this.ctx = ctx;
   }
 
-  public ByteBuf getOriginalRequest() {
-    return originalRequest;
+  public ByteBuf getIncomeMsg() {
+    return incomeMsg;
   }
 
-  public void setOriginalRequest(ByteBuf originalRequest) {
-    this.originalRequest = originalRequest;
+  public void setIncomeMsg(ByteBuf incomeMsg) {
+    this.incomeMsg = incomeMsg;
+  }
+
+  public ByteBuf getOutgoMsg() {
+    return outgoMsg;
+  }
+
+  public void setOutgoMsg(ByteBuf outgoMsg) {
+    this.outgoMsg = outgoMsg;
+  }
+
+  public Api getRequestApi() {
+    return requestApi;
+  }
+
+  public void setRequestApi(Api requestApi) {
+    this.requestApi = requestApi;
+  }
+
+  public Api getReponseApi() {
+    return reponseApi;
+  }
+
+  public void setReponseApi(Api reponseApi) {
+    this.reponseApi = reponseApi;
   }
 
   public Map<String, Object> getBusinessData() {

@@ -48,9 +48,6 @@ public class VisaManager {
   private Class<Api> apiClz;
 
   @Resource
-  private PersistentWorker persistentWorker;
-
-  @Resource
   private Id id;
 
   @Resource
@@ -126,7 +123,6 @@ public class VisaManager {
     Assert.notNull(heartBeat, "heartBeat is null");
     Assert.notNull(prefix, "prefix is null");
     Assert.notNull(apiClz, "apiClz is null");
-    Assert.notNull(persistentWorker, "persistentWorker is null");
 
   }
 

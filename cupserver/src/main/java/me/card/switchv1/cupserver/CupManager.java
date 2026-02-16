@@ -38,9 +38,6 @@ public class CupManager {
   private Class<Api> apiClz;
 
   @Resource
-  private PersistentWorker persistentWorker;
-
-  @Resource
   private SwitchServerBuilder switchServerBuilder;
 
   @Resource
@@ -110,13 +107,11 @@ public class CupManager {
         .destinationURL(cupConfig.destinationURL())
         .readIdleTime(cupConfig.readIdleTime())
         .processorThreads(cupConfig.processorThreads())
-        .persistentThreads(cupConfig.persistentThreads())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(CupMessageByJpos::new)
         .apiCoder(apiCoder)
         .responseApiClz(apiClz)
-        .persistentWorker(persistentWorker)
         .id(id)
         .build();
 

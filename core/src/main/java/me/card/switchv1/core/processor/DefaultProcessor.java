@@ -46,33 +46,34 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void processRequest(RequestContext context) {
-    context.setDestinationURL(destinationURL);
-    businessExecutor.submit(() -> processBusinessPre(context));
+    businessExecutor.submit(() -> processRequest0(context));
   }
 
   @Override
-  public void processResponse(RequestContext context) {
-    businessExecutor.submit(() -> processBusinessPost(context));
+  public void processSuccessResponse(RequestContext context) {
+    businessExecutor.submit(() -> processSuccessResponse0(context));
   }
 
   @Override
-  public void processError(RequestContext context) {
-    businessExecutor.submit(() -> sendErrorResponse(context, "error response"));
+  public void processErrorResponse(RequestContext context) {
+    businessExecutor.submit(() -> processErrorResponse0(context));
   }
 
-  private void processBusinessPre(RequestContext context) {
-    context.markBusinessPre();
+
+  private void processRequest0(RequestContext context) {
     logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
 
+    context.markBusinessPre();
+
+    context.setDestinationURL(destinationURL);
+
     try {
+      //
+      Api api = apiCoder.messageToApi(messageCoder.extract(context.getIncomeMsg()));
+      context.setRequestApi(api);
 
       //
-      Api api = apiCoder.messageToApi(messageCoder.extract(context.getOriginalRequest()));
-      context.getBusinessData().put("backendUrl", destinationURL);
-      context.getBusinessData().put("requestApi", api);
-
-      //
-      apiClient.call(context, this::processResponse, this::processError);
+      apiClient.call(context, this::processSuccessResponse, this::processErrorResponse);
 
     } catch (Exception e) {
       logger.error("业务预处理失败", e);
@@ -81,20 +82,20 @@ public class DefaultProcessor implements Processor {
   }
 
 
-  private void processBusinessPost(RequestContext context) {
+  private void processSuccessResponse0(RequestContext context) {
     context.markBusinessPost();
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
 
-    Api api = (Api) context.getBusinessData().get("responseApi");
+    Api api = context.getReponseApi();
 
     try {
 
       //
       Message message = apiCoder.apiToMessage(api);
-      ByteBuf result = Unpooled.unreleasableBuffer(messageCoder.compress(message));
+      ByteBuf byteMsg = Unpooled.unreleasableBuffer(messageCoder.compress(message));
 
       //
-      sendSuccessResponse(context, result);
+      sendSuccessResponse(context, byteMsg);
 
     } catch (Exception e) {
       logger.error("业务后处理失败", e);
@@ -102,7 +103,11 @@ public class DefaultProcessor implements Processor {
     }
   }
 
-  private void sendSuccessResponse(RequestContext context, ByteBuf result) {
+  private void processErrorResponse0(RequestContext context) {
+    sendErrorResponse(context, "error response");
+  }
+
+  private void sendSuccessResponse(RequestContext context, ByteBuf byteMsg) {
     //
     EventLoop nettyEventLoop = context.getCtx().channel().eventLoop();
 
@@ -111,10 +116,10 @@ public class DefaultProcessor implements Processor {
 
     //
     nettyEventLoop.execute(() -> {
-      //
       logger.info("[阶段5/5] Netty写回: 线程={}", Thread.currentThread().getName());
 
-      context.getCtx().writeAndFlush(result)
+      context.getCtx()
+          .writeAndFlush(byteMsg)
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();
@@ -130,4 +135,5 @@ public class DefaultProcessor implements Processor {
   private void sendErrorResponse(RequestContext context, String errorMessage) {
     logger.error("error response", errorMessage);
   }
+
 }

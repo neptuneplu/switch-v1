@@ -1,4 +1,4 @@
-package me.card.switchv1.core.client;
+package me.card.switchv1.core.client.okhttp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.RequestContext;
-import me.card.switchv1.core.handler.HandlerException;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.ConnectionPool;
@@ -18,11 +18,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ApiClientOkHttp implements ApiClient {
   private static final Logger logger = LoggerFactory.getLogger(ApiClientOkHttp.class);
+  private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+  private static final ObjectMapper mapper = new ObjectMapper();
 
   private final OkHttpClient httpClient;
   protected Class<Api> responseApiClz;
@@ -50,55 +54,36 @@ public class ApiClientOkHttp implements ApiClient {
   public void call(RequestContext context,
                    Consumer<RequestContext> responseConsumer,
                    Consumer<RequestContext> errorConsumer) {
+
     context.markHttpStart();
+
     logger.info("[stage3/5] HTTP invoke: thread={}", Thread.currentThread().getName());
 
-    ObjectMapper mapper = new ObjectMapper();
-    MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    Api api = (Api) context.getBusinessData().get("requestApi");
-    RequestBody requestBody;
-    try {
-      String json = mapper.writeValueAsString(api);
-      requestBody = RequestBody.create(json, JSON);
-    } catch (IOException e) {
-      throw new RuntimeException("对象转JSON失败", e);
-    }
-
+    Request request = getRequest(context, fromApi(context.getRequestApi()));
 
     try {
-      //
-      Request request = getRequest(context, requestBody);
-
       //
       httpClient.newCall(request).enqueue(new Callback() {
         @Override
-        public void onFailure(Call call, IOException e) {
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
           //
           logger.error("[stage4/5] HTTP invoke failure: thread={}, error={}",
               Thread.currentThread().getName(), e.getMessage());
           //
           context.setError(e);
+          //
           errorConsumer.accept(context);
         }
 
         @Override
-        public void onResponse(Call call, Response response) {
-          // response to api
-          try {
-            String responseBody = response.body().string();
-            ObjectMapper mapper = new ObjectMapper();
-            Api api;
-            api = mapper.readValue(responseBody, responseApiClz);
-            context.getBusinessData().put("responseApi", api);
-          } catch (Exception e) {
-            logger.error("jackson parser read error", e);
-            throw new HandlerException("jackson parser read error");
-          }
-
+        public void onResponse(@NotNull Call call, @NotNull Response response) {
           //
           context.markHttpEnd();
-          logger.info("[stage4/5] HTTP invoke successful: thread={}, statu scode={}",
+          logger.info("[stage4/5] HTTP invoke successful: thread={}, status code={}",
               Thread.currentThread().getName(), response.code());
+
+          // todo should check status code first
+          context.setReponseApi(toApi(response.body(), responseApiClz));
           //
           responseConsumer.accept(context);
         }
@@ -126,5 +111,24 @@ public class ApiClientOkHttp implements ApiClient {
 //          .addHeader("X-Trace-ID", context.ctx.channel().id().asShortText())
 //          .addHeader("X-User-ID", (String) context.businessData.get("userId"))
         .build();
+  }
+
+  public static RequestBody fromApi(Api api) {
+    try {
+      String json = mapper.writeValueAsString(api);
+      return RequestBody.create(json, JSON);
+    } catch (IOException e) {
+      throw new RuntimeException("对象转JSON失败", e);
+    }
+  }
+
+  public static Api toApi(ResponseBody responseBody, Class<Api> responseApiClz) {
+    try {
+      String strResponseBody = responseBody.string();
+      return mapper.readValue(strResponseBody, responseApiClz);
+    } catch (Exception e) {
+      throw new RuntimeException("jackson parser read error");
+    }
+
   }
 }
