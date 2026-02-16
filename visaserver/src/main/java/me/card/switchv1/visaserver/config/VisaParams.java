@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("/application-visa.properties")
-public class VisaParamsConfig {
-  private static final Logger logger = LoggerFactory.getLogger(VisaParamsConfig.class);
+public class VisaParams {
+  private static final Logger logger = LoggerFactory.getLogger(VisaParams.class);
 
   @Value("${visa.name}")
   private String name;
@@ -64,7 +64,7 @@ public class VisaParamsConfig {
           new InetSocketAddress(destinationAddress, Integer.parseInt(destinationPort)),
           new URI(destinationPortUri));
     } catch (URISyntaxException e) {
-      throw new VisaConfigException("uri syntax error");
+      throw new VisaParamsException("uri syntax error");
     }
 
   }

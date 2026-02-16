@@ -24,7 +24,7 @@ public class AbstractSwitchServer {
   protected HeartBeat heartBeat;
   protected Supplier<Message> messageSupplier;
   protected Class<? extends Api> responseApiClz;
-  protected ApiCoder<? extends Api, ? extends Message> apiCoder;
+//  protected ApiCoder<? extends Api, ? extends Message> apiCoder;
   protected Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
@@ -66,9 +66,9 @@ public class AbstractSwitchServer {
     this.messageSupplier = messageSupplier;
   }
 
-  void setApiCoder(ApiCoder<Api, Message> apiCoder) {
-    this.apiCoder = apiCoder;
-  }
+//  void setApiCoder(ApiCoder<Api, Message> apiCoder) {
+//    this.apiCoder = apiCoder;
+//  }
 
 
   public void setResponseApiClz(Class<Api> responseApiClz) {

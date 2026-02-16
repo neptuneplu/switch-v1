@@ -2,12 +2,10 @@ package me.card.switchv1.visaserver;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
-import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
@@ -19,7 +17,7 @@ import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.visaapi.VisaApi;
-import me.card.switchv1.visaserver.config.VisaParamsConfig;
+import me.card.switchv1.visaserver.config.VisaParams;
 import me.card.switchv1.visaserver.db.VisaLogPo;
 import me.card.switchv1.visaserver.db.VisaLogService;
 import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
@@ -34,7 +32,7 @@ public class VisaManager {
   private static final Logger logger = LoggerFactory.getLogger(VisaManager.class);
 
   @Resource
-  private VisaParamsConfig visaParamsConfig;
+  private VisaParams visaParams;
 
   @Resource
   private HeartBeat heartBeat;
@@ -43,28 +41,25 @@ public class VisaManager {
   private Prefix prefix;
 
   @Resource
+  private Id id;
+
+  @Resource
   private ApiCoder<Api, Message> apiCoder;
 
   @Resource
   private Class<Api> apiClz;
 
   @Resource
-  private Id id;
+  private MessageCoder messageCoder;
+
+  @Resource
+  private Processor processor;
 
   @Resource
   private VisaLogService visaLogService;
 
   @Resource
   private SwitchServerBuilder switchServerBuilder;
-
-  @Resource
-  private MessageCoder messageCoder;
-
-  @Resource
-  private ApiClient apiClient;
-
-  @Resource
-  private Processor processor;
 
   private SwitchServer switchServer;
 
@@ -77,7 +72,7 @@ public class VisaManager {
       return getNewServerMonitor(e.getMessage());
     }
 
-    getServer().start();
+    server().start();
     return getNewServerMonitor("visa server is starting");
   }
 
@@ -126,7 +121,7 @@ public class VisaManager {
   private void startCheck() {
     Assert.isNull(switchServer, "visa server already exist");
     Assert.notNull(switchServerBuilder, "switchServerBuilder is null");
-    Assert.notNull(visaParamsConfig, "visaParamsConfig is null");
+    Assert.notNull(visaParams, "visaParams is null");
     Assert.notNull(apiCoder, "apiCoder is null");
     Assert.notNull(heartBeat, "heartBeat is null");
     Assert.notNull(prefix, "prefix is null");
@@ -142,24 +137,24 @@ public class VisaManager {
     Assert.notNull(switchServer, "visa server not start");
   }
 
-  private SwitchServer getServer() {
+  private SwitchServer server() {
     switchServer = switchServerBuilder
-        .name(visaParamsConfig.name())
-        .serverType(visaParamsConfig.serverType())
-        .localAddress(visaParamsConfig.localAddress())
-        .sourceAddress(visaParamsConfig.sourceAddress())
-        .destinationURL(visaParamsConfig.destinationURL())
-        .readIdleTime(visaParamsConfig.readIdleTime())
-        .processorThreads(visaParamsConfig.processorThreads())
-        .destinationURL(visaParamsConfig.destinationURL())
+        .name(visaParams.name())
+        .serverType(visaParams.serverType())
+        .localAddress(visaParams.localAddress())
+        .sourceAddress(visaParams.sourceAddress())
+        .destinationURL(visaParams.destinationURL())
+        .readIdleTime(visaParams.readIdleTime())
+        .destinationURL(visaParams.destinationURL())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(VisaMessageByJpos::new)
-        .apiCoder(apiCoder)
-        .responseApiClz(apiClz)
+//        .apiCoder(apiCoder)
+//        .responseApiClz(apiClz)
+//        .messageCoder(messageCoder)
         .signOnMessageSupplier(SignOnAndOffMessage::signOnMessage)
         .signOffMessageSupplier(SignOnAndOffMessage::signOffMessage)
-        .messageCoder(messageCoder)
+        .processorThreads(visaParams.processorThreads())
         .processor(processor)
         .build();
 

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // can not share
-// can not share
 public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
   private static final Logger logger = LoggerFactory.getLogger(StreamHandler.class);
   public static final String NAME = "StreamHandler";
@@ -28,7 +27,6 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
   protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
 
     logger.debug("byte encode start");
-
 
     if (logger.isDebugEnabled()) {
       logger.debug(String.format("return encode hex msg: %s", ByteBufUtil.hexDump(msg)));

@@ -13,6 +13,7 @@ import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
+import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,12 @@ public class DefaultProcessor implements Processor {
   private final ApiCoder apiCoder;
   private final MessageCoder messageCoder;
   private final ApiClient apiClient;
-
+  private final PersistentWorker persistentWorker;
 
   public DefaultProcessor(ApiCoder<? extends Api, ? extends Message> apiCoder,
                           MessageCoder messageCoder,
-                          ApiClient apiClient) {
+                          ApiClient apiClient,
+                          PersistentWorker persistentWorker) {
 
     this.businessExecutor = Executors.newFixedThreadPool(3,
         new ThreadFactoryBuilder()
@@ -39,6 +41,7 @@ public class DefaultProcessor implements Processor {
     this.apiCoder = apiCoder;
     this.messageCoder = messageCoder;
     this.apiClient = apiClient;
+    this.persistentWorker = persistentWorker;
   }
 
 
@@ -66,6 +69,7 @@ public class DefaultProcessor implements Processor {
     Stream.of(context)
         .map(this::bytesToMsg)
         .map(this::msgToApi)
+        .map(this::saveIncomeToDB)
         .forEach(this::callApi);
   }
 
@@ -81,6 +85,11 @@ public class DefaultProcessor implements Processor {
     requestContext.setRequestApi(api);
     return requestContext;
 
+  }
+
+  private RequestContext saveIncomeToDB(RequestContext requestContext) {
+    persistentWorker.saveInput(requestContext.getIncomeMsg());
+    return requestContext;
   }
 
   private void callApi(RequestContext requestContext) {
@@ -101,6 +110,7 @@ public class DefaultProcessor implements Processor {
     Stream.of(context)
         .map(this::apiToMsg)
         .map(this::msgToBytes)
+        .map(this::saveOutgoToDB)
         .forEach(this::sendResponse);
   }
 
@@ -116,8 +126,13 @@ public class DefaultProcessor implements Processor {
         Unpooled.unreleasableBuffer(messageCoder.compress(requestContext.getOutgoMsg()));
     requestContext.setOutgoBytes(byteMsg);
     return requestContext;
-
   }
+
+  private RequestContext saveOutgoToDB(RequestContext requestContext) {
+    persistentWorker.saveOutput(requestContext.getOutgoMsg());
+    return requestContext;
+  }
+
 
   private void sendResponse(RequestContext requestContext) {
     try {

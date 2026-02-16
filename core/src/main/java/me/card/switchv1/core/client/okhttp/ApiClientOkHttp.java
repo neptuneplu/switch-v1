@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import me.card.switchv1.core.client.ApiClient;
+import me.card.switchv1.core.client.ClientException;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.RequestContext;
 import okhttp3.Call;
@@ -51,10 +52,6 @@ public class ApiClientOkHttp implements ApiClient {
 
   }
 
-  public void setResponseApiClz(Class<Api> responseApiClz) {
-    this.responseApiClz = responseApiClz;
-  }
-
   public void call(RequestContext context,
                    Consumer<RequestContext> responseConsumer,
                    Consumer<RequestContext> errorConsumer) {
@@ -66,16 +63,14 @@ public class ApiClientOkHttp implements ApiClient {
     Request request = getRequest(context, fromApi(context.getRequestApi()));
 
     try {
-      //
       httpClient.newCall(request).enqueue(new Callback() {
         @Override
         public void onFailure(@NotNull Call call, @NotNull IOException e) {
-          //
+
           logger.error("[stage4/5] HTTP invoke failure: thread={}, error={}",
               Thread.currentThread().getName(), e.getMessage());
-          //
+
           context.setError(e);
-          //
           errorConsumer.accept(context);
         }
 
@@ -88,14 +83,16 @@ public class ApiClientOkHttp implements ApiClient {
               Thread.currentThread().getName(), response.code());
 
           // todo should check status code first
-          context.setReponseApi(toApi(response.body(), responseApiClz));
+          if (response.isSuccessful() && response.body() != null) {
+            context.setReponseApi(toApi(response.body(), responseApiClz));
+
+          }
           //
           responseConsumer.accept(context);
         }
       });
 
     } catch (Exception e) {
-      logger.error("发起HTTP调用失败", e);
       handleHttpError(context, e);
     }
   }
@@ -113,8 +110,10 @@ public class ApiClientOkHttp implements ApiClient {
     return new Request.Builder()
         .url(context.getDestinationURL().getUrlString())
         .post(requestBody)
-//          .addHeader("X-Trace-ID", context.ctx.channel().id().asShortText())
-//          .addHeader("X-User-ID", (String) context.businessData.get("userId"))
+        /*
+        .addHeader("X-Trace-ID", context.ctx.channel().id().asShortText())
+        .addHeader("X-User-ID", (String) context.businessData.get("userId"))
+         */
         .build();
   }
 
@@ -123,7 +122,7 @@ public class ApiClientOkHttp implements ApiClient {
       String json = mapper.writeValueAsString(api);
       return RequestBody.create(json, JSON);
     } catch (IOException e) {
-      throw new RuntimeException("对象转JSON失败", e);
+      throw new ClientException("jackson api to request body error");
     }
   }
 
@@ -131,8 +130,8 @@ public class ApiClientOkHttp implements ApiClient {
     try {
       String strResponseBody = responseBody.string();
       return mapper.readValue(strResponseBody, responseApiClz);
-    } catch (Exception e) {
-      throw new RuntimeException("jackson parser read error");
+    } catch (IOException e) {
+      throw new ClientException("jackson response body to api error");
     }
 
   }

@@ -1,6 +1,5 @@
 package me.card.switchv1.visaserver.config;
 
-import javax.annotation.PostConstruct;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
 import me.card.switchv1.core.component.Api;
@@ -12,7 +11,6 @@ import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.processor.DefaultProcessor;
 import me.card.switchv1.core.processor.Processor;
-import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.VisaHeartBeat;
@@ -24,17 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class VisaBeanConfig {
-
-  @Bean
-  public SwitchServerBuilder switchServerBuilder() {
-    return new SwitchServerBuilder();
-  }
-
-  @Bean
-  public ApiCoder<VisaApi, VisaMessageByJpos> apiCoder() {
-    return new VisaApiCoder();
-  }
+public class VisaBeans {
 
   @Bean
   public VisaHeartBeat visaHeartBeat() {
@@ -52,8 +40,8 @@ public class VisaBeanConfig {
   }
 
   @Bean
-  public VisaPersistentWorkerByDB persistentWorker() {
-    return new VisaPersistentWorkerByDB();
+  public ApiCoder<VisaApi, VisaMessageByJpos> apiCoder() {
+    return new VisaApiCoder();
   }
 
   // for check iso packager
@@ -67,10 +55,14 @@ public class VisaBeanConfig {
     return new DefaultId();
   }
 
-
   @Bean
   public MessageCoder messageCoder() {
     return new DefaultMessageCoder(VisaMessageByJpos::new, id());
+  }
+
+  @Bean
+  public VisaPersistentWorkerByDB persistentWorker() {
+    return new VisaPersistentWorkerByDB();
   }
 
   @Bean
@@ -80,6 +72,11 @@ public class VisaBeanConfig {
 
   @Bean
   public Processor processor() {
-    return new DefaultProcessor(apiCoder(), messageCoder(), apiClient());
+    return new DefaultProcessor(apiCoder(), messageCoder(), apiClient(), persistentWorker());
+  }
+
+  @Bean
+  public SwitchServerBuilder switchServerBuilder() {
+    return new SwitchServerBuilder();
   }
 }
