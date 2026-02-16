@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class ApiCodecHandler extends MessageToMessageCodec<Message, Api> {
+public class ApiCodecHandler extends MessageToMessageCodec<Api, Message> {
   private static final Logger logger = LoggerFactory.getLogger(ApiCodecHandler.class);
-  public static final String NAME = "ApiCodecHandler";
+  public static final String NAME = "ApiCodecHandlerNioPlus";
 
   private final ApiCoder<Api, Message> apiCoder;
 
@@ -22,19 +22,7 @@ public class ApiCodecHandler extends MessageToMessageCodec<Message, Api> {
   }
 
   @Override
-  protected void encode(ChannelHandlerContext ctx, Api api, List<Object> out) {
-    logger.debug("api encode start");
-
-    try {
-      Message message = apiCoder.apiToMessage(api);
-      out.add(message);
-    } catch (Exception e) {
-      logger.warn("api encode failed!!!", e);
-    }
-  }
-
-  @Override
-  protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
+  protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
     logger.debug("api decode start");
 
     try {
@@ -43,6 +31,18 @@ public class ApiCodecHandler extends MessageToMessageCodec<Message, Api> {
     } catch (Exception e) {
       logger.warn("api decode failed!!!", e);
       ctx.writeAndFlush(apiCoder.errorMessage(msg));
+    }
+  }
+
+  @Override
+  protected void decode(ChannelHandlerContext ctx, Api api, List<Object> out) {
+    logger.debug("api encode start");
+
+    try {
+      Message message = apiCoder.apiToMessage(api);
+      out.add(message);
+    } catch (Exception e) {
+      logger.warn("api encode failed!!!", e);
     }
   }
 }

@@ -27,12 +27,10 @@ public class SwitchServerBuilder {
   private Supplier<Message> messageSupplier;
   private Class<Api> responseApiClz;
   private ApiCoder<Api, Message> apiCoder;
-  private PersistentWorker persistentWorker;
   private Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
   private int sendThreads;
-  private int persistentThreads;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -89,11 +87,6 @@ public class SwitchServerBuilder {
     return this;
   }
 
-  public SwitchServerBuilder persistentWorker(
-      PersistentWorker persistentWorker) {
-    this.persistentWorker = persistentWorker;
-    return this;
-  }
 
   public SwitchServerBuilder id(Id id) {
     this.id = id;
@@ -117,10 +110,7 @@ public class SwitchServerBuilder {
     return this;
   }
 
-  public SwitchServerBuilder persistentThreads(String persistentThreads) {
-    this.persistentThreads = Integer.parseInt(persistentThreads);
-    return this;
-  }
+
 
   public SwitchServer build() {
     logger.debug("server build start");
@@ -137,16 +127,7 @@ public class SwitchServerBuilder {
 
     switch (serverType) {
       case "active":
-        server = new ActiveSwitchServer(sendThreads,persistentThreads);
-        break;
-      case "activePlus":
-        server = new ActiveSwitchServerPlus(sendThreads,persistentThreads);
-        break;
-      case "passive":
-        server = new PassiveSwitchServer(sendThreads,persistentThreads);
-        break;
-      case "passivePlus":
-        server = new PassiveSwitchServerPlus(sendThreads,persistentThreads);
+        server = new ActiveSwitchServer();
         break;
       default:
         throw new ServerException("server type error");
@@ -168,7 +149,6 @@ public class SwitchServerBuilder {
     server.setApiCoder(this.apiCoder);
     server.setResponseApiClz(this.responseApiClz);
     server.setReadIdleTime(this.readIdleTime);
-    server.setPersistentWorker(this.persistentWorker);
     server.setId(this.id);
     server.setSignOnMessageSupplier(signOnMessageSupplier);
     server.setSignOffMessageSupplier(signOffMessageSupplier);
