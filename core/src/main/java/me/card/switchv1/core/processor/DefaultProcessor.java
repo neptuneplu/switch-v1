@@ -7,10 +7,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
-import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.RequestContext;
@@ -63,16 +63,32 @@ public class DefaultProcessor implements Processor {
 
     logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
 
+    Stream.of(context)
+        .map(this::bytesToMsg)
+        .map(this::msgToApi)
+        .forEach(this::callApi);
+  }
 
-    //
-    Api api = apiCoder.messageToApi(messageCoder.extract(context.getIncomeMsg()));
-    context.setRequestApi(api);
+  private RequestContext bytesToMsg(RequestContext requestContext) {
+    Message msg = messageCoder.extract(requestContext.getIncomeBytes());
+    requestContext.setIncomeMsg(msg);
+    return requestContext;
 
+  }
+
+  private RequestContext msgToApi(RequestContext requestContext) {
+    Api api = apiCoder.messageToApi(requestContext.getIncomeMsg());
+    requestContext.setRequestApi(api);
+    return requestContext;
+
+  }
+
+  private void callApi(RequestContext requestContext) {
     try {
-      apiClient.call(context, this::processSuccessResponse, this::processErrorResponse);
+      apiClient.call(requestContext, this::processSuccessResponse, this::processErrorResponse);
     } catch (Exception e) {
       logger.error("业务预处理失败", e);
-      sendErrorResponse(context, "业务处理失败: " + e.getMessage());
+      sendErrorResponse(requestContext, "业务处理失败: " + e.getMessage());
     }
   }
 
@@ -82,21 +98,34 @@ public class DefaultProcessor implements Processor {
 
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
 
-    Api api = context.getReponseApi();
-    //
-    Message message = apiCoder.apiToMessage(api);
-    ByteBuf byteMsg = Unpooled.unreleasableBuffer(messageCoder.compress(message));
-    context.setOutgoMsg(byteMsg);
+    Stream.of(context)
+        .map(this::apiToMsg)
+        .map(this::msgToBytes)
+        .forEach(this::sendResponse);
+  }
 
-    //
+  private RequestContext apiToMsg(RequestContext requestContext) {
+    Message msg = apiCoder.apiToMessage(requestContext.getReponseApi());
+    requestContext.setOutgoMsg(msg);
+    return requestContext;
+
+  }
+
+  private RequestContext msgToBytes(RequestContext requestContext) {
+    ByteBuf byteMsg =
+        Unpooled.unreleasableBuffer(messageCoder.compress(requestContext.getOutgoMsg()));
+    requestContext.setOutgoBytes(byteMsg);
+    return requestContext;
+
+  }
+
+  private void sendResponse(RequestContext requestContext) {
     try {
-      sendSuccessResponse(context);
+      sendSuccessResponse(requestContext);
     } catch (Exception e) {
       logger.error("业务后处理失败", e);
-      sendErrorResponse(context, "后处理失败: " + e.getMessage());
+      sendErrorResponse(requestContext, "后处理失败: " + e.getMessage());
     }
-
-
   }
 
   private void processErrorResponse0(RequestContext context) {
@@ -114,8 +143,7 @@ public class DefaultProcessor implements Processor {
     nettyEventLoop.execute(() -> {
       logger.info("[阶段5/5] Netty写回: 线程={}", Thread.currentThread().getName());
 
-      context.getCtx()
-          .writeAndFlush(context.getOutgoMsg())
+      context.getCtx().writeAndFlush(context.getOutgoBytes())
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();
