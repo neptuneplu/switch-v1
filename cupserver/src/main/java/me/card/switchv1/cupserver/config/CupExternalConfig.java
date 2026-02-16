@@ -83,8 +83,8 @@ public class CupExternalConfig {
     return serverType;
   }
 
-  public String sendThreads() {
-    return sendThreads;
+  public String processorThreads() {
+    return processorThreads;
   }
 
   public String persistentThreads() {
