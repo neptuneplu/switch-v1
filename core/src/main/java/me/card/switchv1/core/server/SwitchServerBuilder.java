@@ -2,14 +2,20 @@ package me.card.switchv1.core.server;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
+import me.card.switchv1.core.client.ApiClient;
+import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
+import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.processor.DefaultProcessor;
+import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +30,16 @@ public class SwitchServerBuilder {
   private int readIdleTime;
   private HeartBeat heartBeat;
   private Prefix prefix;
-  private Supplier<Message> messageSupplier;
-  private Class<Api> responseApiClz;
-  private ApiCoder<Api, Message> apiCoder;
   private Id id;
-  protected Supplier<Message> signOnMessageSupplier;
-  protected Supplier<Message> signOffMessageSupplier;
-  private int sendThreads;
+  private Supplier<Message> messageSupplier;
+//  private Class<Api> responseApiClz;
+//  private ApiCoder<Api, Message> apiCoder;
+  private Supplier<Message> signOnMessageSupplier;
+  private Supplier<Message> signOffMessageSupplier;
+//  private MessageCoder messageCoder;
+  private int processorThreads;
+  private Processor processor;
+//  private PersistentWorker persistentWorker;
 
   public SwitchServerBuilder name(String name) {
     this.name = name;
@@ -57,6 +66,11 @@ public class SwitchServerBuilder {
     return this;
   }
 
+  public SwitchServerBuilder setId(Id id) {
+    this.id = id;
+    return this;
+  }
+
   public SwitchServerBuilder heartBeat(HeartBeat heartBeat) {
     this.heartBeat = heartBeat;
     return this;
@@ -72,26 +86,21 @@ public class SwitchServerBuilder {
     return this;
   }
 
-  public SwitchServerBuilder apiCoder(ApiCoder<Api, Message> apiCoder) {
-    this.apiCoder = apiCoder;
-    return this;
-  }
+//  public SwitchServerBuilder apiCoder(ApiCoder<Api, Message> apiCoder) {
+//    this.apiCoder = apiCoder;
+//    return this;
+//  }
 
-  public SwitchServerBuilder responseApiClz(Class<Api> responseApiClz) {
-    this.responseApiClz = responseApiClz;
-    return this;
-  }
+//  public SwitchServerBuilder responseApiClz(Class<Api> responseApiClz) {
+//    this.responseApiClz = responseApiClz;
+//    return this;
+//  }
 
   public SwitchServerBuilder readIdleTime(String readIdleTime) {
     this.readIdleTime = Integer.parseInt(readIdleTime);
     return this;
   }
 
-
-  public SwitchServerBuilder id(Id id) {
-    this.id = id;
-    return this;
-  }
 
   public SwitchServerBuilder signOnMessageSupplier(
       Supplier<Message> signOnMessageSupplier) {
@@ -105,12 +114,25 @@ public class SwitchServerBuilder {
     return this;
   }
 
-  public SwitchServerBuilder sendThreads(String sendThreads) {
-    this.sendThreads = Integer.parseInt(sendThreads);
+//  public SwitchServerBuilder messageCoder(MessageCoder messageCoder) {
+//    this.messageCoder = messageCoder;
+//    return this;
+//  }
+
+  public SwitchServerBuilder processorThreads(String processorThreads) {
+    this.processorThreads = Integer.parseInt(processorThreads);
     return this;
   }
 
+  public SwitchServerBuilder processor(Processor processor) {
+    this.processor = processor;
+    return this;
+  }
 
+//  public SwitchServerBuilder persistentWorker(PersistentWorker persistentWorker) {
+//    this.persistentWorker = persistentWorker;
+//    return this;
+//  }
 
   public SwitchServer build() {
     logger.debug("server build start");
@@ -145,13 +167,14 @@ public class SwitchServerBuilder {
     server.setDestinationURL(this.destinationURL);
     server.setHeartBeat(this.heartBeat);
     server.setPrefix(this.prefix);
-    server.setMessageSupplier(this.messageSupplier);
-    server.setApiCoder(this.apiCoder);
-    server.setResponseApiClz(this.responseApiClz);
-    server.setReadIdleTime(this.readIdleTime);
     server.setId(this.id);
+    server.setReadIdleTime(this.readIdleTime);
+    server.setMessageSupplier(this.messageSupplier);
+//    server.setApiCoder(this.apiCoder);
+//    server.setResponseApiClz(this.responseApiClz);
     server.setSignOnMessageSupplier(signOnMessageSupplier);
     server.setSignOffMessageSupplier(signOffMessageSupplier);
+    server.setProcessor(processor);
   }
 
 }

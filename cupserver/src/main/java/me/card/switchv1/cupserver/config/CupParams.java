@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("/application-cup.properties")
-public class CupExternalConfig {
-  private static final Logger logger = LoggerFactory.getLogger(CupExternalConfig.class);
+public class CupParams {
+  private static final Logger logger = LoggerFactory.getLogger(CupParams.class);
 
   @Value("${cup.name}")
   private String name;
@@ -47,7 +47,7 @@ public class CupExternalConfig {
   private String serverType;
 
   @Value("${cup.sendThreads}")
-  private String sendThreads;
+  private String processorThreads;
 
   @Value("${cup.persistentThreads}")
   private String persistentThreads;
@@ -83,8 +83,8 @@ public class CupExternalConfig {
     return serverType;
   }
 
-  public String sendThreads() {
-    return sendThreads;
+  public String processorThreads() {
+    return processorThreads;
   }
 
   public String persistentThreads() {
@@ -111,7 +111,7 @@ public class CupExternalConfig {
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
         ", serverType='" + serverType + '\'' +
-        ", sendThreads='" + sendThreads + '\'' +
+        ", processorThreads='" + processorThreads + '\'' +
         ", persistentThreads='" + persistentThreads + '\'' +
         '}';
   }

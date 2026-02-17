@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @PropertySource("/application-visa.properties")
-public class VisaExternalConfig {
-  private static final Logger logger = LoggerFactory.getLogger(VisaExternalConfig.class);
+public class VisaParams {
+  private static final Logger logger = LoggerFactory.getLogger(VisaParams.class);
 
   @Value("${visa.name}")
   private String name;
@@ -46,8 +46,8 @@ public class VisaExternalConfig {
   @Value("${visa.serverType}")
   private String serverType;
 
-  @Value("${visa.sendThreads}")
-  private String sendThreads;
+  @Value("${visa.processorThreads}")
+  private String processorThreads;
 
 
   public InetSocketAddress localAddress() {
@@ -64,7 +64,7 @@ public class VisaExternalConfig {
           new InetSocketAddress(destinationAddress, Integer.parseInt(destinationPort)),
           new URI(destinationPortUri));
     } catch (URISyntaxException e) {
-      throw new VisaConfigException("uri syntax error");
+      throw new VisaParamsException("uri syntax error");
     }
 
   }
@@ -81,8 +81,8 @@ public class VisaExternalConfig {
     return serverType;
   }
 
-  public String sendThreads() {
-    return sendThreads;
+  public String processorThreads() {
+    return processorThreads;
   }
 
 
@@ -106,7 +106,7 @@ public class VisaExternalConfig {
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
         ", serverType='" + serverType + '\'' +
-        ", sendThreads='" + sendThreads + '\'' +
+        ", processorThreads='" + processorThreads + '\'' +
         '}';
   }
 }

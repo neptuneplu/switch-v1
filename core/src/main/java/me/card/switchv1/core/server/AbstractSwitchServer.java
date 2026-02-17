@@ -10,6 +10,7 @@ import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.processor.Processor;
 
 public class AbstractSwitchServer {
 
@@ -22,16 +23,19 @@ public class AbstractSwitchServer {
   protected Prefix prefix;
   protected HeartBeat heartBeat;
   protected Supplier<Message> messageSupplier;
-  protected Class<Api> responseApiClz;
-  protected ApiCoder<Api, Message> apiCoder;
+  protected Class<? extends Api> responseApiClz;
   protected Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
+  protected Processor processor;
 
   public AbstractSwitchServer() {
     this.serverMonitor = new ServerMonitor();
   }
 
+  void setProcessor(Processor processor) {
+    this.processor = processor;
+  }
 
   void setName(String name) {
     this.name = name;
@@ -61,9 +65,9 @@ public class AbstractSwitchServer {
     this.messageSupplier = messageSupplier;
   }
 
-  void setApiCoder(ApiCoder<Api, Message> apiCoder) {
-    this.apiCoder = apiCoder;
-  }
+//  void setApiCoder(ApiCoder<Api, Message> apiCoder) {
+//    this.apiCoder = apiCoder;
+//  }
 
 
   public void setResponseApiClz(Class<Api> responseApiClz) {

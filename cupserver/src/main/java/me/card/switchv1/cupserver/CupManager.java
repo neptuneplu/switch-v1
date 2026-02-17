@@ -6,12 +6,11 @@ import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
-import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.server.ServerMonitor;
 import me.card.switchv1.core.server.SwitchServer;
 import me.card.switchv1.core.server.SwitchServerBuilder;
-import me.card.switchv1.cupserver.config.CupExternalConfig;
+import me.card.switchv1.cupserver.config.CupParams;
 import me.card.switchv1.cupserver.message.jpos.CupMessageByJpos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ public class CupManager {
   private static final Logger logger = LoggerFactory.getLogger(CupManager.class);
 
   @Resource
-  private CupExternalConfig cupConfig;
+  private CupParams cupConfig;
 
   @Resource
   private ApiCoder<Api, Message> apiCoder;
@@ -36,9 +35,6 @@ public class CupManager {
 
   @Resource
   private Class<Api> apiClz;
-
-  @Resource
-  private PersistentWorker persistentWorker;
 
   @Resource
   private SwitchServerBuilder switchServerBuilder;
@@ -109,15 +105,10 @@ public class CupManager {
         .sourceAddress(cupConfig.sourceAddress())
         .destinationURL(cupConfig.destinationURL())
         .readIdleTime(cupConfig.readIdleTime())
-        .sendThreads(cupConfig.sendThreads())
-        .persistentThreads(cupConfig.persistentThreads())
+        .processorThreads(cupConfig.processorThreads())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(CupMessageByJpos::new)
-        .apiCoder(apiCoder)
-        .responseApiClz(apiClz)
-        .persistentWorker(persistentWorker)
-        .id(id)
         .build();
 
     return switchServer;

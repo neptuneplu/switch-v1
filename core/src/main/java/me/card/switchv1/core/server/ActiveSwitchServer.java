@@ -12,10 +12,8 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
-import me.card.switchv1.core.component.DefaultMessageCoder;
-import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
-import me.card.switchv1.core.handler.BackOfficeHandler;
+import me.card.switchv1.core.handler.ProcessHandler;
 import me.card.switchv1.core.handler.StreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +45,19 @@ public class ActiveSwitchServer extends AbstractSwitchServer
 
     connect();
 
+  }
+
+  private ChannelInitializer<SocketChannel> getChannelInitializer(AutoConnectable autoConnectable) {
+    return new ChannelInitializer<>() {
+      @Override
+      protected void initChannel(SocketChannel ch) {
+        ch.pipeline()
+            .addLast(StreamHandler.NAME, new StreamHandler(prefix))
+            .addLast(ProcessHandler.NAME, new ProcessHandler(processor))
+            .addLast(new IdleStateHandler(readIdleTime, 0, 0))
+            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
+      }
+    };
   }
 
   @Override
@@ -94,23 +105,5 @@ public class ActiveSwitchServer extends AbstractSwitchServer
     ServerMonitor monitor = serverMonitor.copy();
     monitor.setStatus(channel.isActive());
     return monitor;
-  }
-
-  private ChannelInitializer<SocketChannel> getChannelInitializer(
-      AutoConnectable autoConnectable) {
-    MessageCoder messageCoder = new DefaultMessageCoder(messageSupplier, id);
-
-
-    return new ChannelInitializer<>() {
-      @Override
-      protected void initChannel(SocketChannel ch) {
-        ch.pipeline()
-            .addLast(StreamHandler.NAME, new StreamHandler(prefix))
-            .addLast(BackOfficeHandler.NAME,
-                new BackOfficeHandler(apiCoder, messageCoder, responseApiClz,destinationURL))
-            .addLast(new IdleStateHandler(readIdleTime, 0, 0))
-            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
-      }
-    };
   }
 }
