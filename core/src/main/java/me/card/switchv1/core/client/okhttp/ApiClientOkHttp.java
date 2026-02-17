@@ -30,9 +30,8 @@ public class ApiClientOkHttp implements ApiClient {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private final OkHttpClient httpClient;
-  protected Class<Api> responseApiClz;
 
-  public ApiClientOkHttp(Class<Api> responseApiClz) {
+  public ApiClientOkHttp() {
     Dispatcher dispatcher = new Dispatcher(Executors.newFixedThreadPool(2,
         new ThreadFactoryBuilder()
             .setNameFormat("okhttp-pool-%d")
@@ -48,8 +47,6 @@ public class ApiClientOkHttp implements ApiClient {
         .retryOnConnectionFailure(true)
         .build();
 
-    this.responseApiClz = responseApiClz;
-
   }
 
   public void call(RequestContext context,
@@ -60,10 +57,12 @@ public class ApiClientOkHttp implements ApiClient {
 
     logger.info("[stage3/5] HTTP invoke: thread={}", Thread.currentThread().getName());
 
-    Request request = getRequest(context, fromApi(context.getRequestApi()));
-
     try {
+      Request request = getRequest(context, fromApi(context.getRequestApi()));
+
       httpClient.newCall(request).enqueue(new Callback() {
+
+        // backoffice pcs failure
         @Override
         public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
@@ -74,6 +73,7 @@ public class ApiClientOkHttp implements ApiClient {
           errorConsumer.accept(context);
         }
 
+        // backoffice pcs successful
         @Override
         public void onResponse(@NotNull Call call, @NotNull Response response) {
           //
@@ -84,7 +84,7 @@ public class ApiClientOkHttp implements ApiClient {
 
           // todo should check status code first
           if (response.isSuccessful() && response.body() != null) {
-            context.setReponseApi(toApi(response.body(), responseApiClz));
+            context.setReponseApi(toApi(response.body(), context.getResponseApiClz()));
 
           }
           //
@@ -93,18 +93,12 @@ public class ApiClientOkHttp implements ApiClient {
       });
 
     } catch (Exception e) {
-      handleHttpError(context, e);
+      logger.error("HTTP调用失败", e);
+      context.setError(e);
+      errorConsumer.accept(context);
     }
   }
 
-  private void handleHttpError(RequestContext context, Exception e) {
-    logger.error("HTTP调用失败", e);
-    sendErrorResponse(context, "后台服务调用失败: " + e.getMessage());
-  }
-
-  private void sendErrorResponse(RequestContext context, String errorMessage) {
-    logger.error("error response", errorMessage);
-  }
 
   private Request getRequest(RequestContext context, RequestBody requestBody) {
     return new Request.Builder()

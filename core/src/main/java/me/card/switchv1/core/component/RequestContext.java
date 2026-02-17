@@ -11,6 +11,7 @@ public class RequestContext {
   private static final Logger logger = LoggerFactory.getLogger(RequestContext.class);
 
   private ChannelHandlerContext ctx;
+  private Class<Api> responseApiClz;
   private DestinationURL destinationURL;
   private ByteBuf incomeBytes;
   private ByteBuf outgoBytes;
@@ -34,6 +35,14 @@ public class RequestContext {
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
+  }
+
+  public Class<Api> getResponseApiClz() {
+    return responseApiClz;
+  }
+
+  public void setResponseApiClz(Class<Api> responseApiClz) {
+    this.responseApiClz = responseApiClz;
   }
 
   public Throwable getError() {

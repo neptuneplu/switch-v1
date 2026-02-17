@@ -53,7 +53,7 @@ public class ActiveSwitchServer extends AbstractSwitchServer
       protected void initChannel(SocketChannel ch) {
         ch.pipeline()
             .addLast(StreamHandler.NAME, new StreamHandler(prefix))
-            .addLast(ProcessHandler.NAME, new ProcessHandler(processor, destinationURL))
+            .addLast(ProcessHandler.NAME, new ProcessHandler(processor))
             .addLast(new IdleStateHandler(readIdleTime, 0, 0))
             .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
       }

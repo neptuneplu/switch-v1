@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.RequestContext;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
@@ -13,14 +12,12 @@ import org.slf4j.LoggerFactory;
 @ChannelHandler.Sharable
 public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
   private static final Logger logger = LoggerFactory.getLogger(ProcessHandler.class);
-  public static final String NAME = "BackOfficeHandler";
+  public static final String NAME = "ProcessHandler";
 
   private final Processor processor;
-  private final DestinationURL destinationURL;
 
-  public ProcessHandler(Processor processor, DestinationURL destinationURL) {
+  public ProcessHandler(Processor processor) {
     this.processor = processor;
-    this.destinationURL = destinationURL;
   }
 
   @Override
@@ -29,7 +26,6 @@ public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
         Thread.currentThread().getName(), msg);
 
     RequestContext context = new RequestContext(ctx, msg);
-    context.setDestinationURL(destinationURL);
 
     processor.processRequest(context);
   }

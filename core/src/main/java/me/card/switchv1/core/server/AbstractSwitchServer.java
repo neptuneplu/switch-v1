@@ -24,7 +24,6 @@ public class AbstractSwitchServer {
   protected HeartBeat heartBeat;
   protected Supplier<Message> messageSupplier;
   protected Class<? extends Api> responseApiClz;
-//  protected ApiCoder<? extends Api, ? extends Message> apiCoder;
   protected Id id;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;

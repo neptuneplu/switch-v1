@@ -1,5 +1,6 @@
 package me.card.switchv1.visaserver.config;
 
+import javax.annotation.Resource;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
 import me.card.switchv1.core.component.Api;
@@ -23,6 +24,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class VisaBeans {
+
+  @Resource
+  VisaParams visaParams;
 
   @Bean
   public VisaHeartBeat visaHeartBeat() {
@@ -67,12 +71,13 @@ public class VisaBeans {
 
   @Bean
   public ApiClient apiClient() {
-    return new ApiClientOkHttp((Class<Api>) (Class<?>) apiClz());
+    return new ApiClientOkHttp();
   }
 
   @Bean
   public Processor processor() {
-    return new DefaultProcessor(apiCoder(), messageCoder(), apiClient(), persistentWorker());
+    return new DefaultProcessor(apiClient(), persistentWorker(), apiCoder(), messageCoder(),
+        (Class<Api>) (Class<?>) apiClz(), visaParams.destinationURL());
   }
 
   @Bean
