@@ -16,6 +16,10 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
 
+acq:
+  api:
+    enabled: true
+
 server:
   address: 127.0.0.1
   port: 8001

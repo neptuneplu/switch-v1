@@ -7,6 +7,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Stream;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
@@ -14,6 +15,7 @@ import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DestinationURL;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
+import me.card.switchv1.core.component.PendingOutgoTrans;
 import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.RequestContext;
 import org.slf4j.Logger;
@@ -29,7 +31,7 @@ public class DefaultProcessor implements Processor {
   private final MessageCoder messageCoder;
   private final Class<Api> responseApiClz;
   private final DestinationURL destinationURL;
-
+  private final PendingOutgoTrans pendingOutgoTrans = new PendingOutgoTrans();
 
   public DefaultProcessor(ApiClient apiClient,
                           PersistentWorker persistentWorker,
@@ -55,22 +57,29 @@ public class DefaultProcessor implements Processor {
 
 
   @Override
-  public void processRequest(RequestContext context) {
-    businessExecutor.submit(() -> processRequest0(context));
+  public void handleInboundAsync(RequestContext context) {
+    businessExecutor.submit(() -> handleInbound0(context));
   }
 
   @Override
-  public void processSuccessResponse(RequestContext context) {
-    businessExecutor.submit(() -> processSuccessResponse0(context));
+  public void handleOutboundResponseAsync(RequestContext context) {
+    businessExecutor.submit(() -> handleOutbound0(context));
   }
 
   @Override
-  public void processErrorResponse(RequestContext context) {
-    businessExecutor.submit(() -> processErrorResponse0(context));
+  public Future<Api> handleOutboundRequestAsync(RequestContext context) {
+    Future<Api> future = pendingOutgoTrans.registerOutgo(context.getReponseApi().correlationId());
+    businessExecutor.submit(() -> handleOutbound0(context));
+    return future;
+  }
+
+  @Override
+  public void handleOutboundAbnormalResponseAsync(RequestContext context) {
+    businessExecutor.submit(() -> handleOutboundAbnormal0(context));
   }
 
 
-  private void processRequest0(RequestContext context) {
+  private void handleInbound0(RequestContext context) {
     context.markProcessRequestStart();
 
     logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
@@ -80,7 +89,7 @@ public class DefaultProcessor implements Processor {
           .map(this::bytesToMsg)
           .map(this::msgToApi)
           .map(this::saveIncomeToDB)
-          .forEach(this::callApi);
+          .forEach(this::route);
     } catch (Exception e) {
       logger.error("process request failed", e);
       context.setError(e);
@@ -108,24 +117,42 @@ public class DefaultProcessor implements Processor {
     return requestContext;
   }
 
+  private RequestContext route(RequestContext requestContext) {
+    Api api = requestContext.getRequestApi();
+    if ("0100".equals(api.mti())) {
+      callApi(requestContext);
+    } else {
+      completePendingOutgo(requestContext);
+    }
+    return requestContext;
+  }
+
   private void callApi(RequestContext requestContext) {
     requestContext.setResponseApiClz(responseApiClz);
     requestContext.setDestinationURL(destinationURL);
 
     try {
-      apiClient.call(requestContext, this::processSuccessResponse, this::processErrorResponse);
+      apiClient.call(requestContext, this::handleOutboundResponseAsync,
+          this::handleOutboundAbnormalResponseAsync);
     } catch (Exception e) {
-      logger.error("业务预处理失败", e);
+      logger.error("ISS 业务预处理失败", e);
       requestContext.setError(e);
       sendSysFailureResponse(requestContext);
     }
+
+  }
+
+  private void completePendingOutgo(RequestContext requestContext) {
+    pendingOutgoTrans.completeOutgo(requestContext.getRequestApi().correlationId(),
+        requestContext.getRequestApi());
   }
 
 
-  private void processSuccessResponse0(RequestContext context) {
+  private void handleOutbound0(RequestContext context) {
     context.markProcessResponseStart();
 
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
+
 
     try {
       Stream.of(context)
@@ -171,13 +198,13 @@ public class DefaultProcessor implements Processor {
     }
   }
 
-  private void processErrorResponse0(RequestContext context) {
+  private void handleOutboundAbnormal0(RequestContext context) {
     sendSysFailureResponse(context);
   }
 
   private void sendSuccessResponse(RequestContext context) {
     //
-    EventLoop nettyEventLoop = context.getCtx().channel().eventLoop();
+    EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
     logger.info("[阶段5/5] 提交写回任务: 当前线程={}, 目标线程={}",
         Thread.currentThread().getName(), nettyEventLoop);
@@ -186,7 +213,7 @@ public class DefaultProcessor implements Processor {
     nettyEventLoop.execute(() -> {
       logger.info("[阶段5/5] Netty写回: 线程={}", Thread.currentThread().getName());
 
-      context.getCtx().writeAndFlush(context.getOutgoBytes())
+      context.getChannel().writeAndFlush(context.getOutgoBytes())
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();
@@ -202,7 +229,7 @@ public class DefaultProcessor implements Processor {
 
   // TODO
   private void sendSysFailureResponse(RequestContext context) {
-    EventLoop nettyEventLoop = context.getCtx().channel().eventLoop();
+    EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
     nettyEventLoop.execute(() -> {
       logger.info("[阶段 error] Netty write system failure msg: thread={}",
@@ -219,7 +246,7 @@ public class DefaultProcessor implements Processor {
 
       }
 
-      context.getCtx().writeAndFlush(byteMsg)
+      context.getChannel().writeAndFlush(byteMsg)
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();

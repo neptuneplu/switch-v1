@@ -25,8 +25,8 @@ public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
     logger.debug("[stage *BackOfficeHandler] Netty received: thread={}, rawMessage={}",
         Thread.currentThread().getName(), msg);
 
-    RequestContext context = new RequestContext(ctx, msg);
-
-    processor.processRequest(context);
+    RequestContext context = new RequestContext(ctx.channel());
+    context.setIncomeBytes(msg);
+    processor.handleInboundAsync(context);
   }
 }

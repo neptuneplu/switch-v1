@@ -1,6 +1,7 @@
 package me.card.switchv1.core.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -12,6 +13,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
+import me.card.switchv1.core.component.RequestContext;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.ProcessHandler;
 import me.card.switchv1.core.handler.StreamHandler;
@@ -105,5 +107,11 @@ public class ActiveSwitchServer extends AbstractSwitchServer
     ServerMonitor monitor = serverMonitor.copy();
     monitor.setStatus(channel.isActive());
     return monitor;
+  }
+
+  @Override
+  public RequestContext context() {
+    //todo
+    return new RequestContext(channel);
   }
 }

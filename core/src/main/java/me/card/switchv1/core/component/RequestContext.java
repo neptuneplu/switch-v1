@@ -1,6 +1,7 @@
 package me.card.switchv1.core.component;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public class RequestContext {
   private static final Logger logger = LoggerFactory.getLogger(RequestContext.class);
 
-  private ChannelHandlerContext ctx;
+  private Channel channel;
   private Class<Api> responseApiClz;
   private DestinationURL destinationURL;
   private ByteBuf incomeBytes;
@@ -29,13 +30,13 @@ public class RequestContext {
   long httpEndTime;
   long processResponseStartTime;
 
-  public RequestContext(ChannelHandlerContext ctx, ByteBuf incomeBytes) {
-    this.ctx = ctx;
-    this.incomeBytes = incomeBytes;
+  public RequestContext(Channel channel) {
+    this.channel = channel;
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
   }
+
 
   public Class<Api> getResponseApiClz() {
     return responseApiClz;
@@ -62,12 +63,12 @@ public class RequestContext {
   }
 
 
-  public ChannelHandlerContext getCtx() {
-    return ctx;
+  public Channel getChannel() {
+    return channel;
   }
 
-  public void setCtx(ChannelHandlerContext ctx) {
-    this.ctx = ctx;
+  public void setChannel(Channel channel) {
+    this.channel = channel;
   }
 
   public ByteBuf getIncomeBytes() {

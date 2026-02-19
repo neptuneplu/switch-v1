@@ -105,6 +105,23 @@ public class VisaApi implements Api, Serializable {
     this.F39 = code;
   }
 
+  @Override
+  public String mti() {
+    return this.MTI;
+  }
+
+  public VisaCorrelationId correlationId() {
+    VisaCorrelationId correlationId = new VisaCorrelationId();
+    correlationId.setF11(this.F11);
+    correlationId.setF11(this.F32);
+    correlationId.setF11(this.F37);
+    correlationId.setF11(this.F41);
+    correlationId.setF11(this.F42);
+
+    return correlationId;
+  }
+
+
   public String getSeqNo() {
     return seqNo;
   }

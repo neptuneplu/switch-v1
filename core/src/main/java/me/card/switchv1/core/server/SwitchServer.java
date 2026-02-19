@@ -1,5 +1,8 @@
 package me.card.switchv1.core.server;
 
+import io.netty.buffer.ByteBuf;
+import me.card.switchv1.core.component.RequestContext;
+
 public interface SwitchServer {
 
   void start();
@@ -11,5 +14,7 @@ public interface SwitchServer {
   void signOn();
 
   void signOff();
+
+  RequestContext context();
 
 }

@@ -7,4 +7,5 @@ public interface ApiClient {
   void call(RequestContext context,
             Consumer<RequestContext> responseConsumer,
             Consumer<RequestContext> errorConsumer);
+
 }

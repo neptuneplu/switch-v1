@@ -44,6 +44,7 @@ public class SwitchServerBuilder {
   public SwitchServerBuilder name(String name) {
     this.name = name;
     return this;
+
   }
 
   public SwitchServerBuilder serverType(String serverType) {

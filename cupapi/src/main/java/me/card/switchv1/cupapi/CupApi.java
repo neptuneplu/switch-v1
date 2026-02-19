@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.Arrays;
 import me.card.switchv1.core.component.Api;
+import me.card.switchv1.core.component.CorrelationId;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
@@ -81,6 +82,16 @@ public class CupApi implements Api, Serializable {
   @Override
   public void toResponse(String code) {
 
+  }
+
+  @Override
+  public String mti() {
+    return this.MTI;
+  }
+
+  @Override
+  public CorrelationId correlationId() {
+    return null;
   }
 
   public byte[] getHeader() {

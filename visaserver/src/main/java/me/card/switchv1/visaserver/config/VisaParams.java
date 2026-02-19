@@ -40,6 +40,9 @@ public class VisaParams {
   @Value("${visa.uri}")
   private String destinationPortUri;
 
+  @Value("${acq.uri}")
+  private String acqUri;
+
   @Value("${visa.readIdleTime}")
   private String readIdleTime;
 
@@ -65,6 +68,17 @@ public class VisaParams {
           new URI(destinationPortUri));
     } catch (URISyntaxException e) {
       throw new VisaParamsException("uri syntax error");
+    }
+
+  }
+
+  public DestinationURL acqURL() {
+    try {
+      return new DestinationURL(
+          new InetSocketAddress(destinationAddress, Integer.parseInt(destinationPort)),
+          new URI(acqUri));
+    } catch (URISyntaxException e) {
+      throw new VisaParamsException("acq uri syntax error");
     }
 
   }

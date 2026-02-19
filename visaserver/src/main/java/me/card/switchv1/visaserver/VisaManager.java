@@ -1,5 +1,6 @@
 package me.card.switchv1.visaserver;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import javax.annotation.Resource;
@@ -11,6 +12,7 @@ import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.component.RequestContext;
 import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.server.ServerException;
 import me.card.switchv1.core.server.ServerMonitor;
@@ -45,9 +47,6 @@ public class VisaManager {
 
   @Resource
   private ApiCoder<Api, Message> apiCoder;
-
-  @Resource
-  private Class<Api> apiClz;
 
   @Resource
   private MessageCoder messageCoder;
@@ -125,7 +124,6 @@ public class VisaManager {
     Assert.notNull(apiCoder, "apiCoder is null");
     Assert.notNull(heartBeat, "heartBeat is null");
     Assert.notNull(prefix, "prefix is null");
-    Assert.notNull(apiClz, "apiClz is null");
 
   }
 
@@ -175,6 +173,10 @@ public class VisaManager {
 
     return (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
 
+  }
+
+  public RequestContext generateRequestContext() {
+    return switchServer.context();
   }
 
 }
