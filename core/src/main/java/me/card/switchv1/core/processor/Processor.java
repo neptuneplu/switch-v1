@@ -2,15 +2,15 @@ package me.card.switchv1.core.processor;
 
 import java.util.concurrent.Future;
 import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.component.RequestContext;
+import me.card.switchv1.core.component.MessageContext;
 
 public interface Processor {
 
-  void handleInboundAsync(RequestContext context);
+  void handleIncomeAsync(MessageContext context);
 
-  Future<? extends Api> handleOutboundRequestAsync(RequestContext context);
+  Future<? extends Api> handleOutgoRequestAsync(MessageContext context);
 
-  void handleOutboundResponseAsync(RequestContext context);
+  void handleOutgoResponseAsync(MessageContext context);
 
-  void handleOutboundAbnormalResponseAsync(RequestContext context);
+  void handleOutgoAbnormalResponseAsync(MessageContext context);
 }

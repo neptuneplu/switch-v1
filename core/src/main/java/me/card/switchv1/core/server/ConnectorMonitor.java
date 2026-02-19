@@ -1,6 +1,6 @@
 package me.card.switchv1.core.server;
 
-public class ServerMonitor {
+public class ConnectorMonitor {
   private String desc;
   private Boolean status;
 
@@ -20,10 +20,10 @@ public class ServerMonitor {
     this.status = status;
   }
 
-  public ServerMonitor copy() {
-    ServerMonitor serverMonitor = new ServerMonitor();
-    serverMonitor.setDesc(this.desc);
-    serverMonitor.setStatus(this.status);
-    return serverMonitor;
+  public ConnectorMonitor copy() {
+    ConnectorMonitor connectorMonitor = new ConnectorMonitor();
+    connectorMonitor.setDesc(this.desc);
+    connectorMonitor.setStatus(this.status);
+    return connectorMonitor;
   }
 }

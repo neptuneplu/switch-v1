@@ -4,7 +4,7 @@ package me.card.switchv1.visaserver;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Resource;
-import me.card.switchv1.core.component.RequestContext;
+import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.visaapi.VisaApi;
 import org.slf4j.Logger;
@@ -20,22 +20,22 @@ import org.springframework.web.bind.annotation.RestController;
     havingValue = "true",
     matchIfMissing = false
 )
-public class AcqController {
-  private static final Logger logger = LoggerFactory.getLogger(AcqController.class);
+public class AcqWeb {
+  private static final Logger logger = LoggerFactory.getLogger(AcqWeb.class);
 
   @Resource
   private Processor processor;
 
   @Resource
-  VisaManager visaManager;
+  VisaServer visaServer;
 
   @PostMapping("/acq/send")
   public VisaApi send(@RequestBody VisaApi visaApi)
       throws ExecutionException, InterruptedException {
     logger.debug("acq send");
-    RequestContext requestContext = visaManager.generateRequestContext();
-    requestContext.setReponseApi(visaApi);
-    Future<VisaApi> future = (Future<VisaApi>) processor.handleOutboundRequestAsync(requestContext);
+    MessageContext messageContext = visaServer.generateRequestContext();
+    messageContext.setOutgoApi(visaApi);
+    Future<VisaApi> future = (Future<VisaApi>) processor.handleOutgoRequestAsync(messageContext);
 
     return future.get();
   }

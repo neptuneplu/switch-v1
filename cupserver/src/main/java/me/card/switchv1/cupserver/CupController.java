@@ -1,7 +1,7 @@
 package me.card.switchv1.cupserver;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.server.ServerMonitor;
+import me.card.switchv1.core.server.ConnectorMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,19 +16,19 @@ public class CupController {
   private CupManager cupManager;
 
   @GetMapping("/cup/start")
-  public ServerMonitor start() {
+  public ConnectorMonitor start() {
     logger.debug("cup start request");
     return cupManager.start();
   }
 
   @GetMapping("/cup/stop")
-  public ServerMonitor stop() {
+  public ConnectorMonitor stop() {
     logger.debug("cup stop request");
     return cupManager.stop();
   }
 
   @GetMapping("/cup/status")
-  public ServerMonitor status() {
+  public ConnectorMonitor status() {
     logger.debug("cup status request");
     return cupManager.status();
   }

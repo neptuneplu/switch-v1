@@ -7,9 +7,9 @@ import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.Prefix;
-import me.card.switchv1.core.server.ServerMonitor;
-import me.card.switchv1.core.server.SwitchServer;
-import me.card.switchv1.core.server.SwitchServerBuilder;
+import me.card.switchv1.core.server.ConnectorMonitor;
+import me.card.switchv1.core.server.Connector;
+import me.card.switchv1.core.server.SchemeConnectorBuilder;
 import me.card.switchv1.cupserver.config.CupParams;
 import me.card.switchv1.cupserver.message.jpos.CupMessageByJpos;
 import org.slf4j.Logger;
@@ -37,15 +37,15 @@ public class CupManager {
   private Class<Api> apiClz;
 
   @Resource
-  private SwitchServerBuilder switchServerBuilder;
+  private SchemeConnectorBuilder schemeConnectorBuilder;
 
   @Resource
   private Id id;
 
-  private SwitchServer switchServer;
+  private Connector connector;
 
 
-  public ServerMonitor start() {
+  public ConnectorMonitor start() {
 
     try {
       startCheck();
@@ -57,7 +57,7 @@ public class CupManager {
     return getNewServerMonitor("cup server is starting");
   }
 
-  public ServerMonitor stop() {
+  public ConnectorMonitor stop() {
 
     try {
       stopCheck();
@@ -65,23 +65,23 @@ public class CupManager {
       return getNewServerMonitor(e.getMessage());
     }
 
-    switchServer.stop();
-    switchServer = null;
+    connector.stop();
+    connector = null;
     return getNewServerMonitor("cup server is stopping");
   }
 
-  public ServerMonitor status() {
+  public ConnectorMonitor status() {
     try {
       statusCheck();
     } catch (IllegalArgumentException e) {
       return getNewServerMonitor(e.getMessage());
     }
-    return switchServer.status();
+    return connector.status();
   }
 
   private void startCheck() {
-    Assert.isNull(switchServer, "cup server already exist");
-    Assert.notNull(switchServerBuilder, "switchServerBuilder is null");
+    Assert.isNull(connector, "cup server already exist");
+    Assert.notNull(schemeConnectorBuilder, "switchServerBuilder is null");
     Assert.notNull(cupConfig, "cupConfig is null");
     Assert.notNull(apiCoder, "apiCoder is null");
     Assert.notNull(heartBeat, "heartBeat is null");
@@ -90,15 +90,15 @@ public class CupManager {
   }
 
   private void stopCheck() {
-    Assert.notNull(switchServer, "cup server not start");
+    Assert.notNull(connector, "cup server not start");
   }
 
   private void statusCheck() {
-    Assert.notNull(switchServer, "cup server not start");
+    Assert.notNull(connector, "cup server not start");
   }
 
-  private SwitchServer getServer() {
-    switchServer = switchServerBuilder
+  private Connector getServer() {
+    connector = schemeConnectorBuilder
         .name(cupConfig.name())
         .serverType(cupConfig.serverType())
         .localAddress(cupConfig.localAddress())
@@ -111,13 +111,13 @@ public class CupManager {
         .messageSupplier(CupMessageByJpos::new)
         .build();
 
-    return switchServer;
+    return connector;
   }
 
-  public ServerMonitor getNewServerMonitor(String desc) {
-    ServerMonitor serverMonitor = new ServerMonitor();
-    serverMonitor.setDesc(desc);
-    return serverMonitor;
+  public ConnectorMonitor getNewServerMonitor(String desc) {
+    ConnectorMonitor connectorMonitor = new ConnectorMonitor();
+    connectorMonitor.setDesc(desc);
+    return connectorMonitor;
   }
 
 

@@ -2,24 +2,23 @@ package me.card.switchv1.core.component;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestContext {
-  private static final Logger logger = LoggerFactory.getLogger(RequestContext.class);
+public class MessageContext {
+  private static final Logger logger = LoggerFactory.getLogger(MessageContext.class);
 
   private Channel channel;
   private Class<Api> responseApiClz;
-  private DestinationURL destinationURL;
+  private BackofficeURL backofficeURL;
   private ByteBuf incomeBytes;
   private ByteBuf outgoBytes;
   private Message incomeMsg;
   private Message outgoMsg;
-  private Api requestApi;
-  private Api reponseApi;
+  private Api incomeApi;
+  private Api outgoApi;
   private final Map<String, Object> businessData;
   private Throwable error;
 
@@ -30,7 +29,7 @@ public class RequestContext {
   long httpEndTime;
   long processResponseStartTime;
 
-  public RequestContext(Channel channel) {
+  public MessageContext(Channel channel) {
     this.channel = channel;
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
@@ -54,12 +53,12 @@ public class RequestContext {
     this.error = error;
   }
 
-  public DestinationURL getDestinationURL() {
-    return destinationURL;
+  public BackofficeURL getDestinationURL() {
+    return backofficeURL;
   }
 
-  public void setDestinationURL(DestinationURL destinationURL) {
-    this.destinationURL = destinationURL;
+  public void setDestinationURL(BackofficeURL backofficeURL) {
+    this.backofficeURL = backofficeURL;
   }
 
 
@@ -103,20 +102,20 @@ public class RequestContext {
     this.outgoMsg = outgoMsg;
   }
 
-  public Api getRequestApi() {
-    return requestApi;
+  public Api getIncomeApi() {
+    return incomeApi;
   }
 
-  public void setRequestApi(Api requestApi) {
-    this.requestApi = requestApi;
+  public void setIncomeApi(Api incomeApi) {
+    this.incomeApi = incomeApi;
   }
 
-  public Api getReponseApi() {
-    return reponseApi;
+  public Api getOutgoApi() {
+    return outgoApi;
   }
 
-  public void setReponseApi(Api reponseApi) {
-    this.reponseApi = reponseApi;
+  public void setOutgoApi(Api outgoApi) {
+    this.outgoApi = outgoApi;
   }
 
   public Map<String, Object> getBusinessData() {

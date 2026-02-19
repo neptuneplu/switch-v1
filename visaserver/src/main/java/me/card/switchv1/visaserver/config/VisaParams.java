@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.annotation.PostConstruct;
-import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.BackofficeURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,9 +61,9 @@ public class VisaParams {
     return new InetSocketAddress(sourceAddress, Integer.parseInt(sourcePort));
   }
 
-  public DestinationURL destinationURL() {
+  public BackofficeURL destinationURL() {
     try {
-      return new DestinationURL(
+      return new BackofficeURL(
           new InetSocketAddress(destinationAddress, Integer.parseInt(destinationPort)),
           new URI(destinationPortUri));
     } catch (URISyntaxException e) {
@@ -72,9 +72,9 @@ public class VisaParams {
 
   }
 
-  public DestinationURL acqURL() {
+  public BackofficeURL acqURL() {
     try {
-      return new DestinationURL(
+      return new BackofficeURL(
           new InetSocketAddress(destinationAddress, Integer.parseInt(destinationPort)),
           new URI(acqUri));
     } catch (URISyntaxException e) {

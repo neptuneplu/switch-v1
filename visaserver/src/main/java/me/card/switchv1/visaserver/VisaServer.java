@@ -1,10 +1,8 @@
 package me.card.switchv1.visaserver;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import javax.annotation.Resource;
-import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
@@ -12,12 +10,12 @@ import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.Prefix;
-import me.card.switchv1.core.component.RequestContext;
+import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.processor.Processor;
-import me.card.switchv1.core.server.ServerException;
-import me.card.switchv1.core.server.ServerMonitor;
-import me.card.switchv1.core.server.SwitchServer;
-import me.card.switchv1.core.server.SwitchServerBuilder;
+import me.card.switchv1.core.server.ConnectorException;
+import me.card.switchv1.core.server.ConnectorMonitor;
+import me.card.switchv1.core.server.Connector;
+import me.card.switchv1.core.server.SchemeConnectorBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.config.VisaParams;
 import me.card.switchv1.visaserver.db.VisaLogPo;
@@ -30,8 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class VisaManager {
-  private static final Logger logger = LoggerFactory.getLogger(VisaManager.class);
+public class VisaServer {
+  private static final Logger logger = LoggerFactory.getLogger(VisaServer.class);
 
   @Resource
   private VisaParams visaParams;
@@ -58,12 +56,12 @@ public class VisaManager {
   private VisaLogService visaLogService;
 
   @Resource
-  private SwitchServerBuilder switchServerBuilder;
+  private SchemeConnectorBuilder schemeConnectorBuilder;
 
-  private SwitchServer switchServer;
+  private Connector connector;
 
 
-  public ServerMonitor start() {
+  public ConnectorMonitor start() {
 
     try {
       startCheck();
@@ -75,7 +73,7 @@ public class VisaManager {
     return getNewServerMonitor("visa server is starting");
   }
 
-  public ServerMonitor stop() {
+  public ConnectorMonitor stop() {
 
     try {
       stopCheck();
@@ -83,43 +81,43 @@ public class VisaManager {
       return getNewServerMonitor(e.getMessage());
     }
 
-    switchServer.stop();
-    switchServer = null;
+    connector.stop();
+    connector = null;
     return getNewServerMonitor("visa server is stopping");
   }
 
-  public ServerMonitor status() {
+  public ConnectorMonitor status() {
     try {
       statusCheck();
     } catch (IllegalArgumentException e) {
       return getNewServerMonitor(e.getMessage());
     }
-    return switchServer.status();
+    return connector.status();
   }
 
-  public ServerMonitor signOn() {
+  public ConnectorMonitor signOn() {
     try {
       statusCheck();
-      switchServer.signOn();
-    } catch (IllegalArgumentException | ServerException e) {
+      connector.signOn();
+    } catch (IllegalArgumentException | ConnectorException e) {
       return getNewServerMonitor(e.getMessage());
     }
     return getNewServerMonitor("visa server signOn message send");
   }
 
-  public ServerMonitor signOff() {
+  public ConnectorMonitor signOff() {
     try {
       statusCheck();
-      switchServer.signOff();
-    } catch (IllegalArgumentException | ServerException e) {
+      connector.signOff();
+    } catch (IllegalArgumentException | ConnectorException e) {
       return getNewServerMonitor(e.getMessage());
     }
     return getNewServerMonitor("visa server signOff message send");
   }
 
   private void startCheck() {
-    Assert.isNull(switchServer, "visa server already exist");
-    Assert.notNull(switchServerBuilder, "switchServerBuilder is null");
+    Assert.isNull(connector, "visa server already exist");
+    Assert.notNull(schemeConnectorBuilder, "switchServerBuilder is null");
     Assert.notNull(visaParams, "visaParams is null");
     Assert.notNull(apiCoder, "apiCoder is null");
     Assert.notNull(heartBeat, "heartBeat is null");
@@ -128,15 +126,15 @@ public class VisaManager {
   }
 
   private void stopCheck() {
-    Assert.notNull(switchServer, "visa server not start");
+    Assert.notNull(connector, "visa server not start");
   }
 
   private void statusCheck() {
-    Assert.notNull(switchServer, "visa server not start");
+    Assert.notNull(connector, "visa server not start");
   }
 
-  private SwitchServer server() {
-    switchServer = switchServerBuilder
+  private Connector server() {
+    connector = schemeConnectorBuilder
         .name(visaParams.name())
         .serverType(visaParams.serverType())
         .localAddress(visaParams.localAddress())
@@ -153,13 +151,13 @@ public class VisaManager {
         .processor(processor)
         .build();
 
-    return switchServer;
+    return connector;
   }
 
-  public ServerMonitor getNewServerMonitor(String desc) {
-    ServerMonitor serverMonitor = new ServerMonitor();
-    serverMonitor.setDesc(desc);
-    return serverMonitor;
+  public ConnectorMonitor getNewServerMonitor(String desc) {
+    ConnectorMonitor connectorMonitor = new ConnectorMonitor();
+    connectorMonitor.setDesc(desc);
+    return connectorMonitor;
   }
 
   public VisaLogPo queryRawMessage(String seqNo, String direction) {
@@ -175,8 +173,8 @@ public class VisaManager {
 
   }
 
-  public RequestContext generateRequestContext() {
-    return switchServer.context();
+  public MessageContext generateRequestContext() {
+    return connector.context();
   }
 
 }

@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.HttpResponseDecoder;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.BackofficeURL;
 import me.card.switchv1.visaapi.VisaApi;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,9 +31,7 @@ public class NioClientTest {
 //        ph.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); //dup
         ph.addLast("decoder", new HttpResponseDecoder());
         ph.addLast("encoder", new HttpRequestEncoder());
-        ph.addLast(new BackOfficeHttpRequestHandler(
-            new DestinationURL(new InetSocketAddress("127.0.0.1", 8088),
-                new URI("/auth/visa")))); //out
+
       }
     });
 

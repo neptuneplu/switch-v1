@@ -1,11 +1,11 @@
 package me.card.switchv1.core.client;
 
 import java.util.function.Consumer;
-import me.card.switchv1.core.component.RequestContext;
+import me.card.switchv1.core.component.MessageContext;
 
 public interface ApiClient {
-  void call(RequestContext context,
-            Consumer<RequestContext> responseConsumer,
-            Consumer<RequestContext> errorConsumer);
+  void call(MessageContext context,
+            Consumer<MessageContext> outgoConsumer,
+            Consumer<MessageContext> errorConsumer);
 
 }

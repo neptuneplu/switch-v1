@@ -2,31 +2,23 @@ package me.card.switchv1.core.server;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
-import me.card.switchv1.core.client.ApiClient;
-import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
-import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.component.ApiCoder;
-import me.card.switchv1.core.component.DefaultMessageCoder;
-import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.BackofficeURL;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
-import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.component.PersistentWorker;
 import me.card.switchv1.core.component.Prefix;
-import me.card.switchv1.core.processor.DefaultProcessor;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SwitchServerBuilder {
-  private static final Logger logger = LoggerFactory.getLogger(SwitchServerBuilder.class);
+public class SchemeConnectorBuilder {
+  private static final Logger logger = LoggerFactory.getLogger(SchemeConnectorBuilder.class);
 
   private String name;
   private String serverType;
   private InetSocketAddress localAddress;
   private InetSocketAddress sourceAddress;
-  private DestinationURL destinationURL;
+  private BackofficeURL backofficeURL;
   private int readIdleTime;
   private HeartBeat heartBeat;
   private Prefix prefix;
@@ -41,48 +33,48 @@ public class SwitchServerBuilder {
   private Processor processor;
 //  private PersistentWorker persistentWorker;
 
-  public SwitchServerBuilder name(String name) {
+  public SchemeConnectorBuilder name(String name) {
     this.name = name;
     return this;
 
   }
 
-  public SwitchServerBuilder serverType(String serverType) {
+  public SchemeConnectorBuilder serverType(String serverType) {
     this.serverType = serverType;
     return this;
   }
 
-  public SwitchServerBuilder localAddress(InetSocketAddress localAddress) {
+  public SchemeConnectorBuilder localAddress(InetSocketAddress localAddress) {
     this.localAddress = localAddress;
     return this;
   }
 
-  public SwitchServerBuilder sourceAddress(InetSocketAddress sourceAddress) {
+  public SchemeConnectorBuilder sourceAddress(InetSocketAddress sourceAddress) {
     this.sourceAddress = sourceAddress;
     return this;
   }
 
-  public SwitchServerBuilder destinationURL(DestinationURL destinationURL) {
-    this.destinationURL = destinationURL;
+  public SchemeConnectorBuilder destinationURL(BackofficeURL backofficeURL) {
+    this.backofficeURL = backofficeURL;
     return this;
   }
 
-  public SwitchServerBuilder setId(Id id) {
+  public SchemeConnectorBuilder setId(Id id) {
     this.id = id;
     return this;
   }
 
-  public SwitchServerBuilder heartBeat(HeartBeat heartBeat) {
+  public SchemeConnectorBuilder heartBeat(HeartBeat heartBeat) {
     this.heartBeat = heartBeat;
     return this;
   }
 
-  public SwitchServerBuilder prefix(Prefix prefix) {
+  public SchemeConnectorBuilder prefix(Prefix prefix) {
     this.prefix = prefix;
     return this;
   }
 
-  public SwitchServerBuilder messageSupplier(Supplier<Message> messageSupplier) {
+  public SchemeConnectorBuilder messageSupplier(Supplier<Message> messageSupplier) {
     this.messageSupplier = messageSupplier;
     return this;
   }
@@ -97,19 +89,19 @@ public class SwitchServerBuilder {
 //    return this;
 //  }
 
-  public SwitchServerBuilder readIdleTime(String readIdleTime) {
+  public SchemeConnectorBuilder readIdleTime(String readIdleTime) {
     this.readIdleTime = Integer.parseInt(readIdleTime);
     return this;
   }
 
 
-  public SwitchServerBuilder signOnMessageSupplier(
+  public SchemeConnectorBuilder signOnMessageSupplier(
       Supplier<Message> signOnMessageSupplier) {
     this.signOnMessageSupplier = signOnMessageSupplier;
     return this;
   }
 
-  public SwitchServerBuilder signOffMessageSupplier(
+  public SchemeConnectorBuilder signOffMessageSupplier(
       Supplier<Message> signOffMessageSupplier) {
     this.signOffMessageSupplier = signOffMessageSupplier;
     return this;
@@ -120,12 +112,12 @@ public class SwitchServerBuilder {
 //    return this;
 //  }
 
-  public SwitchServerBuilder processorThreads(String processorThreads) {
+  public SchemeConnectorBuilder processorThreads(String processorThreads) {
     this.processorThreads = Integer.parseInt(processorThreads);
     return this;
   }
 
-  public SwitchServerBuilder processor(Processor processor) {
+  public SchemeConnectorBuilder processor(Processor processor) {
     this.processor = processor;
     return this;
   }
@@ -135,7 +127,7 @@ public class SwitchServerBuilder {
 //    return this;
 //  }
 
-  public SwitchServer build() {
+  public Connector build() {
     logger.debug("server build start");
     check();
     return getServerByType(serverType);
@@ -145,27 +137,27 @@ public class SwitchServerBuilder {
 
   }
 
-  private SwitchServer getServerByType(String serverType) {
-    SwitchServer server;
+  private Connector getServerByType(String serverType) {
+    Connector server;
 
     switch (serverType) {
       case "active":
-        server = new ActiveSwitchServer();
+        server = new ActiveSchemeConnector();
         break;
       default:
-        throw new ServerException("server type error");
+        throw new ConnectorException("server type error");
     }
 
-    serverSetup((AbstractSwitchServer) server);
+    serverSetup((AbstractSchemeConnector) server);
 
     return server;
   }
 
-  private void serverSetup(AbstractSwitchServer server) {
+  private void serverSetup(AbstractSchemeConnector server) {
     server.setName(this.name);
     server.setLocalAddress(this.localAddress);
     server.setSourceAddress(this.sourceAddress);
-    server.setDestinationURL(this.destinationURL);
+    server.setDestinationURL(this.backofficeURL);
     server.setHeartBeat(this.heartBeat);
     server.setPrefix(this.prefix);
     server.setId(this.id);

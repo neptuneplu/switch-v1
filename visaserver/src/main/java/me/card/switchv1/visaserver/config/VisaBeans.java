@@ -12,7 +12,7 @@ import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.processor.DefaultProcessor;
 import me.card.switchv1.core.processor.Processor;
-import me.card.switchv1.core.server.SwitchServerBuilder;
+import me.card.switchv1.core.server.SchemeConnectorBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.VisaHeartBeat;
 import me.card.switchv1.visaserver.message.VisaPersistentWorkerByDB;
@@ -81,7 +81,7 @@ public class VisaBeans {
   }
 
   @Bean
-  public SwitchServerBuilder switchServerBuilder() {
-    return new SwitchServerBuilder();
+  public SchemeConnectorBuilder switchServerBuilder() {
+    return new SchemeConnectorBuilder();
   }
 }

@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import me.card.switchv1.core.component.RequestContext;
+import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +25,8 @@ public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
     logger.debug("[stage *BackOfficeHandler] Netty received: thread={}, rawMessage={}",
         Thread.currentThread().getName(), msg);
 
-    RequestContext context = new RequestContext(ctx.channel());
+    MessageContext context = new MessageContext(ctx.channel());
     context.setIncomeBytes(msg);
-    processor.handleInboundAsync(context);
+    processor.handleIncomeAsync(context);
   }
 }

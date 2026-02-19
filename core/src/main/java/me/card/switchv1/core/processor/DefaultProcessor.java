@@ -12,12 +12,12 @@ import java.util.stream.Stream;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
-import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.BackofficeURL;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
+import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.component.PendingOutgoTrans;
 import me.card.switchv1.core.component.PersistentWorker;
-import me.card.switchv1.core.component.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class DefaultProcessor implements Processor {
   private final ApiCoder apiCoder;
   private final MessageCoder messageCoder;
   private final Class<Api> responseApiClz;
-  private final DestinationURL destinationURL;
+  private final BackofficeURL backofficeURL;
   private final PendingOutgoTrans pendingOutgoTrans = new PendingOutgoTrans();
 
   public DefaultProcessor(ApiClient apiClient,
@@ -38,7 +38,7 @@ public class DefaultProcessor implements Processor {
                           ApiCoder<? extends Api, ? extends Message> apiCoder,
                           MessageCoder messageCoder,
                           Class<Api> responseApiClz,
-                          DestinationURL destinationURL) {
+                          BackofficeURL backofficeURL) {
 
     this.businessExecutor = Executors.newFixedThreadPool(3,
         new ThreadFactoryBuilder()
@@ -51,35 +51,35 @@ public class DefaultProcessor implements Processor {
     this.apiCoder = apiCoder;
     this.messageCoder = messageCoder;
     this.responseApiClz = responseApiClz;
-    this.destinationURL = destinationURL;
+    this.backofficeURL = backofficeURL;
 
   }
 
 
   @Override
-  public void handleInboundAsync(RequestContext context) {
-    businessExecutor.submit(() -> handleInbound0(context));
+  public void handleIncomeAsync(MessageContext context) {
+    businessExecutor.submit(() -> handleIncome0(context));
   }
 
   @Override
-  public void handleOutboundResponseAsync(RequestContext context) {
-    businessExecutor.submit(() -> handleOutbound0(context));
+  public void handleOutgoResponseAsync(MessageContext context) {
+    businessExecutor.submit(() -> handleOutgo0(context));
   }
 
   @Override
-  public Future<Api> handleOutboundRequestAsync(RequestContext context) {
-    Future<Api> future = pendingOutgoTrans.registerOutgo(context.getReponseApi().correlationId());
-    businessExecutor.submit(() -> handleOutbound0(context));
+  public Future<Api> handleOutgoRequestAsync(MessageContext context) {
+    Future<Api> future = pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
+    businessExecutor.submit(() -> handleOutgo0(context));
     return future;
   }
 
   @Override
-  public void handleOutboundAbnormalResponseAsync(RequestContext context) {
-    businessExecutor.submit(() -> handleOutboundAbnormal0(context));
+  public void handleOutgoAbnormalResponseAsync(MessageContext context) {
+    businessExecutor.submit(() -> handleOutgoAbnormal0(context));
   }
 
 
-  private void handleInbound0(RequestContext context) {
+  private void handleIncome0(MessageContext context) {
     context.markProcessRequestStart();
 
     logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
@@ -98,57 +98,57 @@ public class DefaultProcessor implements Processor {
 
   }
 
-  private RequestContext bytesToMsg(RequestContext requestContext) {
-    Message msg = messageCoder.extract(requestContext.getIncomeBytes());
-    requestContext.setIncomeMsg(msg);
-    return requestContext;
+  private MessageContext bytesToMsg(MessageContext context) {
+    Message msg = messageCoder.extract(context.getIncomeBytes());
+    context.setIncomeMsg(msg);
+    return context;
 
   }
 
-  private RequestContext msgToApi(RequestContext requestContext) {
-    Api api = apiCoder.messageToApi(requestContext.getIncomeMsg());
-    requestContext.setRequestApi(api);
-    return requestContext;
+  private MessageContext msgToApi(MessageContext context) {
+    Api api = apiCoder.messageToApi(context.getIncomeMsg());
+    context.setIncomeApi(api);
+    return context;
 
   }
 
-  private RequestContext saveIncomeToDB(RequestContext requestContext) {
-    persistentWorker.saveInput(requestContext.getIncomeMsg());
-    return requestContext;
+  private MessageContext saveIncomeToDB(MessageContext context) {
+    persistentWorker.saveInput(context.getIncomeMsg());
+    return context;
   }
 
-  private RequestContext route(RequestContext requestContext) {
-    Api api = requestContext.getRequestApi();
+  private MessageContext route(MessageContext context) {
+    Api api = context.getIncomeApi();
     if ("0100".equals(api.mti())) {
-      callApi(requestContext);
+      callApi(context);
     } else {
-      completePendingOutgo(requestContext);
+      completePendingOutgo(context);
     }
-    return requestContext;
+    return context;
   }
 
-  private void callApi(RequestContext requestContext) {
-    requestContext.setResponseApiClz(responseApiClz);
-    requestContext.setDestinationURL(destinationURL);
+  private void callApi(MessageContext context) {
+    context.setResponseApiClz(responseApiClz);
+    context.setDestinationURL(backofficeURL);
 
     try {
-      apiClient.call(requestContext, this::handleOutboundResponseAsync,
-          this::handleOutboundAbnormalResponseAsync);
+      apiClient.call(context, this::handleOutgoResponseAsync,
+          this::handleOutgoAbnormalResponseAsync);
     } catch (Exception e) {
       logger.error("ISS 业务预处理失败", e);
-      requestContext.setError(e);
-      sendSysFailureResponse(requestContext);
+      context.setError(e);
+      sendSysFailureResponse(context);
     }
 
   }
 
-  private void completePendingOutgo(RequestContext requestContext) {
-    pendingOutgoTrans.completeOutgo(requestContext.getRequestApi().correlationId(),
-        requestContext.getRequestApi());
+  private void completePendingOutgo(MessageContext context) {
+    pendingOutgoTrans.completeOutgo(context.getIncomeApi().correlationId(),
+        context.getIncomeApi());
   }
 
 
-  private void handleOutbound0(RequestContext context) {
+  private void handleOutgo0(MessageContext context) {
     context.markProcessResponseStart();
 
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
@@ -168,41 +168,41 @@ public class DefaultProcessor implements Processor {
 
   }
 
-  private RequestContext apiToMsg(RequestContext requestContext) {
-    Message msg = apiCoder.apiToMessage(requestContext.getReponseApi());
-    requestContext.setOutgoMsg(msg);
-    return requestContext;
+  private MessageContext apiToMsg(MessageContext context) {
+    Message msg = apiCoder.apiToMessage(context.getOutgoApi());
+    context.setOutgoMsg(msg);
+    return context;
 
   }
 
-  private RequestContext msgToBytes(RequestContext requestContext) {
+  private MessageContext msgToBytes(MessageContext context) {
     ByteBuf byteMsg =
-        Unpooled.unreleasableBuffer(messageCoder.compress(requestContext.getOutgoMsg()));
-    requestContext.setOutgoBytes(byteMsg);
-    return requestContext;
+        Unpooled.unreleasableBuffer(messageCoder.compress(context.getOutgoMsg()));
+    context.setOutgoBytes(byteMsg);
+    return context;
   }
 
-  private RequestContext saveOutgoToDB(RequestContext requestContext) {
-    persistentWorker.saveOutput(requestContext.getOutgoMsg());
-    return requestContext;
+  private MessageContext saveOutgoToDB(MessageContext context) {
+    persistentWorker.saveOutput(context.getOutgoMsg());
+    return context;
   }
 
 
-  private void sendResponse(RequestContext requestContext) {
+  private void sendResponse(MessageContext context) {
     try {
-      sendSuccessResponse(requestContext);
+      sendSuccessResponse(context);
     } catch (Exception e) {
       logger.error("业务后处理失败", e);
-      requestContext.setError(e);
-      sendSysFailureResponse(requestContext);
+      context.setError(e);
+      sendSysFailureResponse(context);
     }
   }
 
-  private void handleOutboundAbnormal0(RequestContext context) {
+  private void handleOutgoAbnormal0(MessageContext context) {
     sendSysFailureResponse(context);
   }
 
-  private void sendSuccessResponse(RequestContext context) {
+  private void sendSuccessResponse(MessageContext context) {
     //
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
@@ -228,7 +228,7 @@ public class DefaultProcessor implements Processor {
   }
 
   // TODO
-  private void sendSysFailureResponse(RequestContext context) {
+  private void sendSysFailureResponse(MessageContext context) {
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
     nettyEventLoop.execute(() -> {
@@ -238,8 +238,8 @@ public class DefaultProcessor implements Processor {
       // generate error byte message
       ByteBuf byteMsg;
 
-      if (context.getReponseApi() != null) {
-        Message msg = apiCoder.errorMessage(apiCoder.apiToMessage(context.getReponseApi()));
+      if (context.getOutgoApi() != null) {
+        Message msg = apiCoder.errorMessage(apiCoder.apiToMessage(context.getOutgoApi()));
         byteMsg = messageCoder.compress(msg);
       } else {
         byteMsg = messageCoder.compress(apiCoder.errorMessage(context.getIncomeMsg()));
