@@ -84,7 +84,7 @@ public class ApiClientOkHttp implements ApiClient {
 
           // todo should check status code first
           if (response.isSuccessful() && response.body() != null) {
-            context.setOutgoApi(toApi(response.body(), context.getResponseApiClz()));
+            context.setOutgoApi(toApi(response.body(), (Class<Api>) context.getResponseApiClz()));
 
           }
           //

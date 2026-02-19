@@ -47,7 +47,7 @@ public class VisaParams {
   private String readIdleTime;
 
   @Value("${visa.serverType}")
-  private String serverType;
+  private String connectorType;
 
   @Value("${visa.processorThreads}")
   private String processorThreads;
@@ -91,8 +91,8 @@ public class VisaParams {
     return readIdleTime;
   }
 
-  public String serverType() {
-    return serverType;
+  public String connectorType() {
+    return connectorType;
   }
 
   public String processorThreads() {
@@ -119,7 +119,7 @@ public class VisaParams {
         ", destinationPort='" + destinationPort + '\'' +
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
-        ", serverType='" + serverType + '\'' +
+        ", connectorType='" + connectorType + '\'' +
         ", processorThreads='" + processorThreads + '\'' +
         '}';
   }

@@ -15,7 +15,7 @@ public class SchemeConnectorBuilder {
   private static final Logger logger = LoggerFactory.getLogger(SchemeConnectorBuilder.class);
 
   private String name;
-  private String serverType;
+  private String connectorType;
   private InetSocketAddress localAddress;
   private InetSocketAddress sourceAddress;
   private BackofficeURL backofficeURL;
@@ -24,14 +24,9 @@ public class SchemeConnectorBuilder {
   private Prefix prefix;
   private Id id;
   private Supplier<Message> messageSupplier;
-//  private Class<Api> responseApiClz;
-//  private ApiCoder<Api, Message> apiCoder;
   private Supplier<Message> signOnMessageSupplier;
   private Supplier<Message> signOffMessageSupplier;
-//  private MessageCoder messageCoder;
-  private int processorThreads;
   private Processor processor;
-//  private PersistentWorker persistentWorker;
 
   public SchemeConnectorBuilder name(String name) {
     this.name = name;
@@ -39,8 +34,8 @@ public class SchemeConnectorBuilder {
 
   }
 
-  public SchemeConnectorBuilder serverType(String serverType) {
-    this.serverType = serverType;
+  public SchemeConnectorBuilder connectorType(String connectorType) {
+    this.connectorType = connectorType;
     return this;
   }
 
@@ -79,16 +74,6 @@ public class SchemeConnectorBuilder {
     return this;
   }
 
-//  public SwitchServerBuilder apiCoder(ApiCoder<Api, Message> apiCoder) {
-//    this.apiCoder = apiCoder;
-//    return this;
-//  }
-
-//  public SwitchServerBuilder responseApiClz(Class<Api> responseApiClz) {
-//    this.responseApiClz = responseApiClz;
-//    return this;
-//  }
-
   public SchemeConnectorBuilder readIdleTime(String readIdleTime) {
     this.readIdleTime = Integer.parseInt(readIdleTime);
     return this;
@@ -107,67 +92,50 @@ public class SchemeConnectorBuilder {
     return this;
   }
 
-//  public SwitchServerBuilder messageCoder(MessageCoder messageCoder) {
-//    this.messageCoder = messageCoder;
-//    return this;
-//  }
-
-  public SchemeConnectorBuilder processorThreads(String processorThreads) {
-    this.processorThreads = Integer.parseInt(processorThreads);
-    return this;
-  }
-
   public SchemeConnectorBuilder processor(Processor processor) {
     this.processor = processor;
     return this;
   }
 
-//  public SwitchServerBuilder persistentWorker(PersistentWorker persistentWorker) {
-//    this.persistentWorker = persistentWorker;
-//    return this;
-//  }
-
   public Connector build() {
-    logger.debug("server build start");
+    logger.debug("connector build start");
     check();
-    return getServerByType(serverType);
+    return buildConnectorByType(connectorType);
   }
 
   private void check() {
 
   }
 
-  private Connector getServerByType(String serverType) {
-    Connector server;
+  private Connector buildConnectorByType(String connectorType) {
+    Connector connector;
 
-    switch (serverType) {
+    switch (connectorType) {
       case "active":
-        server = new ActiveSchemeConnector();
+        connector = new ActiveSchemeConnector();
         break;
       default:
-        throw new ConnectorException("server type error");
+        throw new ConnectorException("connector type error");
     }
 
-    serverSetup((AbstractSchemeConnector) server);
+    connectorSetup((AbstractSchemeConnector) connector);
 
-    return server;
+    return connector;
   }
 
-  private void serverSetup(AbstractSchemeConnector server) {
-    server.setName(this.name);
-    server.setLocalAddress(this.localAddress);
-    server.setSourceAddress(this.sourceAddress);
-    server.setDestinationURL(this.backofficeURL);
-    server.setHeartBeat(this.heartBeat);
-    server.setPrefix(this.prefix);
-    server.setId(this.id);
-    server.setReadIdleTime(this.readIdleTime);
-    server.setMessageSupplier(this.messageSupplier);
-//    server.setApiCoder(this.apiCoder);
-//    server.setResponseApiClz(this.responseApiClz);
-    server.setSignOnMessageSupplier(signOnMessageSupplier);
-    server.setSignOffMessageSupplier(signOffMessageSupplier);
-    server.setProcessor(processor);
+  private void connectorSetup(AbstractSchemeConnector connector) {
+    connector.setName(this.name);
+    connector.setLocalAddress(this.localAddress);
+    connector.setSourceAddress(this.sourceAddress);
+    connector.setDestinationURL(this.backofficeURL);
+    connector.setHeartBeat(this.heartBeat);
+    connector.setPrefix(this.prefix);
+    connector.setId(this.id);
+    connector.setReadIdleTime(this.readIdleTime);
+    connector.setMessageSupplier(this.messageSupplier);
+    connector.setSignOnMessageSupplier(signOnMessageSupplier);
+    connector.setSignOffMessageSupplier(signOffMessageSupplier);
+    connector.setProcessor(processor);
   }
 
 }

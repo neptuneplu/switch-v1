@@ -100,12 +100,11 @@ public class CupManager {
   private Connector getServer() {
     connector = schemeConnectorBuilder
         .name(cupConfig.name())
-        .serverType(cupConfig.serverType())
+        .connectorType(cupConfig.connectorType())
         .localAddress(cupConfig.localAddress())
         .sourceAddress(cupConfig.sourceAddress())
         .destinationURL(cupConfig.destinationURL())
         .readIdleTime(cupConfig.readIdleTime())
-        .processorThreads(cupConfig.processorThreads())
         .prefix(prefix)
         .heartBeat(heartBeat)
         .messageSupplier(CupMessageByJpos::new)

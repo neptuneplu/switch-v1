@@ -44,7 +44,7 @@ public class CupParams {
   private String readIdleTime;
 
   @Value("${cup.serverType}")
-  private String serverType;
+  private String connectorType;
 
   @Value("${cup.sendThreads}")
   private String processorThreads;
@@ -79,8 +79,8 @@ public class CupParams {
     return readIdleTime;
   }
 
-  public String serverType() {
-    return serverType;
+  public String connectorType() {
+    return connectorType;
   }
 
   public String processorThreads() {
@@ -110,7 +110,7 @@ public class CupParams {
         ", destinationPort='" + destinationPort + '\'' +
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
-        ", serverType='" + serverType + '\'' +
+        ", connectorType='" + connectorType + '\'' +
         ", processorThreads='" + processorThreads + '\'' +
         ", persistentThreads='" + persistentThreads + '\'' +
         '}';

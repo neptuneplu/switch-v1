@@ -11,7 +11,7 @@ public class MessageContext {
   private static final Logger logger = LoggerFactory.getLogger(MessageContext.class);
 
   private Channel channel;
-  private Class<Api> responseApiClz;
+  private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
   private ByteBuf incomeBytes;
   private ByteBuf outgoBytes;
@@ -37,11 +37,11 @@ public class MessageContext {
   }
 
 
-  public Class<Api> getResponseApiClz() {
+  public Class<? extends Api> getResponseApiClz() {
     return responseApiClz;
   }
 
-  public void setResponseApiClz(Class<Api> responseApiClz) {
+  public void setResponseApiClz(Class<? extends Api> responseApiClz) {
     this.responseApiClz = responseApiClz;
   }
 

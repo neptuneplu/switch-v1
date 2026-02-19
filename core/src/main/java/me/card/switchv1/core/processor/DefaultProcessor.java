@@ -25,20 +25,15 @@ public class DefaultProcessor implements Processor {
   private static final Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
 
   private final ExecutorService businessExecutor;
-  private final ApiClient apiClient;
-  private final PersistentWorker persistentWorker;
-  private final ApiCoder apiCoder;
-  private final MessageCoder messageCoder;
-  private final Class<Api> responseApiClz;
-  private final BackofficeURL backofficeURL;
-  private final PendingOutgoTrans pendingOutgoTrans = new PendingOutgoTrans();
+  private final PendingOutgoTrans pendingOutgoTrans;
+  private ApiClient apiClient;
+  private PersistentWorker persistentWorker;
+  private ApiCoder apiCoder;
+  private MessageCoder messageCoder;
+  private Class<? extends Api> responseApiClz;
+  private BackofficeURL backofficeURL;
 
-  public DefaultProcessor(ApiClient apiClient,
-                          PersistentWorker persistentWorker,
-                          ApiCoder<? extends Api, ? extends Message> apiCoder,
-                          MessageCoder messageCoder,
-                          Class<Api> responseApiClz,
-                          BackofficeURL backofficeURL) {
+  public DefaultProcessor() {
 
     this.businessExecutor = Executors.newFixedThreadPool(3,
         new ThreadFactoryBuilder()
@@ -46,15 +41,33 @@ public class DefaultProcessor implements Processor {
             .setDaemon(true)
             .build());
 
-    this.apiClient = apiClient;
-    this.persistentWorker = persistentWorker;
-    this.apiCoder = apiCoder;
-    this.messageCoder = messageCoder;
-    this.responseApiClz = responseApiClz;
-    this.backofficeURL = backofficeURL;
+    this.pendingOutgoTrans = new PendingOutgoTrans();
 
   }
 
+  public void setApiClient(ApiClient apiClient) {
+    this.apiClient = apiClient;
+  }
+
+  public void setPersistentWorker(PersistentWorker persistentWorker) {
+    this.persistentWorker = persistentWorker;
+  }
+
+  public void setApiCoder(ApiCoder apiCoder) {
+    this.apiCoder = apiCoder;
+  }
+
+  public void setMessageCoder(MessageCoder messageCoder) {
+    this.messageCoder = messageCoder;
+  }
+
+  public void setResponseApiClz(Class<? extends Api> responseApiClz) {
+    this.responseApiClz = responseApiClz;
+  }
+
+  public void setBackofficeURL(BackofficeURL backofficeURL) {
+    this.backofficeURL = backofficeURL;
+  }
 
   @Override
   public void handleIncomeAsync(MessageContext context) {
@@ -67,15 +80,16 @@ public class DefaultProcessor implements Processor {
   }
 
   @Override
-  public Future<Api> handleOutgoRequestAsync(MessageContext context) {
-    Future<Api> future = pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
-    businessExecutor.submit(() -> handleOutgo0(context));
-    return future;
-  }
-
-  @Override
   public void handleOutgoAbnormalResponseAsync(MessageContext context) {
     businessExecutor.submit(() -> handleOutgoAbnormal0(context));
+  }
+
+
+  @Override
+  public Future<Api> handleOutgoRequestAsync(MessageContext context) {
+    Future<Api> future = pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
+    handleOutgo0(context);
+    return future;
   }
 
 
@@ -117,14 +131,13 @@ public class DefaultProcessor implements Processor {
     return context;
   }
 
-  private MessageContext route(MessageContext context) {
+  private void route(MessageContext context) {
     Api api = context.getIncomeApi();
     if ("0100".equals(api.mti())) {
       callApi(context);
     } else {
       completePendingOutgo(context);
     }
-    return context;
   }
 
   private void callApi(MessageContext context) {

@@ -63,15 +63,6 @@ public class AbstractSchemeConnector {
     this.messageSupplier = messageSupplier;
   }
 
-//  void setApiCoder(ApiCoder<Api, Message> apiCoder) {
-//    this.apiCoder = apiCoder;
-//  }
-
-
-  public void setResponseApiClz(Class<Api> responseApiClz) {
-    this.responseApiClz = responseApiClz;
-  }
-
   public void setReadIdleTime(int readIdleTime) {
     this.readIdleTime = readIdleTime;
   }

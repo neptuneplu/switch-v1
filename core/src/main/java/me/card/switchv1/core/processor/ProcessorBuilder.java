@@ -1,0 +1,69 @@
+package me.card.switchv1.core.processor;
+
+import me.card.switchv1.core.client.ApiClient;
+import me.card.switchv1.core.component.Api;
+import me.card.switchv1.core.component.ApiCoder;
+import me.card.switchv1.core.component.BackofficeURL;
+import me.card.switchv1.core.component.MessageCoder;
+import me.card.switchv1.core.component.PersistentWorker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ProcessorBuilder {
+  private static final Logger logger = LoggerFactory.getLogger(ProcessorBuilder.class);
+
+  private ApiClient apiClient;
+  private PersistentWorker persistentWorker;
+  private ApiCoder apiCoder;
+  private MessageCoder messageCoder;
+  private Class<? extends Api> responseApiClz;
+  private BackofficeURL backofficeURL;
+
+  public ProcessorBuilder apiClient(ApiClient apiClient) {
+    this.apiClient = apiClient;
+    return this;
+  }
+
+  public ProcessorBuilder persistentWorker(
+      PersistentWorker persistentWorker) {
+    this.persistentWorker = persistentWorker;
+    return this;
+  }
+
+  public ProcessorBuilder apiCoder(ApiCoder apiCoder) {
+    this.apiCoder = apiCoder;
+    return this;
+  }
+
+  public ProcessorBuilder messageCoder(MessageCoder messageCoder) {
+    this.messageCoder = messageCoder;
+    return this;
+  }
+
+  public ProcessorBuilder responseApiClz(
+      Class<? extends Api> responseApiClz) {
+    this.responseApiClz = responseApiClz;
+    return this;
+  }
+
+  public ProcessorBuilder backofficeURL(
+      BackofficeURL backofficeURL) {
+    this.backofficeURL = backofficeURL;
+    return this;
+  }
+
+  public Processor build() {
+    logger.debug("processor build start");
+    DefaultProcessor processor = new DefaultProcessor();
+    processor.setApiClient(apiClient);
+    processor.setApiCoder(apiCoder);
+    processor.setMessageCoder(messageCoder);
+    processor.setResponseApiClz(responseApiClz);
+    processor.setPersistentWorker(persistentWorker);
+    processor.setBackofficeURL(backofficeURL);
+
+    return processor;
+  }
+
+
+}

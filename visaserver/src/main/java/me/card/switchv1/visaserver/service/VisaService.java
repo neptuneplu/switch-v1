@@ -1,8 +1,13 @@
-package me.card.switchv1.visaserver;
+package me.card.switchv1.visaserver.service;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
@@ -12,24 +17,26 @@ import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.processor.Processor;
+import me.card.switchv1.core.processor.ProcessorBuilder;
 import me.card.switchv1.core.server.ConnectorException;
 import me.card.switchv1.core.server.ConnectorMonitor;
 import me.card.switchv1.core.server.Connector;
 import me.card.switchv1.core.server.SchemeConnectorBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.config.VisaParams;
+import me.card.switchv1.visaserver.db.VisaLogDao;
 import me.card.switchv1.visaserver.db.VisaLogPo;
-import me.card.switchv1.visaserver.db.VisaLogService;
 import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
+import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class VisaServer {
-  private static final Logger logger = LoggerFactory.getLogger(VisaServer.class);
+public class VisaService {
+  private static final Logger logger = LoggerFactory.getLogger(VisaService.class);
 
   @Resource
   private VisaParams visaParams;
@@ -50,15 +57,23 @@ public class VisaServer {
   private MessageCoder messageCoder;
 
   @Resource
-  private Processor processor;
+  private Class<VisaApi> apiClz;
 
   @Resource
   private VisaLogService visaLogService;
 
   @Resource
+  private VisaLogDao visaLogDao;
+
+  @Resource
   private SchemeConnectorBuilder schemeConnectorBuilder;
 
+  @Resource
+  private ProcessorBuilder processorBuilder;
+
   private Connector connector;
+
+  private Processor processor;
 
 
   public ConnectorMonitor start() {
@@ -69,7 +84,7 @@ public class VisaServer {
       return getNewServerMonitor(e.getMessage());
     }
 
-    server().start();
+    connector().start();
     return getNewServerMonitor("visa server is starting");
   }
 
@@ -133,10 +148,10 @@ public class VisaServer {
     Assert.notNull(connector, "visa server not start");
   }
 
-  private Connector server() {
+  private Connector connector() {
     connector = schemeConnectorBuilder
         .name(visaParams.name())
-        .serverType(visaParams.serverType())
+        .connectorType(visaParams.connectorType())
         .localAddress(visaParams.localAddress())
         .sourceAddress(visaParams.sourceAddress())
         .destinationURL(visaParams.destinationURL())
@@ -147,7 +162,6 @@ public class VisaServer {
         .messageSupplier(VisaMessageByJpos::new)
         .signOnMessageSupplier(SignOnAndOffMessage::signOnMessage)
         .signOffMessageSupplier(SignOnAndOffMessage::signOffMessage)
-        .processorThreads(visaParams.processorThreads())
         .processor(processor)
         .build();
 
@@ -160,21 +174,27 @@ public class VisaServer {
     return connectorMonitor;
   }
 
-  public VisaLogPo queryRawMessage(String seqNo, String direction) {
-    return visaLogService.query(seqNo, direction);
-  }
-
-  public VisaApi queryApi(String seqNo, String direction) {
-    VisaLogPo visaLogPo = queryRawMessage(seqNo, direction);
-    VisaMessageByJpos visaMessageByJpos = (VisaMessageByJpos) messageCoder.extract(
-        Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(visaLogPo.getHexMessage())));
-
-    return (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
-
-  }
 
   public MessageContext generateRequestContext() {
     return connector.context();
   }
 
+  public Future<? extends Api> sendOutgoRequest(VisaApi visaApi) {
+    MessageContext messageContext = generateRequestContext();
+    messageContext.setOutgoApi(visaApi);
+    Future<? extends Api> future = processor.handleOutgoRequestAsync(messageContext);
+    return future;
+  }
+
+  @PostConstruct
+  public void init() {
+    processor = processorBuilder
+        .apiClient(new ApiClientOkHttp())
+        .responseApiClz(apiClz)
+        .apiCoder(apiCoder)
+        .messageCoder(messageCoder)
+        .persistentWorker(visaLogService)
+        .backofficeURL(visaParams.destinationURL())
+        .build();
+  }
 }
