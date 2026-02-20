@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 public class DefaultApiClient implements ApiClient {
   private static final Logger logger = LoggerFactory.getLogger(DefaultApiClient.class);
   private static final ObjectMapper mapper = new ObjectMapper();
+  private static final int DEFAULT_TIMEOUT_SECONDS = 30;
 
   private final HttpClient httpClient;
-  private static final int DEFAULT_TIMEOUT_SECONDS = 30;
 
   public DefaultApiClient() {
     this.httpClient = HttpClient.newBuilder()
