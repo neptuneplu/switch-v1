@@ -27,7 +27,7 @@ public class AcqWeb {
 
   @PostMapping("/acq/send")
   public CompletableFuture<VisaApi> send(@RequestBody VisaApi visaApi) {
-    logger.debug("acq send");
+    logger.debug("************ new acq tran received, send start ************");
 
     return visaService.sendOutgoRequestAsync(visaApi);
   }
