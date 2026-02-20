@@ -25,8 +25,7 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-
-    logger.debug("byte encode start");
+    logger.debug("************ new income tran received, byte encode start ************");
 
     if (logger.isDebugEnabled()) {
       logger.debug(String.format("return encode hex msg: %s", ByteBufUtil.hexDump(msg)));

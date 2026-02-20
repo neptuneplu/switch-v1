@@ -1,24 +1,24 @@
 package me.card.switchv1.core.component;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestContext {
-  private static final Logger logger = LoggerFactory.getLogger(RequestContext.class);
+public class MessageContext {
+  private static final Logger logger = LoggerFactory.getLogger(MessageContext.class);
 
-  private ChannelHandlerContext ctx;
-  private Class<Api> responseApiClz;
-  private DestinationURL destinationURL;
+  private Channel channel;
+  private Class<? extends Api> responseApiClz;
+  private BackofficeURL backofficeURL;
   private ByteBuf incomeBytes;
   private ByteBuf outgoBytes;
   private Message incomeMsg;
   private Message outgoMsg;
-  private Api requestApi;
-  private Api reponseApi;
+  private Api incomeApi;
+  private Api outgoApi;
   private final Map<String, Object> businessData;
   private Throwable error;
 
@@ -29,19 +29,19 @@ public class RequestContext {
   long httpEndTime;
   long processResponseStartTime;
 
-  public RequestContext(ChannelHandlerContext ctx, ByteBuf incomeBytes) {
-    this.ctx = ctx;
-    this.incomeBytes = incomeBytes;
+  public MessageContext(Channel channel) {
+    this.channel = channel;
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
   }
 
-  public Class<Api> getResponseApiClz() {
+
+  public Class<? extends Api> getResponseApiClz() {
     return responseApiClz;
   }
 
-  public void setResponseApiClz(Class<Api> responseApiClz) {
+  public void setResponseApiClz(Class<? extends Api> responseApiClz) {
     this.responseApiClz = responseApiClz;
   }
 
@@ -53,21 +53,21 @@ public class RequestContext {
     this.error = error;
   }
 
-  public DestinationURL getDestinationURL() {
-    return destinationURL;
+  public BackofficeURL getDestinationURL() {
+    return backofficeURL;
   }
 
-  public void setDestinationURL(DestinationURL destinationURL) {
-    this.destinationURL = destinationURL;
+  public void setDestinationURL(BackofficeURL backofficeURL) {
+    this.backofficeURL = backofficeURL;
   }
 
 
-  public ChannelHandlerContext getCtx() {
-    return ctx;
+  public Channel getChannel() {
+    return channel;
   }
 
-  public void setCtx(ChannelHandlerContext ctx) {
-    this.ctx = ctx;
+  public void setChannel(Channel channel) {
+    this.channel = channel;
   }
 
   public ByteBuf getIncomeBytes() {
@@ -102,20 +102,20 @@ public class RequestContext {
     this.outgoMsg = outgoMsg;
   }
 
-  public Api getRequestApi() {
-    return requestApi;
+  public Api getIncomeApi() {
+    return incomeApi;
   }
 
-  public void setRequestApi(Api requestApi) {
-    this.requestApi = requestApi;
+  public void setIncomeApi(Api incomeApi) {
+    this.incomeApi = incomeApi;
   }
 
-  public Api getReponseApi() {
-    return reponseApi;
+  public Api getOutgoApi() {
+    return outgoApi;
   }
 
-  public void setReponseApi(Api reponseApi) {
-    this.reponseApi = reponseApi;
+  public void setOutgoApi(Api outgoApi) {
+    this.outgoApi = outgoApi;
   }
 
   public Map<String, Object> getBusinessData() {

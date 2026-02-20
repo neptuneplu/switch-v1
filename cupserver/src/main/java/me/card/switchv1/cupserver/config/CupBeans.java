@@ -5,7 +5,7 @@ import me.card.switchv1.core.component.DefaultId;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.PersistentWorker;
-import me.card.switchv1.core.server.SwitchServerBuilder;
+import me.card.switchv1.core.server.SchemeConnectorBuilder;
 import me.card.switchv1.cupapi.CupApi;
 import me.card.switchv1.cupserver.message.CupHeartBeat;
 import me.card.switchv1.cupserver.message.CupPersistentWorker;
@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
 public class CupBeans {
 
   @Bean
-  public SwitchServerBuilder switchServerBuilder() {
-    return new SwitchServerBuilder();
+  public SchemeConnectorBuilder switchServerBuilder() {
+    return new SchemeConnectorBuilder();
   }
 
   @Bean

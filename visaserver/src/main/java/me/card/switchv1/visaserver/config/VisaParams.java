@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.annotation.PostConstruct;
-import me.card.switchv1.core.component.DestinationURL;
+import me.card.switchv1.core.component.BackofficeURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +44,7 @@ public class VisaParams {
   private String readIdleTime;
 
   @Value("${visa.serverType}")
-  private String serverType;
+  private String connectorType;
 
   @Value("${visa.processorThreads}")
   private String processorThreads;
@@ -58,9 +58,9 @@ public class VisaParams {
     return new InetSocketAddress(sourceAddress, Integer.parseInt(sourcePort));
   }
 
-  public DestinationURL destinationURL() {
+  public BackofficeURL destinationURL() {
     try {
-      return new DestinationURL(
+      return new BackofficeURL(
           new InetSocketAddress(destinationAddress, Integer.parseInt(destinationPort)),
           new URI(destinationPortUri));
     } catch (URISyntaxException e) {
@@ -77,8 +77,8 @@ public class VisaParams {
     return readIdleTime;
   }
 
-  public String serverType() {
-    return serverType;
+  public String connectorType() {
+    return connectorType;
   }
 
   public String processorThreads() {
@@ -105,7 +105,7 @@ public class VisaParams {
         ", destinationPort='" + destinationPort + '\'' +
         ", destinationPortUri='" + destinationPortUri + '\'' +
         ", readIdleTime='" + readIdleTime + '\'' +
-        ", serverType='" + serverType + '\'' +
+        ", connectorType='" + connectorType + '\'' +
         ", processorThreads='" + processorThreads + '\'' +
         '}';
   }

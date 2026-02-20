@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.client.ClientException;
 import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.component.RequestContext;
+import me.card.switchv1.core.component.MessageContext;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.ConnectionPool;
@@ -49,16 +49,16 @@ public class ApiClientOkHttp implements ApiClient {
 
   }
 
-  public void call(RequestContext context,
-                   Consumer<RequestContext> responseConsumer,
-                   Consumer<RequestContext> errorConsumer) {
+  public void call(MessageContext context,
+                   Consumer<MessageContext> outgoConsumer,
+                   Consumer<MessageContext> errorConsumer) {
 
     context.markHttpStart();
 
-    logger.info("[stage3/5] HTTP invoke: thread={}", Thread.currentThread().getName());
+    logger.info("[stage3/5] iss HTTP invoke: thread={}", Thread.currentThread().getName());
 
     try {
-      Request request = getRequest(context, fromApi(context.getRequestApi()));
+      Request request = getOkhttpRequest(context, fromApi(context.getIncomeApi()));
 
       httpClient.newCall(request).enqueue(new Callback() {
 
@@ -84,11 +84,11 @@ public class ApiClientOkHttp implements ApiClient {
 
           // todo should check status code first
           if (response.isSuccessful() && response.body() != null) {
-            context.setReponseApi(toApi(response.body(), context.getResponseApiClz()));
+            context.setOutgoApi(toApi(response.body(), (Class<Api>) context.getResponseApiClz()));
 
           }
           //
-          responseConsumer.accept(context);
+          outgoConsumer.accept(context);
         }
       });
 
@@ -100,7 +100,8 @@ public class ApiClientOkHttp implements ApiClient {
   }
 
 
-  private Request getRequest(RequestContext context, RequestBody requestBody) {
+
+  private Request getOkhttpRequest(MessageContext context, RequestBody requestBody) {
     return new Request.Builder()
         .url(context.getDestinationURL().getUrlString())
         .post(requestBody)

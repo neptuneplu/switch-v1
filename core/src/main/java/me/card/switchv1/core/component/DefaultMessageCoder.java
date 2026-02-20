@@ -25,6 +25,9 @@ public class DefaultMessageCoder implements MessageCoder {
 
   @Override
   public ByteBuf compress(Message message) {
+    if (message.getSeqNo() == null) {
+      message.setSeqNo(id.nextStrSeqNo());
+    }
     return Unpooled.wrappedBuffer(message.compress());
   }
 }

@@ -12,30 +12,31 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
+import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.ProcessHandler;
 import me.card.switchv1.core.handler.StreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ActiveSwitchServer extends AbstractSwitchServer
-    implements SwitchServer, AutoConnectable {
-  private static final Logger logger = LoggerFactory.getLogger(ActiveSwitchServer.class);
+public class ActiveSchemeConnector extends AbstractSchemeConnector
+    implements Connector, AutoConnectable {
+  private static final Logger logger = LoggerFactory.getLogger(ActiveSchemeConnector.class);
   public static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
 
   protected final Bootstrap bootstrap = new Bootstrap();
-  private final EventLoopGroup serverGroup;
+  private final EventLoopGroup connectorGroup;
   private Channel channel;
 
-  public ActiveSwitchServer() {
-    serverGroup = new NioEventLoopGroup(1,
-        new DefaultThreadFactory("switch-serverGroup", Thread.MAX_PRIORITY));
+  public ActiveSchemeConnector() {
+    connectorGroup = new NioEventLoopGroup(1,
+        new DefaultThreadFactory("connectorGroup", Thread.MAX_PRIORITY));
   }
 
   @Override
   public void start() {
 
-    bootstrap.group(serverGroup)
+    bootstrap.group(connectorGroup)
         .channel(NioSocketChannel.class)
         .attr(ON_LINE_FLAG, true)
         .option(ChannelOption.SO_REUSEADDR, true)
@@ -68,21 +69,21 @@ public class ActiveSwitchServer extends AbstractSwitchServer
   @Override
   public void setupChannel(Channel channel) {
     this.channel = channel;
-    serverMonitor.setDesc(channel.toString());
-    serverMonitor.setStatus(channel.isActive());
+    connectorMonitor.setDesc(channel.toString());
+    connectorMonitor.setStatus(channel.isActive());
   }
 
 
   @Override
   public void stop() {
-    logger.warn("server shutdown start");
+    logger.warn("connector shutdown start");
 
     if (Objects.nonNull(channel) && channel.isActive()) {
       channel.attr(ON_LINE_FLAG).getAndSet(false);
       channel.close().syncUninterruptibly();
     }
 
-    serverGroup.shutdownGracefully();
+    connectorGroup.shutdownGracefully();
 
   }
 
@@ -101,9 +102,15 @@ public class ActiveSwitchServer extends AbstractSwitchServer
   }
 
   @Override
-  public ServerMonitor status() {
-    ServerMonitor monitor = serverMonitor.copy();
+  public ConnectorMonitor status() {
+    ConnectorMonitor monitor = connectorMonitor.copy();
     monitor.setStatus(channel.isActive());
     return monitor;
+  }
+
+  @Override
+  public MessageContext context() {
+    //todo
+    return new MessageContext(channel);
   }
 }
