@@ -1,12 +1,6 @@
 package me.card.switchv1.visaserver.service;
 
-import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-import io.netty.util.concurrent.CompleteFuture;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.PostConstruct;
@@ -22,17 +16,15 @@ import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.processor.ProcessorBuilder;
-import me.card.switchv1.core.server.ConnectorException;
-import me.card.switchv1.core.server.ConnectorMonitor;
-import me.card.switchv1.core.server.Connector;
-import me.card.switchv1.core.server.SchemeConnectorBuilder;
+import me.card.switchv1.core.connector.ConnectorException;
+import me.card.switchv1.core.connector.ConnectorMonitor;
+import me.card.switchv1.core.connector.Connector;
+import me.card.switchv1.core.connector.SchemeConnectorBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.config.VisaParams;
 import me.card.switchv1.visaserver.db.VisaLogDao;
-import me.card.switchv1.visaserver.db.VisaLogPo;
 import me.card.switchv1.visaserver.message.SignOnAndOffMessage;
 import me.card.switchv1.visaserver.message.jpos.VisaMessageByJpos;
-import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -191,10 +183,9 @@ public class VisaService {
 
     context.setOutgoApi(visaApi);
 
-    return processor
-        .handleOutgoRequestAsync(context)
+    return processor.handleOutgoRequestAsync(context)
         .thenApply(api -> (VisaApi) api)
-        .orTimeout(1, TimeUnit.SECONDS)
+        .orTimeout(10, TimeUnit.SECONDS)
         .exceptionally(ex -> {
               if (ex instanceof TimeoutException) {
                 visaApi.setF39("90");

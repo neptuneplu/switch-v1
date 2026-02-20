@@ -1,18 +1,12 @@
 package me.card.switchv1.visaserver.config;
 
-import javax.annotation.Resource;
-import me.card.switchv1.core.client.ApiClient;
-import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
-import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.DefaultId;
 import me.card.switchv1.core.component.DefaultMessageCoder;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.processor.DefaultProcessor;
-import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.processor.ProcessorBuilder;
-import me.card.switchv1.core.server.SchemeConnectorBuilder;
+import me.card.switchv1.core.connector.SchemeConnectorBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.message.VisaHeartBeat;
 import me.card.switchv1.visaserver.message.VisaPrefix;

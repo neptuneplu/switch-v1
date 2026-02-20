@@ -1,7 +1,7 @@
 package me.card.switchv1.visaserver;
 
 import javax.annotation.Resource;
-import me.card.switchv1.core.server.ConnectorMonitor;
+import me.card.switchv1.core.connector.ConnectorMonitor;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.db.VisaLogPo;
 import me.card.switchv1.visaserver.service.VisaLogService;

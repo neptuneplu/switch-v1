@@ -87,7 +87,9 @@ public class DefaultProcessor implements Processor {
   public CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context) {
     CompletableFuture<Api> completableFuture =
         pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
+
     businessExecutor.submit(() -> handleOutgo(context));
+
     return completableFuture;
   }
 

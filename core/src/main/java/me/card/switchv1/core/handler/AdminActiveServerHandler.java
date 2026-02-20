@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import java.util.concurrent.TimeUnit;
 import me.card.switchv1.core.component.HeartBeat;
-import me.card.switchv1.core.server.AutoConnectable;
+import me.card.switchv1.core.connector.AutoConnectable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

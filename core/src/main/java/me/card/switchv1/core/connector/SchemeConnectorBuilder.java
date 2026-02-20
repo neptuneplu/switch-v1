@@ -1,4 +1,4 @@
-package me.card.switchv1.core.server;
+package me.card.switchv1.core.connector;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
