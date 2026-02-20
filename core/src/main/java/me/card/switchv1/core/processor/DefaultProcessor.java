@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -86,10 +87,11 @@ public class DefaultProcessor implements Processor {
 
 
   @Override
-  public Future<Api> handleOutgoRequestAsync(MessageContext context) {
-    Future<Api> future = pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
-    handleOutgo0(context);
-    return future;
+  public CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context) {
+    CompletableFuture<Api> completableFuture =
+        pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
+    businessExecutor.submit(() -> handleOutgo0(context));
+    return completableFuture;
   }
 
 

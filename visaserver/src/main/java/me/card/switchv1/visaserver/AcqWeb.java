@@ -1,11 +1,9 @@
 package me.card.switchv1.visaserver;
 
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import javax.annotation.Resource;
-import me.card.switchv1.core.component.MessageContext;
-import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.service.VisaService;
 import org.slf4j.Logger;
@@ -28,11 +26,10 @@ public class AcqWeb {
   VisaService visaService;
 
   @PostMapping("/acq/send")
-  public VisaApi send(@RequestBody VisaApi visaApi)
-      throws ExecutionException, InterruptedException {
+  public CompletableFuture<VisaApi> send(@RequestBody VisaApi visaApi) {
     logger.debug("acq send");
 
-    return (VisaApi) visaService.sendOutgoRequest(visaApi).get();
+    return visaService.sendOutgoRequestAsync(visaApi);
   }
 
 }

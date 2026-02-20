@@ -2,9 +2,13 @@ package me.card.switchv1.visaserver.service;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import io.netty.util.concurrent.CompleteFuture;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
@@ -175,15 +179,35 @@ public class VisaService {
   }
 
 
-  public MessageContext generateRequestContext() {
-    return connector.context();
+  public CompletableFuture<VisaApi> sendOutgoRequestAsync(VisaApi visaApi) {
+    MessageContext context;
+    if (connector != null) {
+      context = generateRequestContext();
+    } else {
+      logger.error("send outgo error, connector is not started");
+      visaApi.setF39("96");
+      return CompletableFuture.completedFuture(visaApi);
+    }
+
+    context.setOutgoApi(visaApi);
+
+    return processor
+        .handleOutgoRequestAsync(context)
+        .thenApply(api -> (VisaApi) api)
+        .orTimeout(1, TimeUnit.SECONDS)
+        .exceptionally(ex -> {
+              if (ex instanceof TimeoutException) {
+                visaApi.setF39("90");
+              } else {
+                visaApi.setF39("96");
+              }
+              return visaApi;
+            }
+        );
   }
 
-  public Future<? extends Api> sendOutgoRequest(VisaApi visaApi) {
-    MessageContext messageContext = generateRequestContext();
-    messageContext.setOutgoApi(visaApi);
-    Future<? extends Api> future = processor.handleOutgoRequestAsync(messageContext);
-    return future;
+  private MessageContext generateRequestContext() {
+    return connector.context();
   }
 
   @PostConstruct
