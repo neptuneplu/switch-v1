@@ -57,6 +57,7 @@ public class VisaLogService implements PersistentWorker {
       visaLogDao.add(visaLogPo);
     } catch (Exception e) {
       logger.error("insert log error", e);
+      throw e;
     }
   }
 
@@ -68,11 +69,12 @@ public class VisaLogService implements PersistentWorker {
       visaLogDao.add(visaLogPo);
     } catch (Exception e) {
       logger.error("insert log error", e);
+      throw e;
     }
   }
 
   public VisaLogPo query(String seqNo, String direction) {
-    return visaLogDao.query(seqNo,direction);
+    return visaLogDao.query(seqNo, direction);
   }
 
   private VisaLogPo getPo(Message message) {
