@@ -71,17 +71,15 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void handleIncomeAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleIncome0(context));
+    businessExecutor.submit(() -> handleIncome(context));
   }
 
-  @Override
   public void handleOutgoResponseAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleOutgo0(context));
+    businessExecutor.submit(() -> handleOutgo(context));
   }
 
-  @Override
   public void handleOutgoAbnormalResponseAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleOutgoAbnormal0(context));
+    businessExecutor.submit(() -> handleOutgoAbnormal(context));
   }
 
 
@@ -89,12 +87,12 @@ public class DefaultProcessor implements Processor {
   public CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context) {
     CompletableFuture<Api> completableFuture =
         pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
-    businessExecutor.submit(() -> handleOutgo0(context));
+    businessExecutor.submit(() -> handleOutgo(context));
     return completableFuture;
   }
 
 
-  private void handleIncome0(MessageContext context) {
+  private void handleIncome(MessageContext context) {
     context.markProcessRequestStart();
 
     logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
@@ -135,13 +133,13 @@ public class DefaultProcessor implements Processor {
   private void route(MessageContext context) {
     Api api = context.getIncomeApi();
     if ("0100".equals(api.mti())) {
-      callApi(context);
+      handleIncomeRequest(context);
     } else {
-      completePendingOutgo(context);
+      handleIncomeResponse(context);
     }
   }
 
-  private void callApi(MessageContext context) {
+  private void handleIncomeRequest(MessageContext context) {
     context.setResponseApiClz(responseApiClz);
     context.setDestinationURL(backofficeURL);
 
@@ -156,13 +154,13 @@ public class DefaultProcessor implements Processor {
 
   }
 
-  private void completePendingOutgo(MessageContext context) {
+  private void handleIncomeResponse(MessageContext context) {
     pendingOutgoTrans.completeOutgo(context.getIncomeApi().correlationId(),
         context.getIncomeApi());
   }
 
 
-  private void handleOutgo0(MessageContext context) {
+  private void handleOutgo(MessageContext context) {
     context.markProcessResponseStart();
 
     logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
@@ -212,7 +210,7 @@ public class DefaultProcessor implements Processor {
     }
   }
 
-  private void handleOutgoAbnormal0(MessageContext context) {
+  private void handleOutgoAbnormal(MessageContext context) {
     sendSysFailureResponse(context);
   }
 

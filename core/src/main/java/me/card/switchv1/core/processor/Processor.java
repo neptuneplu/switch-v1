@@ -10,7 +10,4 @@ public interface Processor {
 
   CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context);
 
-  void handleOutgoResponseAsync(MessageContext context);
-
-  void handleOutgoAbnormalResponseAsync(MessageContext context);
 }
