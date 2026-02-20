@@ -24,9 +24,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class VisaBeans {
 
-//  @Resource
-//  VisaParams visaParams;
-
   @Bean
   public VisaHeartBeat visaHeartBeat() {
     return new VisaHeartBeat();

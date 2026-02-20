@@ -8,7 +8,6 @@ import io.netty.channel.EventLoop;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.stream.Stream;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
@@ -29,7 +28,7 @@ public class DefaultProcessor implements Processor {
   private final PendingOutgoTrans pendingOutgoTrans;
   private ApiClient apiClient;
   private PersistentWorker persistentWorker;
-  private ApiCoder apiCoder;
+  private ApiCoder<Api, Message> apiCoder;
   private MessageCoder messageCoder;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
@@ -54,7 +53,7 @@ public class DefaultProcessor implements Processor {
     this.persistentWorker = persistentWorker;
   }
 
-  public void setApiCoder(ApiCoder apiCoder) {
+  public void setApiCoder(ApiCoder<Api, Message> apiCoder) {
     this.apiCoder = apiCoder;
   }
 

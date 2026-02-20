@@ -22,7 +22,6 @@ public class AbstractSchemeConnector {
   protected HeartBeat heartBeat;
   protected Id id;
   protected Supplier<Message> messageSupplier;
-  protected Class<? extends Api> responseApiClz;
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
   protected Processor processor;

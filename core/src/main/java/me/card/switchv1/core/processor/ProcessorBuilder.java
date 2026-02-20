@@ -4,6 +4,7 @@ import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.BackofficeURL;
+import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.PersistentWorker;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ public class ProcessorBuilder {
 
   private ApiClient apiClient;
   private PersistentWorker persistentWorker;
-  private ApiCoder apiCoder;
+  private ApiCoder<Api, Message> apiCoder;
   private MessageCoder messageCoder;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
@@ -30,7 +31,7 @@ public class ProcessorBuilder {
     return this;
   }
 
-  public ProcessorBuilder apiCoder(ApiCoder apiCoder) {
+  public ProcessorBuilder apiCoder(ApiCoder<Api, Message> apiCoder) {
     this.apiCoder = apiCoder;
     return this;
   }
