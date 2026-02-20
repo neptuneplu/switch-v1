@@ -19,12 +19,11 @@ public class DefaultApiClient implements ApiClient {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private final HttpClient httpClient;
-  private final int defaultTimeoutSeconds = 30;
+  private static final int DEFAULT_TIMEOUT_SECONDS = 30;
 
   public DefaultApiClient() {
     this.httpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(10))
-//        .executor(Executors.newFixedThreadPool(20))o
         .build();
 
   }
@@ -49,7 +48,7 @@ public class DefaultApiClient implements ApiClient {
 
     return HttpRequest.newBuilder()
         .uri(URI.create(context.getDestinationURL().getUrlString()))
-        .timeout(Duration.ofSeconds(defaultTimeoutSeconds))
+        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(str))
