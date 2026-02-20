@@ -145,14 +145,19 @@ public class DefaultProcessor implements Processor {
     context.setResponseApiClz(responseApiClz);
     context.setDestinationURL(backofficeURL);
 
-    try {
-      apiClient.call(context, this::handleOutgoResponseAsync,
-          this::handleOutgoAbnormalResponseAsync);
-    } catch (Exception e) {
-      logger.error("ISS 业务预处理失败", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
+
+    apiClient.call(context)
+        .thenAccept(api -> {
+          context.setOutgoApi(api);
+          handleOutgoResponseAsync(context);
+        })
+        .exceptionally(ex -> {
+          logger.error("ISS 业务预处理失败", ex);
+          context.setError(ex);
+          sendSysFailureResponse(context);
+          return null;
+        });
+
 
   }
 

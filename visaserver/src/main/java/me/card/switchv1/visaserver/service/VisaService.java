@@ -5,21 +5,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import me.card.switchv1.core.client.okhttp.ApiClientOkHttp;
+import me.card.switchv1.core.client.DefaultApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.component.MessageContext;
-import me.card.switchv1.core.processor.Processor;
-import me.card.switchv1.core.processor.ProcessorBuilder;
+import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.connector.ConnectorException;
 import me.card.switchv1.core.connector.ConnectorMonitor;
-import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.connector.SchemeConnectorBuilder;
+import me.card.switchv1.core.processor.Processor;
+import me.card.switchv1.core.processor.ProcessorBuilder;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.config.VisaParams;
 import me.card.switchv1.visaserver.db.VisaLogDao;
@@ -204,7 +204,7 @@ public class VisaService {
   @PostConstruct
   public void init() {
     processor = processorBuilder
-        .apiClient(new ApiClientOkHttp())
+        .apiClient(new DefaultApiClient())
         .responseApiClz(apiClz)
         .apiCoder(apiCoder)
         .messageCoder(messageCoder)
