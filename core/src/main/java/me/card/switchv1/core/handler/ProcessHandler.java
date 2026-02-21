@@ -4,13 +4,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import me.card.switchv1.core.component.Message;
 import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class ProcessHandler extends SimpleChannelInboundHandler<Message> {
   private static final Logger logger = LoggerFactory.getLogger(ProcessHandler.class);
   public static final String NAME = "ProcessHandler";
 
@@ -21,12 +22,12 @@ public class ProcessHandler extends SimpleChannelInboundHandler<ByteBuf> {
   }
 
   @Override
-  protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
-    logger.debug("[stage *BackOfficeHandler] Netty received: thread={}, rawMessage={}",
+  protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
+    logger.debug("[stage *BackOfficeHandler] Netty received: thread={}, message={}",
         Thread.currentThread().getName(), msg);
 
     MessageContext context = new MessageContext(ctx.channel());
-    context.setIncomeBytes(msg);
+    context.setIncomeMsg(msg);
     processor.handleIncomeAsync(context);
   }
 }

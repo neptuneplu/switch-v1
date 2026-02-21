@@ -14,6 +14,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
 import me.card.switchv1.core.component.MessageContext;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
+import me.card.switchv1.core.handler.MessageHandler;
 import me.card.switchv1.core.handler.ProcessHandler;
 import me.card.switchv1.core.handler.StreamHandler;
 import org.slf4j.Logger;
@@ -54,6 +55,7 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
       protected void initChannel(SocketChannel ch) {
         ch.pipeline()
             .addLast(StreamHandler.NAME, new StreamHandler(prefix))
+            .addLast(MessageHandler.NAME, new MessageHandler(messageCoder))
             .addLast(ProcessHandler.NAME, new ProcessHandler(processor))
             .addLast(new IdleStateHandler(readIdleTime, 0, 0))
             .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));

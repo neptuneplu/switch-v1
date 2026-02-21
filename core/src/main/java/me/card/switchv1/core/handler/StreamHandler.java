@@ -25,7 +25,7 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-    logger.debug("************ new income tran received, byte encode start ************");
+    logger.debug("byte encode start");
 
     if (logger.isDebugEnabled()) {
       logger.debug(String.format("return encode hex msg: %s", ByteBufUtil.hexDump(msg)));
@@ -44,6 +44,8 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
+    logger.debug("************ new income tran received, byte decode start ************");
+
     logger.debug("byte decode start");
 
     if (logger.isDebugEnabled()) {

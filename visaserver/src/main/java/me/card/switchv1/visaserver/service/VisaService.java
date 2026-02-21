@@ -159,6 +159,7 @@ public class VisaService {
         .signOnMessageSupplier(SignOnAndOffMessage::signOnMessage)
         .signOffMessageSupplier(SignOnAndOffMessage::signOffMessage)
         .processor(processor)
+        .messageCoder(messageCoder)
         .build();
 
     return connector;

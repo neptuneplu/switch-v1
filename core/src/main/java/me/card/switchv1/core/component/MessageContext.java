@@ -13,8 +13,6 @@ public class MessageContext {
   private Channel channel;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
-  private ByteBuf incomeBytes;
-  private ByteBuf outgoBytes;
   private Message incomeMsg;
   private Message outgoMsg;
   private Api incomeApi;
@@ -68,22 +66,6 @@ public class MessageContext {
 
   public void setChannel(Channel channel) {
     this.channel = channel;
-  }
-
-  public ByteBuf getIncomeBytes() {
-    return incomeBytes;
-  }
-
-  public void setIncomeBytes(ByteBuf incomeBytes) {
-    this.incomeBytes = incomeBytes;
-  }
-
-  public ByteBuf getOutgoBytes() {
-    return outgoBytes;
-  }
-
-  public void setOutgoBytes(ByteBuf outgoBytes) {
-    this.outgoBytes = outgoBytes;
   }
 
   public Message getIncomeMsg() {

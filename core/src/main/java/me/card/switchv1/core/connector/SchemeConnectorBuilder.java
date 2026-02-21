@@ -6,6 +6,7 @@ import me.card.switchv1.core.component.BackofficeURL;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class SchemeConnectorBuilder {
   private Supplier<Message> signOnMessageSupplier;
   private Supplier<Message> signOffMessageSupplier;
   private Processor processor;
+  private MessageCoder messageCoder;
 
   public SchemeConnectorBuilder name(String name) {
     this.name = name;
@@ -97,6 +99,12 @@ public class SchemeConnectorBuilder {
     return this;
   }
 
+  public SchemeConnectorBuilder messageCoder(
+      MessageCoder messageCoder) {
+    this.messageCoder = messageCoder;
+    return this;
+  }
+
   public Connector build() {
     logger.debug("connector build start");
     check();
@@ -136,6 +144,7 @@ public class SchemeConnectorBuilder {
     connector.setSignOnMessageSupplier(signOnMessageSupplier);
     connector.setSignOffMessageSupplier(signOffMessageSupplier);
     connector.setProcessor(processor);
+    connector.setMessageCoder(messageCoder);
   }
 
 }

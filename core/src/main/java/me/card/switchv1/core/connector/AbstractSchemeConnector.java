@@ -6,6 +6,7 @@ import me.card.switchv1.core.component.BackofficeURL;
 import me.card.switchv1.core.component.HeartBeat;
 import me.card.switchv1.core.component.Id;
 import me.card.switchv1.core.component.Message;
+import me.card.switchv1.core.component.MessageCoder;
 import me.card.switchv1.core.component.Prefix;
 import me.card.switchv1.core.processor.Processor;
 
@@ -24,6 +25,7 @@ public class AbstractSchemeConnector {
   protected Supplier<Message> signOnMessageSupplier;
   protected Supplier<Message> signOffMessageSupplier;
   protected Processor processor;
+  protected MessageCoder messageCoder;
 
   public AbstractSchemeConnector() {
     this.connectorMonitor = new ConnectorMonitor();
@@ -79,4 +81,8 @@ public class AbstractSchemeConnector {
     this.signOffMessageSupplier = signOffMessageSupplier;
   }
 
+
+  public void setMessageCoder(MessageCoder messageCoder) {
+    this.messageCoder = messageCoder;
+  }
 }
