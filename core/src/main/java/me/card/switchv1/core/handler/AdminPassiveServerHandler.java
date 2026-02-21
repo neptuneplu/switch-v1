@@ -20,7 +20,7 @@ public class AdminPassiveServerHandler extends AdminHandler {
   @Override
   public void channelActive(ChannelHandlerContext ctx) {
     if (logger.isInfoEnabled()) {
-      logger.info(String.format("channelActive start, channel: %s", ctx.channel().toString()));
+      logger.info("channelActive start, channel: {}", ctx.channel());
     }
     queryable.setupChannel(ctx.channel());
   }

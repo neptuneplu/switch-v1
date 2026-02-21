@@ -35,7 +35,6 @@ public class AdminHandler extends ChannelInboundHandlerAdapter {
 
     if (evt instanceof EchoEvent) {
       echoEvent(ctx, evt);
-      return;
     }
 
   }
