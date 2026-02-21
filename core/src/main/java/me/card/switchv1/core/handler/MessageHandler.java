@@ -31,7 +31,7 @@ public class MessageHandler extends MessageToMessageCodec<Message, ByteBuf> {
       out.add(messageCoder.extract(msg));
     } catch (Exception e) {
       logger.warn("extract message failed!!!", e);
-      logger.error(String.format("extract message failed, msg: %s", ByteBufUtil.hexDump(msg)));
+      logger.error("extract message failed, msg: {}", ByteBufUtil.hexDump(msg));
     }
   }
 
@@ -43,7 +43,7 @@ public class MessageHandler extends MessageToMessageCodec<Message, ByteBuf> {
       out.add(Unpooled.unreleasableBuffer(messageCoder.compress(msg)));
     } catch (Exception e) {
       logger.warn("compress message failed!!!", e);
-      logger.error(String.format("extract message failed, msg: %s", msg.toString()));
+      logger.error("compress message failed, msg: {}", msg);
     }
   }
 
