@@ -24,10 +24,21 @@ public class DefaultMessageCoder implements MessageCoder {
   }
 
   @Override
+  public Message postExtractPcs(Message message) {
+    return message;
+  }
+
+  @Override
   public ByteBuf compress(Message message) {
     if (message.getSeqNo() == null) {
       message.setSeqNo(id.nextStrSeqNo());
     }
     return Unpooled.wrappedBuffer(message.compress());
+  }
+
+  @Override
+  public Message preCompressPcs(Message message) {
+    message.setSeqNo(id.nextStrSeqNo());
+    return message;
   }
 }

@@ -165,7 +165,7 @@ public class DefaultProcessor implements Processor {
   private void handleOutgo(MessageContext context) {
     context.markProcessResponseStart();
 
-    logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
+    logger.info("[stage handleOutgo] handle outgo start: thread={}", Thread.currentThread().getName());
 
 
     try {
@@ -174,7 +174,7 @@ public class DefaultProcessor implements Processor {
           .map(this::saveOutgoToDB)
           .forEach(this::sendResponse);
     } catch (Exception e) {
-      logger.error("process response failed", e);
+      logger.error("handle outgo failed", e);
       context.setError(e);
       sendSysFailureResponse(context);
     }
@@ -183,6 +183,8 @@ public class DefaultProcessor implements Processor {
 
   private MessageContext apiToMsg(MessageContext context) {
     Message msg = apiCoder.apiToMessage(context.getOutgoApi());
+    // to avoid save it to DB without seq no
+    messageCoder.preCompressPcs(msg);
     context.setOutgoMsg(msg);
     return context;
 

@@ -6,5 +6,9 @@ public interface MessageCoder {
 
   Message extract(ByteBuf byteBuf);
 
+  Message postExtractPcs(Message message);
+
   ByteBuf compress(Message message);
+
+  Message preCompressPcs(Message message);
 }
