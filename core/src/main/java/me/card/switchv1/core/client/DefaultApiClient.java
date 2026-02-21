@@ -32,14 +32,15 @@ public class DefaultApiClient implements ApiClient {
 
     context.markHttpStart();
 
-    logger.info("[stage3/5] iss HTTP invoke: thread={}", Thread.currentThread().getName());
+    logger.info("[stage DefaultApiClient] HTTP invoke start: thread={}",
+        Thread.currentThread().getName());
 
     return httpClient.sendAsync(getRequest(context), HttpResponse.BodyHandlers.ofString())
         .thenApply(response -> str2api(getBody(response), context.getResponseApiClz()))
         .exceptionally(ex -> {
-          logger.error("[stage3/5] iss HTTP exception: ", ex);
+          logger.error("[stage DefaultApiClient] HTTP invoke exception: ", ex);
           //todo
-          throw new ClientException("HTTP 请求失败");
+          throw new ClientException("HTTP invoke exception");
         });
   }
 
