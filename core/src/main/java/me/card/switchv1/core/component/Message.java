@@ -13,5 +13,9 @@ public interface Message {
 
   String getSeqNo();
 
+  boolean isRequest();
+
+  boolean isResponse();
+
   void print();
 }

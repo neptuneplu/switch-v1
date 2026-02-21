@@ -23,9 +23,9 @@ public class VisaMessageByJpos implements Message {
     }
   }
 
-  private String seqNo;
   private final BASE1Header header;
   private final ISOMsg body;
+  private String seqNo;
 
   public VisaMessageByJpos() {
     this.header = new BASE1Header();
@@ -33,6 +33,9 @@ public class VisaMessageByJpos implements Message {
     this.body.setPackager(isoPackager);
   }
 
+//  public boolean isIncome() {
+//
+//  }
 
   public String getMti() {
     try {
@@ -54,6 +57,22 @@ public class VisaMessageByJpos implements Message {
   @Override
   public String getSeqNo() {
     return seqNo;
+  }
+
+  @Override
+  public boolean isRequest() {
+    if (getMti().equals("0100")) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isResponse() {
+    if (getMti().equals("0110")) {
+      return true;
+    }
+    return false;
   }
 
   @Override

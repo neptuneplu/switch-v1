@@ -6,8 +6,12 @@ import me.card.switchv1.core.component.MessageContext;
 
 public interface Processor {
 
-  void handleIncomeAsync(MessageContext context);
+  void handleIncomeRequestAsync(MessageContext context);
+
+  void handleIncomeResponseAsync(MessageContext context);
 
   CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context);
+
+  void handleOutgoResponseAsync(MessageContext context);
 
 }
