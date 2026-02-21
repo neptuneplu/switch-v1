@@ -23,11 +23,17 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Message> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
-    logger.debug("[stage *BackOfficeHandler] Netty received: thread={}, message={}",
-        Thread.currentThread().getName(), msg);
+    logger.debug("[stage {}] channelRead0 start: thread={}",NAME, Thread.currentThread().getName());
+
 
     MessageContext context = new MessageContext(ctx.channel());
     context.setIncomeMsg(msg);
-    processor.handleIncomeAsync(context);
+    if (msg.isRequest()) {
+      processor.handleIncomeRequestAsync(context);
+    } else if (msg.isResponse()) {
+      processor.handleIncomeResponseAsync(context);
+    } else {
+      logger.error("message MTI error");
+    }
   }
 }

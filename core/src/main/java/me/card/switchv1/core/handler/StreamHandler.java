@@ -25,10 +25,10 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-    logger.debug("byte encode start");
+    logger.debug("[stage {}] encode start: thread={}", NAME, Thread.currentThread().getName());
 
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("return encode hex msg: %s", ByteBufUtil.hexDump(msg)));
+      logger.debug("return encode hex msg: {}", ByteBufUtil.hexDump(msg));
     }
 
     try {
@@ -44,12 +44,11 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
-    logger.debug("************ new income tran received, byte decode start ************");
-
-    logger.debug("byte decode start");
+    logger.debug("************ new income tran received ************");
+    logger.debug("[stage {}] decode start: thread={}", NAME, Thread.currentThread().getName());
 
     if (logger.isDebugEnabled()) {
-      logger.debug(String.format("decode byteBuf hex: %s ", ByteBufUtil.hexDump(byteBuf)));
+      logger.debug("decode byteBuf hex: {} ", ByteBufUtil.hexDump(byteBuf));
     }
 
     int prefixLength = prefix.getPrefixLength();
@@ -86,7 +85,7 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
       out.add(byteMsg);
 
       if (logger.isDebugEnabled()) {
-        logger.debug(String.format("split finished, msg hex: %s ", ByteBufUtil.hexDump(byteMsg)));
+        logger.debug("split finished, msg hex: {} ", ByteBufUtil.hexDump(byteMsg));
       }
     }
   }
