@@ -21,7 +21,7 @@ public class PendingOutgoTrans {
     if (future != null) {
       future.complete(api);
     } else {
-      throw new RuntimeException("outgo not register");
+      throw new PendingOutgoException("outgo not register");
     }
   }
 
