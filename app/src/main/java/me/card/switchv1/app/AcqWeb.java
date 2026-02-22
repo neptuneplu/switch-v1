@@ -13,11 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@ConditionalOnProperty(
-    name = "acq.api.enabled",
-    havingValue = "true",
-    matchIfMissing = false
-)
+@ConditionalOnProperty(name = "acq.api.enabled", havingValue = "true", matchIfMissing = false)
 public class AcqWeb {
   private static final Logger logger = LoggerFactory.getLogger(AcqWeb.class);
 

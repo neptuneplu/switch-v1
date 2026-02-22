@@ -1,4 +1,4 @@
-package me.card.switchv1.server;
+package me.card.switchv1.server.mock;
 
 import me.card.switchv1.api.cup.CupApi;
 import org.slf4j.Logger;

@@ -13,7 +13,7 @@
         <module>component</module>
         <module>core</module>
         <module>scheme</module>
-        <module>server</module>
+        <module>server-mock</module>
     </modules>
 
     <properties>
