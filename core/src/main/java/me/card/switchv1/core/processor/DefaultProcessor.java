@@ -6,7 +6,6 @@ import io.netty.channel.EventLoop;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
@@ -83,14 +82,14 @@ public class DefaultProcessor implements Processor {
     CompletableFuture<Api> completableFuture =
         pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
 
-    businessExecutor.submit(() -> handleOutgo(context));
+    businessExecutor.submit(() -> handleOutgoRequest(context));
 
     return completableFuture;
   }
 
   @Override
   public void handleOutgoResponseAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleOutgo(context));
+    businessExecutor.submit(() -> handleOutgoResponse(context));
   }
 
 
@@ -100,17 +99,9 @@ public class DefaultProcessor implements Processor {
     logger.debug("[stage {}] handleIncomeRequest start: thread={}", NAME,
         Thread.currentThread().getName());
 
-    try {
-      Stream.of(context)
-          .map(this::msgToApi)
-          .map(this::saveIncomeToDB)
-          .forEach(this::doHandleIncomeRequest);
-    } catch (Exception e) {
-      logger.error("handleIncomeRequest failed", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
-
+    saveIncomeToDB(context);
+    msgToApi(context);
+    doHandleIncomeRequest(context);
   }
 
   private void handleIncomeResponse(MessageContext context) {
@@ -119,18 +110,9 @@ public class DefaultProcessor implements Processor {
     logger.debug("[stage {}] handleIncomeResponse start: thread={}", NAME,
         Thread.currentThread().getName());
 
-    try {
-      Stream.of(context)
-          .map(this::msgToApi)
-          .map(this::saveIncomeToDB)
-          .forEach(this::doHandleIncomeResponse);
-    } catch (Exception e) {
-      logger.error("handleIncomeResponse failed", e);
-      context.setError(e);
-      //todo, not to send response
-      sendSysFailureResponse(context);
-    }
-
+    saveIncomeToDB(context);
+    msgToApi(context);
+    doHandleIncomeResponse(context);
   }
 
 
@@ -158,7 +140,7 @@ public class DefaultProcessor implements Processor {
         .exceptionally(ex -> {
           logger.error("doHandleIncomeRequest failed", ex);
           context.setError(ex);
-          sendSysFailureResponse(context);
+          sendErrorResponse(context);
           return null;
         });
   }
@@ -169,22 +151,26 @@ public class DefaultProcessor implements Processor {
   }
 
 
-  private void handleOutgo(MessageContext context) {
+  private void handleOutgoRequest(MessageContext context) {
     context.markProcessResponseStart();
 
-    logger.debug("[stage {}] handleOutgo start: thread={}", NAME, Thread.currentThread().getName());
+    logger.debug("[stage {}] handleOutgoRequest start: thread={}", NAME,
+        Thread.currentThread().getName());
 
-    try {
-      Stream.of(context)
-          .map(this::apiToMsg)
-          .map(this::saveOutgoToDB)
-          .forEach(this::sendResponse);
-    } catch (Exception e) {
-      logger.error("handleOutgo failed", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
+    apiToMsg(context);
+    saveOutgoToDB(context);
+    sendOutgo(context);
+  }
 
+  private void handleOutgoResponse(MessageContext context) {
+    context.markProcessResponseStart();
+
+    logger.debug("[stage {}] handleOutgoResponse start: thread={}", NAME,
+        Thread.currentThread().getName());
+
+    apiToMsg(context);
+    saveOutgoToDB(context);
+    sendOutgo(context);
   }
 
   private MessageContext apiToMsg(MessageContext context) {
@@ -203,17 +189,7 @@ public class DefaultProcessor implements Processor {
   }
 
 
-  private void sendResponse(MessageContext context) {
-    try {
-      sendSuccessResponse(context);
-    } catch (Exception e) {
-      logger.error("send response error", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
-  }
-
-  private void sendSuccessResponse(MessageContext context) {
+  private void sendOutgo(MessageContext context) {
     //
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
@@ -228,22 +204,22 @@ public class DefaultProcessor implements Processor {
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();
-              logger.info("send response successfully, time: {}ms",
+              logger.debug("send outgo successfully, time used: {}ms",
                   System.currentTimeMillis() - context.getStartTime());
             } else {
               context.setError(future.cause());
-              logger.error("send response failed", future.cause());
+              logger.error("send outgo failed", future.cause());
             }
           });
     });
   }
 
   // TODO
-  private void sendSysFailureResponse(MessageContext context) {
+  private void sendErrorResponse(MessageContext context) {
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
     nettyEventLoop.execute(() -> {
-      logger.debug("[stage {}] sendSysFailureResponse start: thread={}", NAME,
+      logger.debug("[stage {}] sendErrorResponse start: thread={}", NAME,
           Thread.currentThread().getName());
 
       // generate error message
