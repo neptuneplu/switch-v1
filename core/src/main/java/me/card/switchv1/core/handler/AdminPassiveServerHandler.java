@@ -1,8 +1,8 @@
 package me.card.switchv1.core.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import me.card.switchv1.core.component.HeartBeat;
-import me.card.switchv1.core.server.Queryable;
+import me.card.switchv1.component.HeartBeat;
+import me.card.switchv1.core.connector.Queryable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ public class AdminPassiveServerHandler extends AdminHandler {
   @Override
   public void channelActive(ChannelHandlerContext ctx) {
     if (logger.isInfoEnabled()) {
-      logger.info(String.format("channelActive start, channel: %s", ctx.channel().toString()));
+      logger.info("channelActive start, channel: {}", ctx.channel());
     }
     queryable.setupChannel(ctx.channel());
   }

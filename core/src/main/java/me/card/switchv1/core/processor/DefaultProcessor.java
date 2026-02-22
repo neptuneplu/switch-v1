@@ -1,28 +1,26 @@
 package me.card.switchv1.core.processor;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Stream;
+import me.card.switchv1.component.Api;
+import me.card.switchv1.component.ApiCoder;
+import me.card.switchv1.component.BackofficeURL;
+import me.card.switchv1.component.Message;
+import me.card.switchv1.component.MessageCoder;
+import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.core.client.ApiClient;
-import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.component.ApiCoder;
-import me.card.switchv1.core.component.BackofficeURL;
-import me.card.switchv1.core.component.Message;
-import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.component.MessageContext;
-import me.card.switchv1.core.component.PendingOutgoTrans;
-import me.card.switchv1.core.component.PersistentWorker;
+import me.card.switchv1.core.internal.MessageContext;
+import me.card.switchv1.core.internal.PendingOutgoTrans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultProcessor implements Processor {
   private static final Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
+  private static final String NAME = "DefaultProcessor";
 
   private final ExecutorService businessExecutor;
   private final PendingOutgoTrans pendingOutgoTrans;
@@ -70,55 +68,53 @@ public class DefaultProcessor implements Processor {
   }
 
   @Override
-  public void handleIncomeAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleIncome0(context));
+  public void handleIncomeRequestAsync(MessageContext context) {
+    businessExecutor.submit(() -> handleIncomeRequest(context));
   }
 
   @Override
-  public void handleOutgoResponseAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleOutgo0(context));
+  public void handleIncomeResponseAsync(MessageContext context) {
+    businessExecutor.submit(() -> handleIncomeResponse(context));
   }
-
-  @Override
-  public void handleOutgoAbnormalResponseAsync(MessageContext context) {
-    businessExecutor.submit(() -> handleOutgoAbnormal0(context));
-  }
-
 
   @Override
   public CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context) {
     CompletableFuture<Api> completableFuture =
         pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
-    businessExecutor.submit(() -> handleOutgo0(context));
+
+    businessExecutor.submit(() -> handleOutgoRequest(context));
+
     return completableFuture;
   }
 
+  @Override
+  public void handleOutgoResponseAsync(MessageContext context) {
+    businessExecutor.submit(() -> handleOutgoResponse(context));
+  }
 
-  private void handleIncome0(MessageContext context) {
+
+  private void handleIncomeRequest(MessageContext context) {
     context.markProcessRequestStart();
 
-    logger.info("[stage2/5] processBusinessPre start: thread={}", Thread.currentThread().getName());
+    logger.debug("[stage {}] handleIncomeRequest start: thread={}", NAME,
+        Thread.currentThread().getName());
 
-    try {
-      Stream.of(context)
-          .map(this::bytesToMsg)
-          .map(this::msgToApi)
-          .map(this::saveIncomeToDB)
-          .forEach(this::route);
-    } catch (Exception e) {
-      logger.error("process request failed", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
-
+    saveIncomeToDB(context);
+    msgToApi(context);
+    doHandleIncomeRequest(context);
   }
 
-  private MessageContext bytesToMsg(MessageContext context) {
-    Message msg = messageCoder.extract(context.getIncomeBytes());
-    context.setIncomeMsg(msg);
-    return context;
+  private void handleIncomeResponse(MessageContext context) {
+    context.markProcessRequestStart();
 
+    logger.debug("[stage {}] handleIncomeResponse start: thread={}", NAME,
+        Thread.currentThread().getName());
+
+    saveIncomeToDB(context);
+    msgToApi(context);
+    doHandleIncomeResponse(context);
   }
+
 
   private MessageContext msgToApi(MessageContext context) {
     Api api = apiCoder.messageToApi(context.getIncomeMsg());
@@ -132,69 +128,60 @@ public class DefaultProcessor implements Processor {
     return context;
   }
 
-  private void route(MessageContext context) {
-    Api api = context.getIncomeApi();
-    if ("0100".equals(api.mti())) {
-      callApi(context);
-    } else {
-      completePendingOutgo(context);
-    }
-  }
-
-  private void callApi(MessageContext context) {
+  private void doHandleIncomeRequest(MessageContext context) {
     context.setResponseApiClz(responseApiClz);
     context.setDestinationURL(backofficeURL);
 
-    try {
-      apiClient.call(context, this::handleOutgoResponseAsync,
-          this::handleOutgoAbnormalResponseAsync);
-    } catch (Exception e) {
-      logger.error("ISS 业务预处理失败", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
-
+    apiClient.call(context)
+        .thenAccept(api -> {
+          context.setOutgoApi(api);
+          handleOutgoResponseAsync(context);
+        })
+        .exceptionally(ex -> {
+          logger.error("doHandleIncomeRequest failed", ex);
+          context.setError(ex);
+          sendErrorResponse(context);
+          return null;
+        });
   }
 
-  private void completePendingOutgo(MessageContext context) {
+  private void doHandleIncomeResponse(MessageContext context) {
     pendingOutgoTrans.completeOutgo(context.getIncomeApi().correlationId(),
         context.getIncomeApi());
   }
 
 
-  private void handleOutgo0(MessageContext context) {
+  private void handleOutgoRequest(MessageContext context) {
     context.markProcessResponseStart();
 
-    logger.info("[阶段4/5] 业务后处理开始: 线程={}", Thread.currentThread().getName());
+    logger.debug("[stage {}] handleOutgoRequest start: thread={}", NAME,
+        Thread.currentThread().getName());
 
+    apiToMsg(context);
+    saveOutgoToDB(context);
+    sendOutgo(context);
+  }
 
-    try {
-      Stream.of(context)
-          .map(this::apiToMsg)
-          .map(this::msgToBytes)
-          .map(this::saveOutgoToDB)
-          .forEach(this::sendResponse);
-    } catch (Exception e) {
-      logger.error("process response failed", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
+  private void handleOutgoResponse(MessageContext context) {
+    context.markProcessResponseStart();
 
+    logger.debug("[stage {}] handleOutgoResponse start: thread={}", NAME,
+        Thread.currentThread().getName());
+
+    apiToMsg(context);
+    saveOutgoToDB(context);
+    sendOutgo(context);
   }
 
   private MessageContext apiToMsg(MessageContext context) {
     Message msg = apiCoder.apiToMessage(context.getOutgoApi());
+    // to avoid save it to DB without seq no
+    messageCoder.preCompressPcs(msg);
     context.setOutgoMsg(msg);
     return context;
 
   }
 
-  private MessageContext msgToBytes(MessageContext context) {
-    ByteBuf byteMsg =
-        Unpooled.unreleasableBuffer(messageCoder.compress(context.getOutgoMsg()));
-    context.setOutgoBytes(byteMsg);
-    return context;
-  }
 
   private MessageContext saveOutgoToDB(MessageContext context) {
     persistentWorker.saveOutput(context.getOutgoMsg());
@@ -202,65 +189,48 @@ public class DefaultProcessor implements Processor {
   }
 
 
-  private void sendResponse(MessageContext context) {
-    try {
-      sendSuccessResponse(context);
-    } catch (Exception e) {
-      logger.error("业务后处理失败", e);
-      context.setError(e);
-      sendSysFailureResponse(context);
-    }
-  }
-
-  private void handleOutgoAbnormal0(MessageContext context) {
-    sendSysFailureResponse(context);
-  }
-
-  private void sendSuccessResponse(MessageContext context) {
+  private void sendOutgo(MessageContext context) {
     //
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
-    logger.info("[阶段5/5] 提交写回任务: 当前线程={}, 目标线程={}",
-        Thread.currentThread().getName(), nettyEventLoop);
+    logger.info("[stage {}] sendSuccessResponse start: current thread={}, objective thread={}",
+        NAME, Thread.currentThread().getName(), nettyEventLoop);
 
     //
     nettyEventLoop.execute(() -> {
-      logger.info("[阶段5/5] Netty写回: 线程={}", Thread.currentThread().getName());
+      logger.info("[stage {}] Netty write: thread={}", NAME, Thread.currentThread().getName());
 
-      context.getChannel().writeAndFlush(context.getOutgoBytes())
+      context.getChannel().writeAndFlush(context.getOutgoMsg())
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();
-              logger.info("响应发送成功, 耗时: {}ms",
+              logger.debug("send outgo successfully, time used: {}ms",
                   System.currentTimeMillis() - context.getStartTime());
             } else {
               context.setError(future.cause());
-              logger.error("响应发送失败", future.cause());
+              logger.error("send outgo failed", future.cause());
             }
           });
     });
   }
 
   // TODO
-  private void sendSysFailureResponse(MessageContext context) {
+  private void sendErrorResponse(MessageContext context) {
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
     nettyEventLoop.execute(() -> {
-      logger.info("[阶段 error] Netty write system failure msg: thread={}",
+      logger.debug("[stage {}] sendErrorResponse start: thread={}", NAME,
           Thread.currentThread().getName());
 
-      // generate error byte message
-      ByteBuf byteMsg;
-
+      // generate error message
+      Message msg;
       if (context.getOutgoApi() != null) {
-        Message msg = apiCoder.errorMessage(apiCoder.apiToMessage(context.getOutgoApi()));
-        byteMsg = messageCoder.compress(msg);
+        msg = apiCoder.errorMessage(apiCoder.apiToMessage(context.getOutgoApi()));
       } else {
-        byteMsg = messageCoder.compress(apiCoder.errorMessage(context.getIncomeMsg()));
-
+        msg = apiCoder.errorMessage(context.getIncomeMsg());
       }
 
-      context.getChannel().writeAndFlush(byteMsg)
+      context.getChannel().writeAndFlush(msg)
           .addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
               context.logPerformance();

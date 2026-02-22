@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.core.handler.event.EchoEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,6 @@ public class AdminHandler extends ChannelInboundHandlerAdapter {
 
     if (evt instanceof EchoEvent) {
       echoEvent(ctx, evt);
-      return;
     }
 
   }

@@ -9,73 +9,48 @@
     <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>backoffice</module>
+        <module>app</module>
+        <module>component</module>
         <module>core</module>
-        <module>cupserver</module>
-        <module>cupapi</module>
-        <module>visaapi</module>
-        <module>visaserver</module>
+        <module>scheme</module>
+        <module>server</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.version>3.3.1</checkstyle.version>
         <pmd.version>3.1</pmd.version>
         <spotbugs-plugin.version>4.8.1.0</spotbugs-plugin.version>
         <spotbugs.version>4.8.1</spotbugs.version>
         <!--        -->
-        <springboot.version>2.6.6</springboot.version>
-        <mybatis-plus-boot.version>3.5.1</mybatis-plus-boot.version>
-        <mybatis-plus-boot-starter-test.version>3.5.3.1</mybatis-plus-boot-starter-test.version>
-        <mybatis-spring-boot.version>2.2.2</mybatis-spring-boot.version>
-        <mybatis-plus-annotation.version>3.5.1</mybatis-plus-annotation.version>
-        <mybatis-plus-generator.version>3.5.2</mybatis-plus-generator.version>
         <mysql-jdbc.version>8.0.28</mysql-jdbc.version>
-        <!--        -->
-        <jackson.version>2.13.2</jackson.version>
-        <!--        -->
-        <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.4</logback.version>
-        <!--        -->
+        <netty.version>4.2.5.Final</netty.version>
+        <springboot.version>3.2.2</springboot.version>
+        <mybatis-plus-boot-starter.version>3.5.16</mybatis-plus-boot-starter.version>
+        <jackson.version>2.17.2</jackson.version>
+        <slf4j.version>2.0.9</slf4j.version>
+        <logback.version>1.4.14</logback.version>
         <commons-lang3.version>3.11</commons-lang3.version>
-        <!--        -->
         <junit.version>4.13.2</junit.version>
-        <!--        -->
-        <netty.version>4.1.86.Final</netty.version>
-        <jpos.version>2.1.4</jpos.version>
-        <okhttp.version>4.9.0</okhttp.version>
+        <jpos.version>2.1.8</jpos.version>
         <guava.version>33.0.0-jre</guava.version>
-
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-parent</artifactId>
+                <artifactId>spring-boot-dependencies</artifactId>
                 <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${springboot.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
                 <groupId>com.baomidou</groupId>
-                <version>${mybatis-plus-boot.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>mybatis-plus</artifactId>
-                <groupId>com.baomidou</groupId>
-                <version>${mybatis-plus-boot.version}</version>
-            </dependency>
-            <dependency>
-                <artifactId>mybatis-plus-annotation</artifactId>
-                <groupId>com.baomidou</groupId>
-                <version>${mybatis-plus-annotation.version}</version>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus-boot-starter.version}</version>
             </dependency>
             <dependency>
                 <artifactId>mysql-connector-java</artifactId>
@@ -123,11 +98,6 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -163,8 +133,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
 

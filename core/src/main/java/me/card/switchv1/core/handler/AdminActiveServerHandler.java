@@ -3,8 +3,8 @@ package me.card.switchv1.core.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import java.util.concurrent.TimeUnit;
-import me.card.switchv1.core.component.HeartBeat;
-import me.card.switchv1.core.server.AutoConnectable;
+import me.card.switchv1.component.HeartBeat;
+import me.card.switchv1.core.connector.AutoConnectable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class AdminActiveServerHandler extends AdminHandler {
   @Override
   public void channelActive(ChannelHandlerContext ctx) {
     if (logger.isInfoEnabled()) {
-      logger.info(String.format("channelActive start, channel: %s", ctx.channel().toString()));
+      logger.info("channelActive start, channel: {}", ctx.channel());
     }
     autoConnectable.setupChannel(ctx.channel());
   }
