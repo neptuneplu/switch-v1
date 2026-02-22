@@ -56,6 +56,16 @@ public class CupMessageByJpos implements Message {
   }
 
   @Override
+  public boolean isRequest() {
+    return false;
+  }
+
+  @Override
+  public boolean isResponse() {
+    return false;
+  }
+
+  @Override
   public void setSeqNo(String seqNo) {
     this.seqNo = seqNo;
   }
