@@ -9,8 +9,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import me.card.switchv1.core.component.Api;
-import me.card.switchv1.core.component.MessageContext;
+import me.card.switchv1.component.Api;
+import me.card.switchv1.core.internal.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

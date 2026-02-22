@@ -9,12 +9,11 @@
     <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>backoffice</module>
+        <module>app</module>
+        <module>component</module>
         <module>core</module>
-        <module>cupserver</module>
-        <module>cupapi</module>
-        <module>visaapi</module>
-        <module>visaserver</module>
+        <module>scheme</module>
+        <module>server</module>
     </modules>
 
     <properties>

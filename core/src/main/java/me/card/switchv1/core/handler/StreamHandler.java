@@ -6,7 +6,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import java.util.List;
-import me.card.switchv1.core.component.Prefix;
+import me.card.switchv1.component.Prefix;
 import me.card.switchv1.core.handler.event.EchoEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

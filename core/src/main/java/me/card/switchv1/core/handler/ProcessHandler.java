@@ -1,11 +1,10 @@
 package me.card.switchv1.core.handler;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import me.card.switchv1.core.component.Message;
-import me.card.switchv1.core.component.MessageContext;
+import me.card.switchv1.component.Message;
+import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,8 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Message> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
-    logger.debug("[stage {}] channelRead0 start: thread={}",NAME, Thread.currentThread().getName());
+    logger.debug("[stage {}] channelRead0 start: thread={}", NAME,
+        Thread.currentThread().getName());
 
 
     MessageContext context = new MessageContext(ctx.channel());

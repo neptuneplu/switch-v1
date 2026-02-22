@@ -1,6 +1,6 @@
 package me.card.switchv1.core.connector;
 
-import me.card.switchv1.core.component.MessageContext;
+import me.card.switchv1.core.internal.MessageContext;
 
 public interface Connector {
 

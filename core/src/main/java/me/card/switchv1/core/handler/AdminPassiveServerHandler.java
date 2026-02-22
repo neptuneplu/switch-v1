@@ -1,7 +1,7 @@
 package me.card.switchv1.core.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import me.card.switchv1.core.component.HeartBeat;
+import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.core.connector.Queryable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

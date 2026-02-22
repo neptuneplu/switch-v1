@@ -12,7 +12,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
-import me.card.switchv1.core.component.MessageContext;
+import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.MessageHandler;
 import me.card.switchv1.core.handler.ProcessHandler;

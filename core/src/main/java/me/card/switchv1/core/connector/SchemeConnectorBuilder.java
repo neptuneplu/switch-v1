@@ -2,12 +2,13 @@ package me.card.switchv1.core.connector;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
-import me.card.switchv1.core.component.BackofficeURL;
-import me.card.switchv1.core.component.HeartBeat;
-import me.card.switchv1.core.component.Id;
-import me.card.switchv1.core.component.Message;
-import me.card.switchv1.core.component.MessageCoder;
-import me.card.switchv1.core.component.Prefix;
+
+import me.card.switchv1.component.BackofficeURL;
+import me.card.switchv1.component.HeartBeat;
+import me.card.switchv1.component.Id;
+import me.card.switchv1.component.Message;
+import me.card.switchv1.component.MessageCoder;
+import me.card.switchv1.component.Prefix;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
