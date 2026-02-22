@@ -1,6 +1,6 @@
 package me.card.switchv1.cupserver;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.HeartBeat;

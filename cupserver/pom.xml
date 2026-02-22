@@ -28,24 +28,20 @@
             <version>${switch.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jpos</groupId>
-            <artifactId>jpos</artifactId>
+            <artifactId>mysql-connector-java</artifactId>
+            <groupId>mysql</groupId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <groupId>com.baomidou</groupId>
         </dependency>
         <dependency>
-            <artifactId>mybatis-plus</artifactId>
-            <groupId>com.baomidou</groupId>
-        </dependency>
-        <dependency>
-            <artifactId>mysql-connector-java</artifactId>
-            <groupId>mysql</groupId>
+            <groupId>org.jpos</groupId>
+            <artifactId>jpos</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

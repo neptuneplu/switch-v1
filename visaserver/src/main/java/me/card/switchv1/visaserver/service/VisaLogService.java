@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
 import me.card.switchv1.core.component.Id;

@@ -2,7 +2,7 @@ package me.card.switchv1.visaserver.db;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import java.util.Optional;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.card.switchv1.visaserver.db.mapper.VisaLogMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

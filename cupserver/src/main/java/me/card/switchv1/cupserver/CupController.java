@@ -1,6 +1,6 @@
 package me.card.switchv1.cupserver;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.card.switchv1.core.connector.ConnectorMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

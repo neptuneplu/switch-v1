@@ -3,7 +3,7 @@ package me.card.switchv1.visaserver;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.card.switchv1.visaapi.VisaApi;
 import me.card.switchv1.visaserver.service.VisaService;
 import org.slf4j.Logger;

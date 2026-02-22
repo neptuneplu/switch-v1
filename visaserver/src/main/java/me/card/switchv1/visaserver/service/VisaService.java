@@ -3,8 +3,8 @@ package me.card.switchv1.visaserver.service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import me.card.switchv1.core.client.DefaultApiClient;
 import me.card.switchv1.core.component.Api;
 import me.card.switchv1.core.component.ApiCoder;
@@ -185,11 +185,12 @@ public class VisaService {
     context.setOutgoApi(visaApi);
 
     return processor.handleOutgoRequestAsync(context)
+        // todo
         .thenApply(api -> (VisaApi) api)
         .orTimeout(10, TimeUnit.SECONDS)
         .exceptionally(ex -> {
               if (ex instanceof TimeoutException) {
-                visaApi.setF39("90");
+                visaApi.setF39("91");
               } else {
                 visaApi.setF39("96");
               }
