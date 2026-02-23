@@ -40,12 +40,12 @@ public class LogService implements PersistentWorker {
     return query(seqNo, direction);
   }
 
-  public VisaApi queryApi(String seqNo, String direction) {
+  public Api queryApi(String seqNo, String direction) {
     MessageLogPo messageLogPo = queryRawMessage(seqNo, direction);
     VisaMessageByJpos visaMessageByJpos = (VisaMessageByJpos) messageCoder.extract(
         Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(messageLogPo.getHexMessage())));
 
-    return (VisaApi) apiCoder.messageToApi(visaMessageByJpos);
+    return apiCoder.messageToApi(visaMessageByJpos);
 
   }
 
@@ -77,7 +77,8 @@ public class LogService implements PersistentWorker {
     return messageLogDao.query(seqNo, direction);
   }
 
-  private MessageLogPo getPo(Message message) {MessageLogPo
+  private MessageLogPo getPo(Message message) {
+    MessageLogPo
         messageLogPo = new MessageLogPo();
     messageLogPo.setId(id.nextStrId());
     messageLogPo.setSeqNo(message.getSeqNo());

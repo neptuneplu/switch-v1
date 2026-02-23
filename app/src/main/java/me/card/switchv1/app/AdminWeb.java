@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import me.card.switchv1.app.db.MessageLogPo;
 import me.card.switchv1.app.service.LogService;
 import me.card.switchv1.app.service.SchemeService;
+import me.card.switchv1.component.Api;
 import me.card.switchv1.core.connector.ConnectorMonitor;
 import me.card.switchv1.api.visa.VisaApi;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public class AdminWeb {
   }
 
   @PostMapping("/scheme/query/api")
-  public VisaApi queryApi(@RequestBody QueryRequest request) {
+  public Api queryApi(@RequestBody QueryRequest request) {
     return logService.queryApi(request.getSeqNo(), request.getDirection());
   }
 
