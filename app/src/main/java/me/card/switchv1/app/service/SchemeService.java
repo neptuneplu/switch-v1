@@ -79,11 +79,11 @@ public class SchemeService {
     try {
       startCheck();
     } catch (IllegalArgumentException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
 
     connector().start();
-    return getNewServerMonitor("scheme server is starting");
+    return newServerMonitor("scheme server is starting");
   }
 
   public ConnectorMonitor stop() {
@@ -91,19 +91,19 @@ public class SchemeService {
     try {
       stopCheck();
     } catch (IllegalArgumentException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
 
     connector.stop();
     connector = null;
-    return getNewServerMonitor("scheme server is stopping");
+    return newServerMonitor("scheme server is stopping");
   }
 
   public ConnectorMonitor status() {
     try {
       statusCheck();
     } catch (IllegalArgumentException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
     return connector.status();
   }
@@ -113,9 +113,9 @@ public class SchemeService {
       statusCheck();
       connector.signOn();
     } catch (IllegalArgumentException | ConnectorException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
-    return getNewServerMonitor("scheme server signOn message send");
+    return newServerMonitor("scheme server signOn message send");
   }
 
   public ConnectorMonitor signOff() {
@@ -123,9 +123,9 @@ public class SchemeService {
       statusCheck();
       connector.signOff();
     } catch (IllegalArgumentException | ConnectorException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
-    return getNewServerMonitor("scheme server signOff message send");
+    return newServerMonitor("scheme server signOff message send");
   }
 
   private void startCheck() {
@@ -167,7 +167,7 @@ public class SchemeService {
     return connector;
   }
 
-  public ConnectorMonitor getNewServerMonitor(String desc) {
+  public ConnectorMonitor newServerMonitor(String desc) {
     ConnectorMonitor connectorMonitor = new ConnectorMonitor();
     connectorMonitor.setDesc(desc);
     return connectorMonitor;

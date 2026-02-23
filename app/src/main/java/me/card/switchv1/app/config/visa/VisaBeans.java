@@ -1,4 +1,4 @@
-package me.card.switchv1.app.config;
+package me.card.switchv1.app.config.visa;
 
 
 import me.card.switchv1.component.ApiCoder;

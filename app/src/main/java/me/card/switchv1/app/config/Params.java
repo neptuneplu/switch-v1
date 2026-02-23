@@ -12,7 +12,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("/application-visa.properties")
+@PropertySource("/visa/application-visa.properties")
 public class Params {
   private static final Logger logger = LoggerFactory.getLogger(Params.class);
 
