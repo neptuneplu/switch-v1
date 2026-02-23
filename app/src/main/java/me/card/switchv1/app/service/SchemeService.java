@@ -61,9 +61,6 @@ public class SchemeService {
   LogService logService;
 
   @Resource
-  MessageLogDao messageLogDao;
-
-  @Resource
   private SchemeConnectorBuilder schemeConnectorBuilder;
 
   @Resource
@@ -130,6 +127,7 @@ public class SchemeService {
 
   private void startCheck() {
     Assert.isNull(connector, "scheme server already exist");
+    Assert.notNull(processor, "processor is null");
     Assert.notNull(schemeConnectorBuilder, "switchServerBuilder is null");
     Assert.notNull(params, "params is null");
     Assert.notNull(apiCoder, "apiCoder is null");
@@ -174,29 +172,27 @@ public class SchemeService {
   }
 
 
-  public CompletableFuture<VisaApi> sendOutgoRequestAsync(VisaApi visaApi) {
+  public CompletableFuture<Api> sendOutgoRequestAsync(Api api) {
     MessageContext context;
     if (connector != null) {
       context = generateRequestContext();
     } else {
       logger.error("send outgo error, connector is not started");
-      visaApi.setF39("96");
-      return CompletableFuture.completedFuture(visaApi);
+      api.toResponse("96");
+      return CompletableFuture.completedFuture(api);
     }
 
-    context.setOutgoApi(visaApi);
+    context.setOutgoApi(api);
 
     return processor.handleOutgoRequestAsync(context)
-        // todo
-        .thenApply(api -> (VisaApi) api)
         .orTimeout(10, TimeUnit.SECONDS)
         .exceptionally(ex -> {
               if (ex instanceof TimeoutException) {
-                visaApi.setF39("91");
+                api.toResponse("91");
               } else {
-                visaApi.setF39("96");
+                api.toResponse("96");
               }
-              return visaApi;
+              return api;
             }
         );
   }
