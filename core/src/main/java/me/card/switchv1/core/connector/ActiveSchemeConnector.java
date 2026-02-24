@@ -106,7 +106,11 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
   @Override
   public ConnectorMonitor status() {
     ConnectorMonitor monitor = connectorMonitor.copy();
-    monitor.setStatus(channel.isActive());
+    if (channel == null) {
+      monitor.setStatus(false);
+    } else {
+      monitor.setStatus(channel.isActive());
+    }
     return monitor;
   }
 
