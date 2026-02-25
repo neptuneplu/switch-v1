@@ -3,9 +3,12 @@ package me.card.switchv1.core.processor;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
+import java.awt.color.ProfileDataException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.BackofficeURL;
@@ -31,7 +34,7 @@ public class DefaultProcessor implements Processor {
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
 
-  public DefaultProcessor() {
+  DefaultProcessor() {
 
     this.businessExecutor = Executors.newFixedThreadPool(3,
         new ThreadFactoryBuilder()
@@ -79,12 +82,24 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context) {
-    CompletableFuture<Api> completableFuture =
-        pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId());
+    CompletableFuture<Api> future =
+        pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId())
+            .orTimeout(10, TimeUnit.SECONDS)
+            .exceptionally(ex -> {
+                  if (ex instanceof TimeoutException) {
+                    context.getOutgoApi().toResponse("91");
+                    pendingOutgoTrans.completeOutgo(context.getOutgoApi().correlationId(),
+                        context.getOutgoApi());
+                  } else {
+                    context.getOutgoApi().toResponse("96");
+                  }
+                  return context.getOutgoApi();
+                }
+            );
 
     businessExecutor.submit(() -> handleOutgoRequest(context));
 
-    return completableFuture;
+    return future;
   }
 
   @Override
@@ -157,8 +172,14 @@ public class DefaultProcessor implements Processor {
     logger.debug("[stage {}] handleOutgoRequest start: thread={}", NAME,
         Thread.currentThread().getName());
 
-    apiToMsg(context);
-    saveOutgoToDB(context);
+    try {
+      apiToMsg(context);
+      saveOutgoToDB(context);
+    } catch (Exception e) {
+      logger.error("handleOutgoRequest failed", e);
+      pendingOutgoErrorPcs(context);
+    }
+
     sendOutgo(context);
   }
 
@@ -191,17 +212,24 @@ public class DefaultProcessor implements Processor {
 
   private void sendOutgo(MessageContext context) {
     //
+    if (context.getChannel() == null) {
+      throw new ProfileDataException("channel is null");
+    }
     EventLoop nettyEventLoop = context.getChannel().eventLoop();
 
-    logger.info("[stage {}] sendSuccessResponse start: current thread={}, objective thread={}",
+    logger.info("[stage {}] sendOutgo start: current thread={}, objective thread={}",
         NAME, Thread.currentThread().getName(), nettyEventLoop);
 
     //
     nettyEventLoop.execute(() -> {
-      logger.info("[stage {}] Netty write: thread={}", NAME, Thread.currentThread().getName());
+      logger.info("[stage {}] sendOutgo netty write: thread={}", NAME,
+          Thread.currentThread().getName());
 
       context.getChannel().writeAndFlush(context.getOutgoMsg())
           .addListener((ChannelFutureListener) future -> {
+            logger.info("[stage {}] sendOutgo listener: thread={}", NAME,
+                Thread.currentThread().getName());
+
             if (future.isSuccess()) {
               context.logPerformance();
               logger.debug("send outgo successfully, time used: {}ms",
@@ -209,6 +237,7 @@ public class DefaultProcessor implements Processor {
             } else {
               context.setError(future.cause());
               logger.error("send outgo failed", future.cause());
+              pendingOutgoErrorPcs(context);
             }
           });
     });
@@ -242,6 +271,17 @@ public class DefaultProcessor implements Processor {
             }
           });
     });
+  }
+
+  private void pendingOutgoErrorPcs(MessageContext context) {
+    Api api = context.getOutgoApi();
+    api.toResponse("99");
+    pendingOutgoTrans.completeOutgo(api.correlationId(), api);
+  }
+
+  @Override
+  public int pendingOutgos() {
+    return pendingOutgoTrans.pendingOutgoCount();
   }
 
 }

@@ -43,6 +43,12 @@ public class AdminWeb {
     return schemeService.status();
   }
 
+  @GetMapping("/scheme/pendings")
+  public ConnectorMonitor pendings() {
+    logger.debug("scheme pendings request");
+    return schemeService.pendingOutgos();
+  }
+
   @GetMapping("/scheme/signOn")
   public ConnectorMonitor signOn() {
     logger.debug("scheme signOn request");

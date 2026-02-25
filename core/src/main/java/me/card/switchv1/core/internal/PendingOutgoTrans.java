@@ -28,12 +28,16 @@ public class PendingOutgoTrans {
   }
 
 
-  public void timeoutOutgo(CorrelationId correlationId) {
-    CompletableFuture<Api> future = pendingTrans.remove(correlationId);
-    if (future != null) {
-      future.completeExceptionally(new TimeoutException("visa timeout"));
-    } else {
-      throw new PendingOutgoException("outgo not register");
-    }
+//  public void timeout(CorrelationId correlationId) {
+//    CompletableFuture<Api> future = pendingTrans.remove(correlationId);
+//    if (future != null) {
+//      future.completeExceptionally(new TimeoutException("visa timeout"));
+//    } else {
+//      throw new PendingOutgoException("outgo not register");
+//    }
+//  }
+
+  public int pendingOutgoCount() {
+    return pendingTrans.size();
   }
 }

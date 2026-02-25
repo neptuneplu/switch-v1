@@ -14,4 +14,6 @@ public interface Processor {
 
   void handleOutgoResponseAsync(MessageContext context);
 
+  int pendingOutgos();
+
 }

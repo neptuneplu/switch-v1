@@ -1,29 +1,24 @@
 package me.card.switchv1.app.service;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import java.util.concurrent.CompletableFuture;
 import me.card.switchv1.app.config.Params;
-import me.card.switchv1.component.HeartBeat;
-import me.card.switchv1.core.client.DefaultApiClient;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
+import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.component.Id;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
-import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.component.Prefix;
+import me.card.switchv1.core.client.DefaultApiClient;
 import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.connector.ConnectorException;
 import me.card.switchv1.core.connector.ConnectorMonitor;
 import me.card.switchv1.core.connector.SchemeConnectorBuilder;
+import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.processor.ProcessorBuilder;
-import me.card.switchv1.api.visa.VisaApi;
-
-import me.card.switchv1.app.db.MessageLogDao;
 import me.card.switchv1.message.visa.SignOnAndOffMessage;
 import me.card.switchv1.message.visa.jpos.VisaMessageByJpos;
 import org.slf4j.Logger;
@@ -57,8 +52,7 @@ public class SchemeService {
   private Class<Api> apiClz;
 
   @Resource
-  private
-  LogService logService;
+  private LogService logService;
 
   @Resource
   private SchemeConnectorBuilder schemeConnectorBuilder;
@@ -175,7 +169,13 @@ public class SchemeService {
   public CompletableFuture<Api> sendOutgoRequestAsync(Api api) {
     MessageContext context;
     if (connector != null) {
-      context = generateRequestContext();
+      try {
+        context = generateRequestContext();
+      } catch (ConnectorException e) {
+        logger.error("send outgo error, connect not ok");
+        api.toResponse("96");
+        return CompletableFuture.completedFuture(api);
+      }
     } else {
       logger.error("send outgo error, connector is not started");
       api.toResponse("96");
@@ -184,17 +184,8 @@ public class SchemeService {
 
     context.setOutgoApi(api);
 
-    return processor.handleOutgoRequestAsync(context)
-        .orTimeout(10, TimeUnit.SECONDS)
-        .exceptionally(ex -> {
-              if (ex instanceof TimeoutException) {
-                api.toResponse("91");
-              } else {
-                api.toResponse("96");
-              }
-              return api;
-            }
-        );
+    return processor.handleOutgoRequestAsync(context);
+
   }
 
   private MessageContext generateRequestContext() {
@@ -211,5 +202,12 @@ public class SchemeService {
         .persistentWorker(logService)
         .backofficeURL(params.destinationURL())
         .build();
+  }
+
+  public ConnectorMonitor pendingOutgos() {
+    ConnectorMonitor monitor = status();
+    monitor.setPendingOutgos(processor.pendingOutgos());
+    return monitor;
+
   }
 }
