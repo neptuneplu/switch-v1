@@ -116,7 +116,10 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
 
   @Override
   public MessageContext context() {
-    //todo
-    return new MessageContext(channel);
+    if (channel == null) {
+      throw new ConnectorException("channel is null");
+    } else {
+      return new MessageContext(channel);
+    }
   }
 }
