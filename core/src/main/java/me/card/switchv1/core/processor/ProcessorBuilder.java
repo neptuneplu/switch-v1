@@ -7,7 +7,6 @@ import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
 import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.core.client.ApiClient;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

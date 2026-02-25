@@ -1,6 +1,5 @@
 package me.card.switchv1.core.internal;
 
-import io.netty.channel.Channel;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.card.switchv1.component.Api;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 public class MessageContext {
   private static final Logger logger = LoggerFactory.getLogger(MessageContext.class);
 
-  private Channel channel;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
   private Message incomeMsg;
@@ -29,8 +27,7 @@ public class MessageContext {
   long httpEndTime;
   long processResponseStartTime;
 
-  public MessageContext(Channel channel) {
-    this.channel = channel;
+  public MessageContext() {
     this.startTime = System.currentTimeMillis();
     this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
@@ -59,15 +56,6 @@ public class MessageContext {
 
   public void setDestinationURL(BackofficeURL backofficeURL) {
     this.backofficeURL = backofficeURL;
-  }
-
-
-  public Channel getChannel() {
-    return channel;
-  }
-
-  public void setChannel(Channel channel) {
-    this.channel = channel;
   }
 
   public Message getIncomeMsg() {

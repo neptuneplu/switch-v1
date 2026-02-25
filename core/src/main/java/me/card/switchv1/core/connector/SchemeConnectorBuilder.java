@@ -2,7 +2,6 @@ package me.card.switchv1.core.connector;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
-
 import me.card.switchv1.component.BackofficeURL;
 import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.component.Id;

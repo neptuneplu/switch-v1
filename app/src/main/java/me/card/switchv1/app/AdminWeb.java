@@ -6,7 +6,6 @@ import me.card.switchv1.app.service.LogService;
 import me.card.switchv1.app.service.SchemeService;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.core.connector.ConnectorMonitor;
-import me.card.switchv1.api.visa.VisaApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;

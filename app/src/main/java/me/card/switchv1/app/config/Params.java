@@ -1,9 +1,9 @@
 package me.card.switchv1.app.config;
 
+import jakarta.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import jakarta.annotation.PostConstruct;
 import me.card.switchv1.component.BackofficeURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

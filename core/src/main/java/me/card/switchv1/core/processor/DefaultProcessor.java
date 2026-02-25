@@ -1,9 +1,6 @@
 package me.card.switchv1.core.processor;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.EventLoop;
-import java.awt.color.ProfileDataException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +13,7 @@ import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
 import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.core.client.ApiClient;
+import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.core.internal.PendingOutgoTrans;
 import org.slf4j.Logger;
@@ -33,6 +31,7 @@ public class DefaultProcessor implements Processor {
   private MessageCoder messageCoder;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
+  private Connector connector;
 
   DefaultProcessor() {
 
@@ -70,32 +69,53 @@ public class DefaultProcessor implements Processor {
     this.backofficeURL = backofficeURL;
   }
 
+
+  public void setConnector(Connector connector) {
+    this.connector = connector;
+  }
+
   @Override
-  public void handleIncomeRequestAsync(MessageContext context) {
+  public void handleIncomeRequestAsync(Message message) {
+    MessageContext context = new MessageContext();
+    context.setIncomeMsg(message);
+
     businessExecutor.submit(() -> handleIncomeRequest(context));
   }
 
   @Override
-  public void handleIncomeResponseAsync(MessageContext context) {
+  public void handleIncomeResponseAsync(Message message) {
+    MessageContext context = new MessageContext();
+    context.setIncomeMsg(message);
+
     businessExecutor.submit(() -> handleIncomeResponse(context));
   }
 
   @Override
-  public CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context) {
+  public CompletableFuture<Api> handleOutgoRequestAsync(Api api) {
+
+    if (connector == null) {
+      logger.error("send outgo error, connector is not started");
+      api.toResponse("96");
+      return CompletableFuture.completedFuture(api);
+    }
+
+
     CompletableFuture<Api> future =
-        pendingOutgoTrans.registerOutgo(context.getOutgoApi().correlationId())
+        pendingOutgoTrans.registerOutgo(api.correlationId())
             .orTimeout(10, TimeUnit.SECONDS)
             .exceptionally(ex -> {
                   if (ex instanceof TimeoutException) {
-                    context.getOutgoApi().toResponse("91");
-                    pendingOutgoTrans.completeOutgo(context.getOutgoApi().correlationId(),
-                        context.getOutgoApi());
+                    api.toResponse("91");
+                    pendingOutgoTrans.completeOutgo(api.correlationId(), api);
                   } else {
-                    context.getOutgoApi().toResponse("96");
+                    api.toResponse("96");
                   }
-                  return context.getOutgoApi();
+                  return api;
                 }
             );
+
+    MessageContext context = new MessageContext();
+    context.setOutgoApi(api);
 
     businessExecutor.submit(() -> handleOutgoRequest(context));
 
@@ -103,7 +123,10 @@ public class DefaultProcessor implements Processor {
   }
 
   @Override
-  public void handleOutgoResponseAsync(MessageContext context) {
+  public void handleOutgoResponseAsync(Api api) {
+    MessageContext context = new MessageContext();
+    context.setOutgoApi(api);
+
     businessExecutor.submit(() -> handleOutgoResponse(context));
   }
 
@@ -149,8 +172,8 @@ public class DefaultProcessor implements Processor {
 
     apiClient.call(context)
         .thenAccept(api -> {
-          context.setOutgoApi(api);
-          handleOutgoResponseAsync(context);
+//          context.setOutgoApi(api);
+          handleOutgoResponseAsync(api);
         })
         .exceptionally(ex -> {
           logger.error("doHandleIncomeRequest failed", ex);
@@ -177,7 +200,7 @@ public class DefaultProcessor implements Processor {
       saveOutgoToDB(context);
     } catch (Exception e) {
       logger.error("handleOutgoRequest failed", e);
-      pendingOutgoErrorPcs(context);
+      pendingOutgoErrorPcs(context.getOutgoMsg());
     }
 
     sendOutgo(context);
@@ -212,69 +235,24 @@ public class DefaultProcessor implements Processor {
 
   private void sendOutgo(MessageContext context) {
     //
-    if (context.getChannel() == null) {
-      throw new ProfileDataException("channel is null");
-    }
-    EventLoop nettyEventLoop = context.getChannel().eventLoop();
-
-    logger.info("[stage {}] sendOutgo start: current thread={}, objective thread={}",
-        NAME, Thread.currentThread().getName(), nettyEventLoop);
-
-    //
-    nettyEventLoop.execute(() -> {
-      logger.info("[stage {}] sendOutgo netty write: thread={}", NAME,
-          Thread.currentThread().getName());
-
-      context.getChannel().writeAndFlush(context.getOutgoMsg())
-          .addListener((ChannelFutureListener) future -> {
-            logger.info("[stage {}] sendOutgo listener: thread={}", NAME,
-                Thread.currentThread().getName());
-
-            if (future.isSuccess()) {
-              context.logPerformance();
-              logger.debug("send outgo successfully, time used: {}ms",
-                  System.currentTimeMillis() - context.getStartTime());
-            } else {
-              context.setError(future.cause());
-              logger.error("send outgo failed", future.cause());
-              pendingOutgoErrorPcs(context);
-            }
-          });
-    });
+    connector.write(context.getOutgoMsg(), null, this::pendingOutgoErrorPcs);
   }
 
   // TODO
   private void sendErrorResponse(MessageContext context) {
-    EventLoop nettyEventLoop = context.getChannel().eventLoop();
+    // generate error message
+    Message msg;
+    if (context.getOutgoApi() != null) {
+      msg = apiCoder.errorMessage(apiCoder.apiToMessage(context.getOutgoApi()));
+    } else {
+      msg = apiCoder.errorMessage(context.getIncomeMsg());
+    }
 
-    nettyEventLoop.execute(() -> {
-      logger.debug("[stage {}] sendErrorResponse start: thread={}", NAME,
-          Thread.currentThread().getName());
-
-      // generate error message
-      Message msg;
-      if (context.getOutgoApi() != null) {
-        msg = apiCoder.errorMessage(apiCoder.apiToMessage(context.getOutgoApi()));
-      } else {
-        msg = apiCoder.errorMessage(context.getIncomeMsg());
-      }
-
-      context.getChannel().writeAndFlush(msg)
-          .addListener((ChannelFutureListener) future -> {
-            if (future.isSuccess()) {
-              context.logPerformance();
-              logger.info("system failure response send successful, time use: {}ms",
-                  System.currentTimeMillis() - context.getStartTime());
-            } else {
-              context.setError(future.cause());
-              logger.error("system failure response send failed", future.cause());
-            }
-          });
-    });
+    connector.write(msg, null, null);
   }
 
-  private void pendingOutgoErrorPcs(MessageContext context) {
-    Api api = context.getOutgoApi();
+  private void pendingOutgoErrorPcs(Message message) {
+    Api api = apiCoder.messageToApi(message);
     api.toResponse("99");
     pendingOutgoTrans.completeOutgo(api.correlationId(), api);
   }

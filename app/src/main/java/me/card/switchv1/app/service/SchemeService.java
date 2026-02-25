@@ -16,7 +16,6 @@ import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.connector.ConnectorException;
 import me.card.switchv1.core.connector.ConnectorMonitor;
 import me.card.switchv1.core.connector.SchemeConnectorBuilder;
-import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.processor.ProcessorBuilder;
 import me.card.switchv1.message.visa.SignOnAndOffMessage;
@@ -156,6 +155,8 @@ public class SchemeService {
         .messageCoder(messageCoder)
         .build();
 
+    processor.setConnector(connector);
+
     return connector;
   }
 
@@ -167,29 +168,9 @@ public class SchemeService {
 
 
   public CompletableFuture<Api> sendOutgoRequestAsync(Api api) {
-    MessageContext context;
-    if (connector != null) {
-      try {
-        context = generateRequestContext();
-      } catch (ConnectorException e) {
-        logger.error("send outgo error, connect not ok");
-        api.toResponse("96");
-        return CompletableFuture.completedFuture(api);
-      }
-    } else {
-      logger.error("send outgo error, connector is not started");
-      api.toResponse("96");
-      return CompletableFuture.completedFuture(api);
-    }
 
-    context.setOutgoApi(api);
+    return processor.handleOutgoRequestAsync(api);
 
-    return processor.handleOutgoRequestAsync(context);
-
-  }
-
-  private MessageContext generateRequestContext() {
-    return connector.context();
   }
 
   @PostConstruct

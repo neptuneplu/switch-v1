@@ -1,8 +1,8 @@
 package me.card.switchv1.app.web;
 
 
-import java.util.concurrent.CompletableFuture;
 import jakarta.annotation.Resource;
+import java.util.concurrent.CompletableFuture;
 import me.card.switchv1.api.visa.VisaApi;
 import me.card.switchv1.app.service.SchemeService;
 import me.card.switchv1.component.Api;
@@ -24,6 +24,9 @@ public class VisaAcqWeb {
   @PostMapping("/acq/send")
   public CompletableFuture<Api> send(@RequestBody VisaApi api) {
     logger.debug("************ new acq tran received, send start ************");
+
+    logger.debug("[stage {}] send start: thread={}", "acq/send",
+        Thread.currentThread().getName());
 
     return schemeService.sendOutgoRequestAsync(api);
   }

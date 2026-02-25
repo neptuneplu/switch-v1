@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import me.card.switchv1.component.Message;
-import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.core.processor.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +24,10 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Message> {
     logger.debug("[stage {}] channelRead0 start: thread={}", NAME,
         Thread.currentThread().getName());
 
-
-    MessageContext context = new MessageContext(ctx.channel());
-    context.setIncomeMsg(msg);
     if (msg.isRequest()) {
-      processor.handleIncomeRequestAsync(context);
+      processor.handleIncomeRequestAsync(msg);
     } else if (msg.isResponse()) {
-      processor.handleIncomeResponseAsync(context);
+      processor.handleIncomeResponseAsync(msg);
     } else {
       logger.error("message MTI error");
     }

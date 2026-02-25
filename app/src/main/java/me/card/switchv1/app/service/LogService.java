@@ -2,10 +2,9 @@ package me.card.switchv1.app.service;
 
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+import jakarta.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import jakarta.annotation.Resource;
-import me.card.switchv1.api.visa.VisaApi;
 import me.card.switchv1.app.db.MessageLogDao;
 import me.card.switchv1.app.db.MessageLogPo;
 import me.card.switchv1.component.Api;

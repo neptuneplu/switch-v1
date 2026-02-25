@@ -2,7 +2,6 @@ package me.card.switchv1.core.internal;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeoutException;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.CorrelationId;
 
