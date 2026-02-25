@@ -11,10 +11,12 @@ import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.BackofficeURL;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
+import me.card.switchv1.component.MessageDirection;
 import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.internal.MessageContext;
+import me.card.switchv1.core.internal.PendingIncomeTrans;
 import me.card.switchv1.core.internal.PendingOutgoTrans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class DefaultProcessor implements Processor {
 
   private final ExecutorService businessExecutor;
   private final PendingOutgoTrans pendingOutgoTrans;
+  private final PendingIncomeTrans pendingIncomeTrans;
   private ApiClient apiClient;
   private PersistentWorker persistentWorker;
   private ApiCoder<Api, Message> apiCoder;
@@ -42,6 +45,7 @@ public class DefaultProcessor implements Processor {
             .build());
 
     this.pendingOutgoTrans = new PendingOutgoTrans();
+    this.pendingIncomeTrans = new PendingIncomeTrans();
 
   }
 
@@ -76,15 +80,21 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void handleIncomeRequestAsync(Message message) {
-    MessageContext context = new MessageContext();
+    MessageContext context = new MessageContext(MessageDirection.INCOME);
+    context.markProcessStart();
     context.setIncomeMsg(message);
+    pendingIncomeTrans.registerOutgo(message.correlationId(), context);
 
     businessExecutor.submit(() -> handleIncomeRequest(context));
   }
 
   @Override
   public void handleIncomeResponseAsync(Message message) {
-    MessageContext context = new MessageContext();
+    MessageContext context = pendingOutgoTrans.matchOutgo(message.correlationId());
+    if (context == null) {
+
+    }
+    context.markRemoteEnd();
     context.setIncomeMsg(message);
 
     businessExecutor.submit(() -> handleIncomeResponse(context));
@@ -99,22 +109,23 @@ public class DefaultProcessor implements Processor {
       return CompletableFuture.completedFuture(api);
     }
 
+    MessageContext context = new MessageContext(MessageDirection.OUTGO);
+    context.markProcessStart();
 
-    CompletableFuture<Api> future =
-        pendingOutgoTrans.registerOutgo(api.correlationId())
-            .orTimeout(10, TimeUnit.SECONDS)
-            .exceptionally(ex -> {
-                  if (ex instanceof TimeoutException) {
-                    api.toResponse("91");
-                    pendingOutgoTrans.completeOutgo(api.correlationId(), api);
-                  } else {
-                    api.toResponse("96");
-                  }
-                  return api;
-                }
-            );
+    CompletableFuture<Api> future = pendingOutgoTrans.registerOutgo(api.correlationId(), context)
+        .orTimeout(10, TimeUnit.SECONDS)
+        .exceptionally(ex -> {
+              if (ex instanceof TimeoutException) {
+                api.toResponse("91");
+                pendingOutgoTrans.completeOutgo(api.correlationId(), api);
+              } else {
+                api.toResponse("96");
+              }
+              return api;
+            }
+        );
 
-    MessageContext context = new MessageContext();
+
     context.setOutgoApi(api);
 
     businessExecutor.submit(() -> handleOutgoRequest(context));
@@ -124,7 +135,11 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void handleOutgoResponseAsync(Api api) {
-    MessageContext context = new MessageContext();
+    MessageContext context = pendingIncomeTrans.matchOutgo(api.correlationId());
+    if (context == null) {
+
+    }
+    context.markRemoteEnd();
     context.setOutgoApi(api);
 
     businessExecutor.submit(() -> handleOutgoResponse(context));
@@ -132,8 +147,6 @@ public class DefaultProcessor implements Processor {
 
 
   private void handleIncomeRequest(MessageContext context) {
-    context.markProcessRequestStart();
-
     logger.debug("[stage {}] handleIncomeRequest start: thread={}", NAME,
         Thread.currentThread().getName());
 
@@ -143,14 +156,15 @@ public class DefaultProcessor implements Processor {
   }
 
   private void handleIncomeResponse(MessageContext context) {
-    context.markProcessRequestStart();
-
     logger.debug("[stage {}] handleIncomeResponse start: thread={}", NAME,
         Thread.currentThread().getName());
 
     saveIncomeToDB(context);
     msgToApi(context);
     doHandleIncomeResponse(context);
+
+    context.markProcessEnd();
+    context.logPerformance();
   }
 
 
@@ -172,7 +186,6 @@ public class DefaultProcessor implements Processor {
 
     apiClient.call(context)
         .thenAccept(api -> {
-//          context.setOutgoApi(api);
           handleOutgoResponseAsync(api);
         })
         .exceptionally(ex -> {
@@ -190,8 +203,6 @@ public class DefaultProcessor implements Processor {
 
 
   private void handleOutgoRequest(MessageContext context) {
-    context.markProcessResponseStart();
-
     logger.debug("[stage {}] handleOutgoRequest start: thread={}", NAME,
         Thread.currentThread().getName());
 
@@ -203,18 +214,24 @@ public class DefaultProcessor implements Processor {
       pendingOutgoErrorPcs(context.getOutgoMsg());
     }
 
-    sendOutgo(context);
+    context.markRemoteStart();
+    connector.write(context.getOutgoMsg(), null, this::pendingOutgoErrorPcs);
   }
 
   private void handleOutgoResponse(MessageContext context) {
-    context.markProcessResponseStart();
-
     logger.debug("[stage {}] handleOutgoResponse start: thread={}", NAME,
         Thread.currentThread().getName());
 
     apiToMsg(context);
     saveOutgoToDB(context);
-    sendOutgo(context);
+
+
+    connector.write(context.getOutgoMsg(),
+        msg -> {
+          context.markProcessEnd();
+          context.logPerformance();
+        },
+        null);
   }
 
   private MessageContext apiToMsg(MessageContext context) {
@@ -233,12 +250,7 @@ public class DefaultProcessor implements Processor {
   }
 
 
-  private void sendOutgo(MessageContext context) {
-    //
-    connector.write(context.getOutgoMsg(), null, this::pendingOutgoErrorPcs);
-  }
-
-  // TODO
+  // todo
   private void sendErrorResponse(MessageContext context) {
     // generate error message
     Message msg;

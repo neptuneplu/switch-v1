@@ -17,5 +17,7 @@ public interface Message {
 
   boolean isResponse();
 
+  CorrelationId correlationId();
+
   void print();
 }

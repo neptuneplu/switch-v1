@@ -30,13 +30,16 @@ public class DefaultApiClient implements ApiClient {
 
   public CompletableFuture<Api> call(MessageContext context) {
 
-    context.markHttpStart();
+    context.markRemoteStart();
 
     logger.info("[stage DefaultApiClient] HTTP invoke start: thread={}",
         Thread.currentThread().getName());
 
     return httpClient.sendAsync(getRequest(context), HttpResponse.BodyHandlers.ofString())
-        .thenApply(response -> str2api(getBody(response), context.getResponseApiClz()))
+        .thenApply(response -> {
+          context.markRemoteEnd();
+          return str2api(getBody(response), context.getResponseApiClz());
+        })
         .exceptionally(ex -> {
           logger.error("[stage DefaultApiClient] HTTP invoke exception: ", ex);
           //todo
