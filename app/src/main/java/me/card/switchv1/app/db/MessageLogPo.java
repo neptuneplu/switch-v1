@@ -9,7 +9,12 @@ public class MessageLogPo {
   private String id;
   private String seqNo;
   private String direction;
-  private String messageKey;
+  private String pan;
+  private String stan;
+  private String aiic;
+  private String rrn;
+  private String terminalId;
+  private String merchantId;
   private String hexMessage;
   private LocalDate createDate;
   private LocalTime createTime;
@@ -27,8 +32,9 @@ public class MessageLogPo {
     return seqNo;
   }
 
-  public void setSeqNo(String seqNo) {
+  public MessageLogPo setSeqNo(String seqNo) {
     this.seqNo = seqNo;
+    return this;
   }
 
   public String getDirection() {
@@ -40,12 +46,57 @@ public class MessageLogPo {
     return this;
   }
 
-  public String getMessageKey() {
-    return messageKey;
+  public String getPan() {
+    return pan;
   }
 
-  public MessageLogPo setMessageKey(String messageKey) {
-    this.messageKey = messageKey;
+  public MessageLogPo setPan(String pan) {
+    this.pan = pan;
+    return this;
+  }
+
+  public String getStan() {
+    return stan;
+  }
+
+  public MessageLogPo setStan(String stan) {
+    this.stan = stan;
+    return this;
+  }
+
+  public String getAiic() {
+    return aiic;
+  }
+
+  public MessageLogPo setAiic(String aiic) {
+    this.aiic = aiic;
+    return this;
+  }
+
+  public String getRrn() {
+    return rrn;
+  }
+
+  public MessageLogPo setRrn(String rrn) {
+    this.rrn = rrn;
+    return this;
+  }
+
+  public String getTerminalId() {
+    return terminalId;
+  }
+
+  public MessageLogPo setTerminalId(String terminalId) {
+    this.terminalId = terminalId;
+    return this;
+  }
+
+  public String getMerchantId() {
+    return merchantId;
+  }
+
+  public MessageLogPo setMerchantId(String merchantId) {
+    this.merchantId = merchantId;
     return this;
   }
 
@@ -56,10 +107,6 @@ public class MessageLogPo {
   public MessageLogPo setHexMessage(String hexMessage) {
     this.hexMessage = hexMessage;
     return this;
-  }
-
-  public LocalDate getCreateDate() {
-    return createDate;
   }
 
   public MessageLogPo setCreateDate(LocalDate createDate) {

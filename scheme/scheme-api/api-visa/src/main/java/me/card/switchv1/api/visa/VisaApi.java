@@ -112,6 +112,7 @@ public class VisaApi implements Api, Serializable {
 
   public VisaCorrelationId correlationId() {
     VisaCorrelationId correlationId = new VisaCorrelationId();
+    correlationId.setF2(this.F2);
     correlationId.setF11(this.F11);
     correlationId.setF32(this.F32);
     correlationId.setF37(this.F37);

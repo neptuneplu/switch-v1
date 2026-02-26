@@ -4,11 +4,20 @@ import java.util.Objects;
 import me.card.switchv1.component.CorrelationId;
 
 public class VisaCorrelationId implements CorrelationId {
+  String F2;
   String F11;
   String F32;
   String F37;
   String F41;
   String F42;
+
+  public String getF2() {
+    return F2;
+  }
+
+  public void setF2(String f2) {
+    F2 = f2;
+  }
 
   public String getF11() {
     return F11;
@@ -56,13 +65,13 @@ public class VisaCorrelationId implements CorrelationId {
       return false;
     }
     VisaCorrelationId that = (VisaCorrelationId) o;
-    return Objects.equals(F11, that.F11) && Objects.equals(F32, that.F32) &&
-        Objects.equals(F37, that.F37) && Objects.equals(F41, that.F41) &&
-        Objects.equals(F42, that.F42);
+    return Objects.equals(F2, that.F2) && Objects.equals(F11, that.F11) &&
+        Objects.equals(F32, that.F32) && Objects.equals(F37, that.F37) &&
+        Objects.equals(F41, that.F41) && Objects.equals(F42, that.F42);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(F11, F32, F37, F41, F42);
+    return Objects.hash(F2, F11, F32, F37, F41, F42);
   }
 }
