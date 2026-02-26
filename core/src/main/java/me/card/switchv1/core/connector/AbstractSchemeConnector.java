@@ -14,10 +14,10 @@ public class AbstractSchemeConnector {
 
   protected final ConnectorMonitor connectorMonitor;
   protected String name;
+  protected int readIdleTime;
   protected InetSocketAddress localAddress;
   protected InetSocketAddress sourceAddress;
   protected BackofficeURL backofficeURL;
-  protected int readIdleTime;
   protected Prefix prefix;
   protected HeartBeat heartBeat;
   protected Id id;

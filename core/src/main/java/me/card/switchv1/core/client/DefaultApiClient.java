@@ -17,15 +17,16 @@ import org.slf4j.LoggerFactory;
 public class DefaultApiClient implements ApiClient {
   private static final Logger logger = LoggerFactory.getLogger(DefaultApiClient.class);
   private static final ObjectMapper mapper = new ObjectMapper();
-  private static final int DEFAULT_TIMEOUT_SECONDS = 30;
+  private final int requestTimeoutSeconds;
 
   private final HttpClient httpClient;
 
-  public DefaultApiClient() {
+  public DefaultApiClient(int connectTimeoutSeconds, int requestTimeoutSeconds) {
     this.httpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(10))
+        .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
         .build();
 
+    this.requestTimeoutSeconds = requestTimeoutSeconds;
   }
 
   public CompletableFuture<Api> call(MessageContext context) {
@@ -52,7 +53,7 @@ public class DefaultApiClient implements ApiClient {
 
     return HttpRequest.newBuilder()
         .uri(URI.create(context.getDestinationURL().getUrlString()))
-        .timeout(Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS))
+        .timeout(Duration.ofSeconds(requestTimeoutSeconds))
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(str))

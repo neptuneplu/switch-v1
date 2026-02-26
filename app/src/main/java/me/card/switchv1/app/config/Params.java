@@ -46,8 +46,17 @@ public class Params {
   @Value("${serverType}")
   private String connectorType;
 
-  @Value("${processorThreads}")
-  private String processorThreads;
+  @Value("${processor.Threads}")
+  private int processorThreads;
+
+  @Value("${processor.acq.timeout}")
+  private int acqTimeoutSeconds;
+
+  @Value("${apiClient.connectTimeoutSeconds}")
+  private int apiClientConnectTimeoutSeconds;
+
+  @Value("${apiClient.requestTimeoutSeconds}")
+  private int apiClientRequestTimeoutSeconds;
 
 
   public InetSocketAddress localAddress() {
@@ -81,10 +90,21 @@ public class Params {
     return connectorType;
   }
 
-  public String processorThreads() {
+  public int processorThreads() {
     return processorThreads;
   }
 
+  public int acqTimeoutSeconds() {
+    return acqTimeoutSeconds;
+  }
+
+  public int getApiClientConnectTimeoutSeconds() {
+    return apiClientConnectTimeoutSeconds;
+  }
+
+  public int getApiClientRequestTimeoutSeconds() {
+    return apiClientRequestTimeoutSeconds;
+  }
 
   @PostConstruct
   public void print() {
@@ -95,7 +115,7 @@ public class Params {
 
   @Override
   public String toString() {
-    return "VisaExternalConfig{" +
+    return "Params{" +
         "name='" + name + '\'' +
         ", localAddress='" + localAddress + '\'' +
         ", localPort='" + localPort + '\'' +
@@ -107,6 +127,9 @@ public class Params {
         ", readIdleTime='" + readIdleTime + '\'' +
         ", connectorType='" + connectorType + '\'' +
         ", processorThreads='" + processorThreads + '\'' +
+        ", acqTimeoutSeconds=" + acqTimeoutSeconds +
+        ", apiClientConnectTimeoutSeconds=" + apiClientConnectTimeoutSeconds +
+        ", apiClientRequestTimeoutSeconds=" + apiClientRequestTimeoutSeconds +
         '}';
   }
 }

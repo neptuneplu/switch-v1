@@ -26,13 +26,14 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
     implements Connector, AutoConnectable {
   private static final Logger logger = LoggerFactory.getLogger(ActiveSchemeConnector.class);
   public static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
+  private static final int CONNECTOR_THREADS_NUMBER = 1;
 
   protected final Bootstrap bootstrap = new Bootstrap();
   private final EventLoopGroup connectorGroup;
   private Channel channel;
 
   public ActiveSchemeConnector() {
-    connectorGroup = new NioEventLoopGroup(1,
+    connectorGroup = new NioEventLoopGroup(CONNECTOR_THREADS_NUMBER,
         new DefaultThreadFactory("connectorGroup", Thread.MAX_PRIORITY));
   }
 

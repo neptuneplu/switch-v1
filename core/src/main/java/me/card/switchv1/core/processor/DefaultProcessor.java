@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultProcessor implements Processor {
   private static final Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
   private static final String NAME = "DefaultProcessor";
+  private static final int DEFAULT_ACQ_TRAN_TIMEOUT_SECONDS = 20;
 
   private final ExecutorService businessExecutor;
   private final PendingOutgoTrans pendingOutgoTrans;
@@ -35,10 +36,11 @@ public class DefaultProcessor implements Processor {
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
   private Connector connector;
+  private int acqTranTimeoutSeconds;
 
-  DefaultProcessor() {
+  DefaultProcessor(int threadsNumber) {
 
-    this.businessExecutor = Executors.newFixedThreadPool(3,
+    this.businessExecutor = Executors.newFixedThreadPool(threadsNumber,
         new ThreadFactoryBuilder()
             .setNameFormat("business-pool-%d")
             .setDaemon(true)
@@ -78,6 +80,10 @@ public class DefaultProcessor implements Processor {
     this.connector = connector;
   }
 
+  public void setAcqTranTimeoutSeconds(int acqTranTimeoutSeconds) {
+    this.acqTranTimeoutSeconds = acqTranTimeoutSeconds;
+  }
+
   @Override
   public void handleIncomeRequestAsync(Message message) {
     MessageContext context = new MessageContext(MessageDirection.INCOME);
@@ -113,7 +119,9 @@ public class DefaultProcessor implements Processor {
     context.markProcessStart();
 
     CompletableFuture<Api> future = pendingOutgoTrans.registerOutgo(api.correlationId(), context)
-        .orTimeout(10, TimeUnit.SECONDS)
+        .orTimeout(
+            acqTranTimeoutSeconds == 0 ? DEFAULT_ACQ_TRAN_TIMEOUT_SECONDS : acqTranTimeoutSeconds,
+            TimeUnit.SECONDS)
         .exceptionally(ex -> {
               if (ex instanceof TimeoutException) {
                 api.toResponse("91");

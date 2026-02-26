@@ -176,12 +176,15 @@ public class SchemeService {
   @PostConstruct
   public void init() {
     processor = processorBuilder
-        .apiClient(new DefaultApiClient())
+        .apiClient(new DefaultApiClient(params.getApiClientConnectTimeoutSeconds(),
+            params.getApiClientRequestTimeoutSeconds()))
         .responseApiClz(apiClz)
         .apiCoder(apiCoder)
         .messageCoder(messageCoder)
         .persistentWorker(logService)
         .backofficeURL(params.destinationURL())
+        .setThreadsNumber(params.processorThreads())
+        .setAcqTranTimeoutSeconds(params.acqTimeoutSeconds())
         .build();
   }
 
