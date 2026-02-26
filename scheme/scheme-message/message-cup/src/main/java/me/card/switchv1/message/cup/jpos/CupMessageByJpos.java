@@ -70,6 +70,7 @@ public class CupMessageByJpos implements Message {
   @Override
   public CorrelationId correlationId() {
     CupCorrelationId correlationId = new CupCorrelationId();
+    correlationId.setF2(body.getString(2));
     correlationId.setF11(body.getString(11));
     correlationId.setF32(body.getString(32));
     correlationId.setF37(body.getString(37));

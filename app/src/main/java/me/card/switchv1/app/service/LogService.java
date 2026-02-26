@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Component
-public class LogService implements PersistentWorker {
+
+public abstract class LogService implements PersistentWorker {
   private static final Logger logger = LoggerFactory.getLogger(LogService.class);
 
   @Resource
@@ -32,8 +32,6 @@ public class LogService implements PersistentWorker {
   @Resource
   private MessageCoder messageCoder;
 
-  @Resource
-  private Id id;
 
   public MessageLogPo queryRawMessage(String seqNo, String direction) {
     return query(seqNo, direction);
@@ -76,15 +74,17 @@ public class LogService implements PersistentWorker {
     return messageLogDao.query(seqNo, direction);
   }
 
-  private MessageLogPo getPo(Message message) {
-    MessageLogPo
-        messageLogPo = new MessageLogPo();
-    messageLogPo.setId(id.nextStrId());
-    messageLogPo.setSeqNo(message.getSeqNo());
-    messageLogPo.setMessageKey(message.getDbKey());
-    messageLogPo.setCreateDate(LocalDate.now());
-    messageLogPo.setCreateTime(LocalTime.now());
-    messageLogPo.setHexMessage(ISOUtil.byte2hex(message.compress()));
-    return messageLogPo;
-  }
+  public abstract MessageLogPo getPo(Message message);
+
+//  public abstract MessageLogPo getPo(Message message) {
+//    MessageLogPo
+//        messageLogPo = new MessageLogPo();
+//    messageLogPo.setId(id.nextStrId());
+//    messageLogPo.setSeqNo(message.getSeqNo());
+//    messageLogPo.setMessageKey(message.correlationId().);
+//    messageLogPo.setCreateDate(LocalDate.now());
+//    messageLogPo.setCreateTime(LocalTime.now());
+//    messageLogPo.setHexMessage(ISOUtil.byte2hex(message.compress()));
+//    return messageLogPo;
+//  }
 }

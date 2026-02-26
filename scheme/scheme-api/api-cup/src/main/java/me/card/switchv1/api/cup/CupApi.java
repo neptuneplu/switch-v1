@@ -92,8 +92,15 @@ public class CupApi implements Api, Serializable {
 
   @Override
   public CorrelationId correlationId() {
-    return null;
-  }
+    CupCorrelationId correlationId = new CupCorrelationId();
+    correlationId.setF2(this.F2);
+    correlationId.setF11(this.F11);
+    correlationId.setF32(this.F32);
+    correlationId.setF37(this.F37);
+    correlationId.setF41(this.F41);
+    correlationId.setF42(this.F42);
+
+    return correlationId;  }
 
   public byte[] getHeader() {
     return header;
