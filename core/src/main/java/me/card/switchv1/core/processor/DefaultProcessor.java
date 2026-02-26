@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.BackofficeURL;
+import me.card.switchv1.component.CorrelationId;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
 import me.card.switchv1.component.MessageDirection;
@@ -98,7 +99,7 @@ public class DefaultProcessor implements Processor {
   public void handleIncomeResponseAsync(Message message) {
     MessageContext context = pendingOutgoTrans.matchOutgo(message.correlationId());
     if (context == null) {
-
+      logger.error("income response not found for correlationId {}", message.correlationId());
     }
     context.markRemoteEnd();
     context.setIncomeMsg(message);
@@ -118,14 +119,16 @@ public class DefaultProcessor implements Processor {
     MessageContext context = new MessageContext(MessageDirection.OUTGO);
     context.markProcessStart();
 
-    CompletableFuture<Api> future = pendingOutgoTrans.registerOutgo(api.correlationId(), context)
+    CorrelationId correlationId = api.correlationId();
+
+    CompletableFuture<Api> future = pendingOutgoTrans.registerOutgo(correlationId, context)
         .orTimeout(
             acqTranTimeoutSeconds == 0 ? DEFAULT_ACQ_TRAN_TIMEOUT_SECONDS : acqTranTimeoutSeconds,
             TimeUnit.SECONDS)
         .exceptionally(ex -> {
               if (ex instanceof TimeoutException) {
                 api.toResponse("91");
-                pendingOutgoTrans.completeOutgo(api.correlationId(), api);
+                pendingOutgoTrans.completeOutgo(correlationId, api);
               } else {
                 api.toResponse("96");
               }

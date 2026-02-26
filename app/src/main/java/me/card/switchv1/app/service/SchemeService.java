@@ -190,7 +190,7 @@ public class SchemeService {
 
   public ConnectorMonitor pendingOutgos() {
     ConnectorMonitor monitor = status();
-    monitor.setPendingOutgos(processor.pendingOutgos());
+//    monitor.setPendingOutgos(processor.pendingOutgos());
     return monitor;
 
   }

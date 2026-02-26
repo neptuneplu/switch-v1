@@ -113,6 +113,7 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
       monitor.setStatus(false);
     } else {
       monitor.setStatus(channel.isActive());
+      monitor.setPendingOutgos(processor.pendingOutgos());
     }
     return monitor;
   }

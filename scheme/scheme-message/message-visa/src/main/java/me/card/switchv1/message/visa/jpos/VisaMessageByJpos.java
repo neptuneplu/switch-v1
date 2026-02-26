@@ -80,6 +80,7 @@ public class VisaMessageByJpos implements Message {
   @Override
   public CorrelationId correlationId() {
     VisaCorrelationId correlationId = new VisaCorrelationId();
+    correlationId.setF2(body.getString(2));
     correlationId.setF11(body.getString(11));
     correlationId.setF32(body.getString(32));
     correlationId.setF37(body.getString(37));
