@@ -4,8 +4,8 @@ import jakarta.annotation.Resource;
 import me.card.switchv1.app.db.MessageLogPo;
 import me.card.switchv1.app.service.LogService;
 import me.card.switchv1.app.service.SchemeService;
+import me.card.switchv1.component.Api;
 import me.card.switchv1.core.connector.ConnectorMonitor;
-import me.card.switchv1.api.visa.VisaApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +42,12 @@ public class AdminWeb {
     return schemeService.status();
   }
 
+  @GetMapping("/scheme/pendings")
+  public ConnectorMonitor pendings() {
+    logger.debug("scheme pendings request");
+    return schemeService.pendingOutgos();
+  }
+
   @GetMapping("/scheme/signOn")
   public ConnectorMonitor signOn() {
     logger.debug("scheme signOn request");
@@ -60,7 +66,7 @@ public class AdminWeb {
   }
 
   @PostMapping("/scheme/query/api")
-  public VisaApi queryApi(@RequestBody QueryRequest request) {
+  public Api queryApi(@RequestBody QueryRequest request) {
     return logService.queryApi(request.getSeqNo(), request.getDirection());
   }
 

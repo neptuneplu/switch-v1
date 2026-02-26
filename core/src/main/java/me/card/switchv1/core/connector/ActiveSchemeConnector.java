@@ -2,6 +2,7 @@ package me.card.switchv1.core.connector;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -12,7 +13,8 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
-import me.card.switchv1.core.internal.MessageContext;
+import java.util.function.Consumer;
+import me.card.switchv1.component.Message;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.MessageHandler;
 import me.card.switchv1.core.handler.ProcessHandler;
@@ -106,13 +108,47 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
   @Override
   public ConnectorMonitor status() {
     ConnectorMonitor monitor = connectorMonitor.copy();
-    monitor.setStatus(channel.isActive());
+    if (channel == null) {
+      monitor.setStatus(false);
+    } else {
+      monitor.setStatus(channel.isActive());
+    }
     return monitor;
   }
 
   @Override
-  public MessageContext context() {
-    //todo
-    return new MessageContext(channel);
+  public void write(Message outgoMessage, Consumer<Message> succCallback,
+                    Consumer<Message> failCallback) {
+
+    logger.info("[stage connector] sendOutgo start: current thread={}, objective thread={}",
+        Thread.currentThread().getName(), channel.eventLoop());
+
+    if (channel == null) {
+      throw new ConnectorException("channel is null");
+    }
+    //
+    channel.eventLoop().execute(() -> {
+      logger.info("[stage connector] sendOutgo netty write: thread={}",
+          Thread.currentThread().getName());
+
+      channel.writeAndFlush(outgoMessage)
+          .addListener((ChannelFutureListener) future -> {
+            logger.info("[stage connector listener] sendOutgo listener: thread={}",
+                Thread.currentThread().getName());
+
+            if (future.isSuccess()) {
+              logger.debug("send outgo successfully");
+              if (succCallback != null) {
+                succCallback.accept(outgoMessage);
+              }
+            } else {
+              logger.error("send outgo failed", future.cause());
+              if (failCallback != null) {
+                failCallback.accept(outgoMessage);
+              }
+            }
+          });
+    });
   }
+
 }

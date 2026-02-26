@@ -1,29 +1,23 @@
 package me.card.switchv1.app.service;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import java.util.concurrent.CompletableFuture;
 import me.card.switchv1.app.config.Params;
-import me.card.switchv1.component.HeartBeat;
-import me.card.switchv1.core.client.DefaultApiClient;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
+import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.component.Id;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
-import me.card.switchv1.core.internal.MessageContext;
 import me.card.switchv1.component.Prefix;
+import me.card.switchv1.core.client.DefaultApiClient;
 import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.connector.ConnectorException;
 import me.card.switchv1.core.connector.ConnectorMonitor;
 import me.card.switchv1.core.connector.SchemeConnectorBuilder;
 import me.card.switchv1.core.processor.Processor;
 import me.card.switchv1.core.processor.ProcessorBuilder;
-import me.card.switchv1.api.visa.VisaApi;
-
-import me.card.switchv1.app.db.MessageLogDao;
 import me.card.switchv1.message.visa.SignOnAndOffMessage;
 import me.card.switchv1.message.visa.jpos.VisaMessageByJpos;
 import org.slf4j.Logger;
@@ -57,11 +51,7 @@ public class SchemeService {
   private Class<Api> apiClz;
 
   @Resource
-  private
-  LogService logService;
-
-  @Resource
-  MessageLogDao messageLogDao;
+  private LogService logService;
 
   @Resource
   private SchemeConnectorBuilder schemeConnectorBuilder;
@@ -79,11 +69,11 @@ public class SchemeService {
     try {
       startCheck();
     } catch (IllegalArgumentException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
 
     connector().start();
-    return getNewServerMonitor("scheme server is starting");
+    return newServerMonitor("scheme server is starting");
   }
 
   public ConnectorMonitor stop() {
@@ -91,19 +81,19 @@ public class SchemeService {
     try {
       stopCheck();
     } catch (IllegalArgumentException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
 
     connector.stop();
     connector = null;
-    return getNewServerMonitor("scheme server is stopping");
+    return newServerMonitor("scheme server is stopping");
   }
 
   public ConnectorMonitor status() {
     try {
       statusCheck();
     } catch (IllegalArgumentException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
     return connector.status();
   }
@@ -113,9 +103,9 @@ public class SchemeService {
       statusCheck();
       connector.signOn();
     } catch (IllegalArgumentException | ConnectorException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
-    return getNewServerMonitor("scheme server signOn message send");
+    return newServerMonitor("scheme server signOn message send");
   }
 
   public ConnectorMonitor signOff() {
@@ -123,13 +113,14 @@ public class SchemeService {
       statusCheck();
       connector.signOff();
     } catch (IllegalArgumentException | ConnectorException e) {
-      return getNewServerMonitor(e.getMessage());
+      return newServerMonitor(e.getMessage());
     }
-    return getNewServerMonitor("scheme server signOff message send");
+    return newServerMonitor("scheme server signOff message send");
   }
 
   private void startCheck() {
     Assert.isNull(connector, "scheme server already exist");
+    Assert.notNull(processor, "processor is null");
     Assert.notNull(schemeConnectorBuilder, "switchServerBuilder is null");
     Assert.notNull(params, "params is null");
     Assert.notNull(apiCoder, "apiCoder is null");
@@ -164,45 +155,22 @@ public class SchemeService {
         .messageCoder(messageCoder)
         .build();
 
+    processor.setConnector(connector);
+
     return connector;
   }
 
-  public ConnectorMonitor getNewServerMonitor(String desc) {
+  public ConnectorMonitor newServerMonitor(String desc) {
     ConnectorMonitor connectorMonitor = new ConnectorMonitor();
     connectorMonitor.setDesc(desc);
     return connectorMonitor;
   }
 
 
-  public CompletableFuture<VisaApi> sendOutgoRequestAsync(VisaApi visaApi) {
-    MessageContext context;
-    if (connector != null) {
-      context = generateRequestContext();
-    } else {
-      logger.error("send outgo error, connector is not started");
-      visaApi.setF39("96");
-      return CompletableFuture.completedFuture(visaApi);
-    }
+  public CompletableFuture<Api> sendOutgoRequestAsync(Api api) {
 
-    context.setOutgoApi(visaApi);
+    return processor.handleOutgoRequestAsync(api);
 
-    return processor.handleOutgoRequestAsync(context)
-        // todo
-        .thenApply(api -> (VisaApi) api)
-        .orTimeout(10, TimeUnit.SECONDS)
-        .exceptionally(ex -> {
-              if (ex instanceof TimeoutException) {
-                visaApi.setF39("91");
-              } else {
-                visaApi.setF39("96");
-              }
-              return visaApi;
-            }
-        );
-  }
-
-  private MessageContext generateRequestContext() {
-    return connector.context();
   }
 
   @PostConstruct
@@ -215,5 +183,12 @@ public class SchemeService {
         .persistentWorker(logService)
         .backofficeURL(params.destinationURL())
         .build();
+  }
+
+  public ConnectorMonitor pendingOutgos() {
+    ConnectorMonitor monitor = status();
+    monitor.setPendingOutgos(processor.pendingOutgos());
+    return monitor;
+
   }
 }

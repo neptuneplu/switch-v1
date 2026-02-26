@@ -1,4 +1,4 @@
-package me.card.switchv1.server;
+package me.card.switchv1.server.mock;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

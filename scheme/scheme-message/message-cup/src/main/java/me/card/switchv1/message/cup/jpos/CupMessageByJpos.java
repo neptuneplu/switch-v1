@@ -1,7 +1,9 @@
 package me.card.switchv1.message.cup.jpos;
 
 
+import me.card.switchv1.api.cup.CupCorrelationId;
 import me.card.switchv1.api.cup.MTI;
+import me.card.switchv1.component.CorrelationId;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.message.cup.CupMessageException;
 import org.jpos.iso.ISOException;
@@ -64,6 +66,17 @@ public class CupMessageByJpos implements Message {
   public boolean isResponse() {
     return false;
   }
+
+  @Override
+  public CorrelationId correlationId() {
+    CupCorrelationId correlationId = new CupCorrelationId();
+    correlationId.setF11(body.getString(11));
+    correlationId.setF32(body.getString(32));
+    correlationId.setF37(body.getString(37));
+    correlationId.setF41(body.getString(41));
+    correlationId.setF42(body.getString(42));
+
+    return correlationId;  }
 
   @Override
   public void setSeqNo(String seqNo) {

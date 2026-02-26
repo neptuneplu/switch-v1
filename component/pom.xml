@@ -8,12 +8,8 @@
     </parent>
 
     <artifactId>component</artifactId>
-    <packaging>jar</packaging>
-
-    <name>component</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>

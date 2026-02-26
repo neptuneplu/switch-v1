@@ -12,8 +12,7 @@
     <artifactId>app</artifactId>
 
     <properties>
-        <switch.version>1.1-SNAPSHOT</switch.version>
-                <start-class>me.card.switchv1.app.SchemeApp</start-class>
+        <start-class>me.card.switchv1.app.SchemeApp</start-class>
     </properties>
 
 

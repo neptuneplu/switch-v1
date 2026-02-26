@@ -1,6 +1,8 @@
 package me.card.switchv1.message.visa.jpos;
 
 import me.card.switchv1.api.visa.MTI;
+import me.card.switchv1.api.visa.VisaCorrelationId;
+import me.card.switchv1.component.CorrelationId;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.message.visa.VisaMessageException;
 import org.jpos.iso.ISOException;
@@ -73,6 +75,18 @@ public class VisaMessageByJpos implements Message {
       return true;
     }
     return false;
+  }
+
+  @Override
+  public CorrelationId correlationId() {
+    VisaCorrelationId correlationId = new VisaCorrelationId();
+    correlationId.setF11(body.getString(11));
+    correlationId.setF32(body.getString(32));
+    correlationId.setF37(body.getString(37));
+    correlationId.setF41(body.getString(41));
+    correlationId.setF42(body.getString(42));
+
+    return correlationId;
   }
 
   @Override

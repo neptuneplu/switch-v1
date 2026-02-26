@@ -1,18 +1,19 @@
 package me.card.switchv1.core.internal;
 
-import io.netty.channel.Channel;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.BackofficeURL;
 import me.card.switchv1.component.Message;
+import me.card.switchv1.component.MessageDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MessageContext {
   private static final Logger logger = LoggerFactory.getLogger(MessageContext.class);
 
-  private Channel channel;
+  private MessageDirection messageDirection;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
   private Message incomeMsg;
@@ -21,21 +22,29 @@ public class MessageContext {
   private Api outgoApi;
   private final Map<String, Object> businessData;
   private Throwable error;
+  private CompletableFuture<Api> resultFuture;
 
   private final long startTime;
-  long nettyReceiveTime;
-  long processRequestStartTime;
-  long httpStartTime;
-  long httpEndTime;
-  long processResponseStartTime;
+  long processStartTime;
+  long remoteStartTime;
+  long remoteEndTime;
+  long processEndTime;
 
-  public MessageContext(Channel channel) {
-    this.channel = channel;
+  public MessageContext(MessageDirection messageDirection) {
+    this.messageDirection = messageDirection;
     this.startTime = System.currentTimeMillis();
-    this.nettyReceiveTime = startTime;
     this.businessData = new ConcurrentHashMap<>();
   }
 
+  public MessageDirection getMessageDirection() {
+    return messageDirection;
+  }
+
+  public MessageContext setMessageDirection(
+      MessageDirection messageDirection) {
+    this.messageDirection = messageDirection;
+    return this;
+  }
 
   public Class<? extends Api> getResponseApiClz() {
     return responseApiClz;
@@ -59,15 +68,6 @@ public class MessageContext {
 
   public void setDestinationURL(BackofficeURL backofficeURL) {
     this.backofficeURL = backofficeURL;
-  }
-
-
-  public Channel getChannel() {
-    return channel;
-  }
-
-  public void setChannel(Channel channel) {
-    this.channel = channel;
   }
 
   public Message getIncomeMsg() {
@@ -106,31 +106,40 @@ public class MessageContext {
     return businessData;
   }
 
+  public CompletableFuture<Api> getResultFuture() {
+    return resultFuture;
+  }
+
+  public void setResultFuture(CompletableFuture<Api> resultFuture) {
+    this.resultFuture = resultFuture;
+  }
+
   public long getStartTime() {
     return startTime;
   }
 
-  public void markProcessRequestStart() {
-    processRequestStartTime = System.currentTimeMillis();
+  public void markProcessStart() {
+    processStartTime = System.currentTimeMillis();
   }
 
-  public void markHttpStart() {
-    httpStartTime = System.currentTimeMillis();
+  public void markRemoteStart() {
+    remoteStartTime = System.currentTimeMillis();
   }
 
-  public void markHttpEnd() {
-    httpEndTime = System.currentTimeMillis();
+  public void markRemoteEnd() {
+    remoteEndTime = System.currentTimeMillis();
   }
 
-  public void markProcessResponseStart() {
-    processResponseStartTime = System.currentTimeMillis();
+  public void markProcessEnd() {
+    processEndTime = System.currentTimeMillis();
   }
 
   public void logPerformance() {
-    logger.info("性能统计 - 总耗时: {}ms, 业务预处理: {}ms, HTTP调用: {}ms, 业务后处理: {}ms",
-        (processResponseStartTime - nettyReceiveTime),
-        (httpStartTime - processRequestStartTime),
-        (httpEndTime - httpStartTime),
-        (processResponseStartTime - httpEndTime));
+    logger.info(
+        "performance metrics - total time consumed: {}ms, req: {}ms, remote : {}ms, resp: {}ms",
+        (processEndTime - processStartTime),
+        (remoteStartTime - processStartTime),
+        (remoteEndTime - remoteStartTime),
+        (processEndTime - remoteEndTime));
   }
 }

@@ -1,6 +1,7 @@
 package me.card.switchv1.core.connector;
 
-import me.card.switchv1.core.internal.MessageContext;
+import java.util.function.Consumer;
+import me.card.switchv1.component.Message;
 
 public interface Connector {
 
@@ -14,6 +15,6 @@ public interface Connector {
 
   void signOff();
 
-  MessageContext context();
+  void write(Message outgoMessage, Consumer<Message> succCallback, Consumer<Message> failCallback);
 
 }

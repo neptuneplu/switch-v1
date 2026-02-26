@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@TableName(value = "visa_log")
+@TableName(value = "message_log")
 public class MessageLogPo {
   private String id;
   private String seqNo;

@@ -2,16 +2,21 @@ package me.card.switchv1.core.processor;
 
 import java.util.concurrent.CompletableFuture;
 import me.card.switchv1.component.Api;
-import me.card.switchv1.core.internal.MessageContext;
+import me.card.switchv1.component.Message;
+import me.card.switchv1.core.connector.Connector;
 
 public interface Processor {
 
-  void handleIncomeRequestAsync(MessageContext context);
+  void handleIncomeRequestAsync(Message message);
 
-  void handleIncomeResponseAsync(MessageContext context);
+  void handleIncomeResponseAsync(Message message);
 
-  CompletableFuture<Api> handleOutgoRequestAsync(MessageContext context);
+  CompletableFuture<Api> handleOutgoRequestAsync(Api api);
 
-  void handleOutgoResponseAsync(MessageContext context);
+  void handleOutgoResponseAsync(Api api);
+
+  void setConnector(Connector connector);
+
+  int pendingOutgos();
 
 }

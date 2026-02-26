@@ -8,10 +8,8 @@
     </parent>
 
     <artifactId>message-cup</artifactId>
-    <packaging>jar</packaging>
 
     <properties>
-        <switch.version>1.1-SNAPSHOT</switch.version>
     </properties>
 
     <dependencies>

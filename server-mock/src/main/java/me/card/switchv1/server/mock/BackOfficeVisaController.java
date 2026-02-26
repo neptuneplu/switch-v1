@@ -1,4 +1,4 @@
-package me.card.switchv1.server;
+package me.card.switchv1.server.mock;
 
 
 import me.card.switchv1.api.visa.VisaApi;
@@ -20,11 +20,11 @@ public class BackOfficeVisaController {
     }
 
 
-    try {
-      Thread.sleep(1000);
-    } catch (Exception e) {
-      throw new RuntimeException("interrupted");
-    }
+//    try {
+//      Thread.sleep(1000);
+//    } catch (Exception e) {
+//      throw new RuntimeException("interrupted");
+//    }
 
     if (visaRequest.getMTI().equals("0100")) {
       visaRequest.setMTI("0110");
