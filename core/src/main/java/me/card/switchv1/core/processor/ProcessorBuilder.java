@@ -19,6 +19,8 @@ public class ProcessorBuilder {
   private MessageCoder messageCoder;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
+  private int threadsNumber;
+  private int acqTranTimeoutSeconds;
 
   public ProcessorBuilder apiClient(ApiClient apiClient) {
     this.apiClient = apiClient;
@@ -53,15 +55,26 @@ public class ProcessorBuilder {
     return this;
   }
 
+  public ProcessorBuilder setThreadsNumber(int threadsNumber) {
+    this.threadsNumber = threadsNumber;
+    return this;
+  }
+
+  public ProcessorBuilder setAcqTranTimeoutSeconds(int acqTranTimeoutSeconds) {
+    this.acqTranTimeoutSeconds = acqTranTimeoutSeconds;
+    return this;
+  }
+
   public Processor build() {
     logger.debug("processor build start");
-    DefaultProcessor processor = new DefaultProcessor();
+    DefaultProcessor processor = new DefaultProcessor(threadsNumber);
     processor.setApiClient(apiClient);
     processor.setApiCoder(apiCoder);
     processor.setMessageCoder(messageCoder);
     processor.setResponseApiClz(responseApiClz);
     processor.setPersistentWorker(persistentWorker);
     processor.setBackofficeURL(backofficeURL);
+    processor.setAcqTranTimeoutSeconds(acqTranTimeoutSeconds);
 
     return processor;
   }
