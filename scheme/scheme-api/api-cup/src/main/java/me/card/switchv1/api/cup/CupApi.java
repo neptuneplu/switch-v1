@@ -1,11 +1,13 @@
 package me.card.switchv1.api.cup;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.Arrays;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.CorrelationId;
+import me.card.switchv1.component.Message;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -13,6 +15,8 @@ import me.card.switchv1.component.CorrelationId;
     getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class CupApi implements Api, Serializable {
 
+  @JsonIgnore
+  private Message message;
   private byte[] header;
   private byte[] destinationId;
   private byte[] sourceId;
@@ -91,6 +95,33 @@ public class CupApi implements Api, Serializable {
   }
 
   @Override
+  public Message message() {
+    return message;
+  }
+
+  @Override
+  public void setMessage(Message message) {
+    this.message = message;
+  }
+
+
+  @Override
+  public boolean isRequest() {
+    if (MTI.equals("0100")) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isResponse() {
+    if (MTI.equals("0110")) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
   public CorrelationId correlationId() {
     CupCorrelationId correlationId = new CupCorrelationId();
     correlationId.setF2(this.F2);
@@ -100,7 +131,8 @@ public class CupApi implements Api, Serializable {
     correlationId.setF41(this.F41);
     correlationId.setF42(this.F42);
 
-    return correlationId;  }
+    return correlationId;
+  }
 
   public byte[] getHeader() {
     return header;

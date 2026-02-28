@@ -1,5 +1,7 @@
 package me.card.switchv1.core.processor;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.BackofficeURL;
@@ -15,12 +17,10 @@ public class ProcessorBuilder {
 
   private ApiClient apiClient;
   private PersistentWorker persistentWorker;
-  private ApiCoder<Api, Message> apiCoder;
-  private MessageCoder messageCoder;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
-  private int threadsNumber;
   private int acqTranTimeoutSeconds;
+  private ExecutorService executor;
 
   public ProcessorBuilder apiClient(ApiClient apiClient) {
     this.apiClient = apiClient;
@@ -30,16 +30,6 @@ public class ProcessorBuilder {
   public ProcessorBuilder persistentWorker(
       PersistentWorker persistentWorker) {
     this.persistentWorker = persistentWorker;
-    return this;
-  }
-
-  public ProcessorBuilder apiCoder(ApiCoder<Api, Message> apiCoder) {
-    this.apiCoder = apiCoder;
-    return this;
-  }
-
-  public ProcessorBuilder messageCoder(MessageCoder messageCoder) {
-    this.messageCoder = messageCoder;
     return this;
   }
 
@@ -55,26 +45,26 @@ public class ProcessorBuilder {
     return this;
   }
 
-  public ProcessorBuilder setThreadsNumber(int threadsNumber) {
-    this.threadsNumber = threadsNumber;
-    return this;
-  }
-
   public ProcessorBuilder setAcqTranTimeoutSeconds(int acqTranTimeoutSeconds) {
     this.acqTranTimeoutSeconds = acqTranTimeoutSeconds;
     return this;
   }
 
+  public ProcessorBuilder setExecutor(ExecutorService executor) {
+    this.executor = executor;
+    return this;
+
+  }
+
   public Processor build() {
     logger.debug("processor build start");
-    DefaultProcessor processor = new DefaultProcessor(threadsNumber);
+    DefaultProcessor processor = new DefaultProcessor();
     processor.setApiClient(apiClient);
-    processor.setApiCoder(apiCoder);
-    processor.setMessageCoder(messageCoder);
     processor.setResponseApiClz(responseApiClz);
     processor.setPersistentWorker(persistentWorker);
     processor.setBackofficeURL(backofficeURL);
     processor.setAcqTranTimeoutSeconds(acqTranTimeoutSeconds);
+    processor.setExecutor(executor);
 
     return processor;
   }

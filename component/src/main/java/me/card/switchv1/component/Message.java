@@ -13,9 +13,9 @@ public interface Message {
 
   String getSeqNo();
 
-  boolean isRequest();
-
-  boolean isResponse();
+//  boolean isRequest();
+//
+//  boolean isResponse();
 
   CorrelationId correlationId();
 

@@ -6,11 +6,11 @@ import me.card.switchv1.component.Api;
 import me.card.switchv1.component.CorrelationId;
 
 public class PendingOutgoTrans {
-  private final ConcurrentHashMap<CorrelationId, MessageContext> pendingTrans
+  private final ConcurrentHashMap<CorrelationId, ApiContext> pendingTrans
       = new ConcurrentHashMap<>();
 
 
-  public CompletableFuture<Api> registerOutgo(CorrelationId correlationId,MessageContext context) {
+  public CompletableFuture<Api> registerOutgo(CorrelationId correlationId, ApiContext context) {
     CompletableFuture<Api> future = new CompletableFuture<>();
     context.setResultFuture(future);
     pendingTrans.put(correlationId, context);
@@ -19,7 +19,7 @@ public class PendingOutgoTrans {
 
 
   public void completeOutgo(CorrelationId correlationId, Api api) {
-    MessageContext context = pendingTrans.remove(correlationId);
+    ApiContext context = pendingTrans.remove(correlationId);
 
     if (context != null) {
       context.getResultFuture().complete(api);
@@ -29,7 +29,7 @@ public class PendingOutgoTrans {
   }
 
 
-  public MessageContext matchOutgo(CorrelationId correlationId) {
+  public ApiContext matchOutgo(CorrelationId correlationId) {
     return pendingTrans.get(correlationId);
   }
 

@@ -9,6 +9,7 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import java.util.List;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
+import me.card.switchv1.core.handler.attributes.ChannelAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,8 @@ public class MessageHandler extends MessageToMessageCodec<ByteBuf, Message> {
   @Override
   protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
     logger.debug("[stage {}] encode start: thread={}",NAME, Thread.currentThread().getName());
+
+    ctx.channel().attr(ChannelAttributes.MESSAGE).set(msg);
 
     try {
       out.add(Unpooled.unreleasableBuffer(messageCoder.compress(msg)));

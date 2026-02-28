@@ -3,21 +3,18 @@ package me.card.switchv1.app.service;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import jakarta.annotation.Resource;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import me.card.switchv1.app.db.ErrorLogDao;
+import me.card.switchv1.app.db.ErrorLogPo;
 import me.card.switchv1.app.db.MessageLogDao;
 import me.card.switchv1.app.db.MessageLogPo;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
-import me.card.switchv1.component.Id;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
 import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.message.visa.jpos.VisaMessageByJpos;
-import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 
 public abstract class LogService implements PersistentWorker {
@@ -25,6 +22,9 @@ public abstract class LogService implements PersistentWorker {
 
   @Resource
   MessageLogDao messageLogDao;
+
+  @Resource
+  ErrorLogDao errorLogDao;
 
   @Resource
   private ApiCoder<Api, Message> apiCoder;
@@ -46,45 +46,66 @@ public abstract class LogService implements PersistentWorker {
 
   }
 
-  public void saveInput(Message message) {
-    MessageLogPo messageLogPo = getPo(message);
+  @Override
+  public void saveIncomeMessage(Message message) {
+    MessageLogPo messageLogPo = getMessageLogPo(message);
     messageLogPo.setDirection("I");
 
     try {
       messageLogDao.add(messageLogPo);
     } catch (Exception e) {
-      logger.error("insert log error", e);
+      logger.error("insert income message log error", e);
       throw e;
     }
   }
 
-  public void saveOutput(Message message) {
-    MessageLogPo messageLogPo = getPo(message);
+  @Override
+  public void saveOutgoMessage(Message message) {
+    MessageLogPo messageLogPo = getMessageLogPo(message);
     messageLogPo.setDirection("O");
 
     try {
       messageLogDao.add(messageLogPo);
     } catch (Exception e) {
-      logger.error("insert log error", e);
+      logger.error("insert outgo message log error", e);
       throw e;
     }
   }
 
+  @Override
+  public void saveIncomeError(Message message) {
+    ErrorLogPo errorLogPo = getErrorLogPo(message);
+
+    try {
+      errorLogDao.add(errorLogPo);
+    } catch (Exception e) {
+      logger.error("insert income error log error", e);
+      throw e;
+    }
+  }
+
+  @Override
+  public void saveOutgoError(Message message) {
+    ErrorLogPo errorLogPo = getErrorLogPo(message);
+
+    try {
+      errorLogDao.add(errorLogPo);
+    } catch (Exception e) {
+      logger.error("insert outgo error log error", e);
+      throw e;
+    }
+  }
   public MessageLogPo query(String seqNo, String direction) {
     return messageLogDao.query(seqNo, direction);
   }
 
-  public abstract MessageLogPo getPo(Message message);
 
-//  public abstract MessageLogPo getPo(Message message) {
-//    MessageLogPo
-//        messageLogPo = new MessageLogPo();
-//    messageLogPo.setId(id.nextStrId());
-//    messageLogPo.setSeqNo(message.getSeqNo());
-//    messageLogPo.setMessageKey(message.correlationId().);
-//    messageLogPo.setCreateDate(LocalDate.now());
-//    messageLogPo.setCreateTime(LocalTime.now());
-//    messageLogPo.setHexMessage(ISOUtil.byte2hex(message.compress()));
-//    return messageLogPo;
-//  }
+  public ErrorLogPo queryErrorLog(String id) {
+    return errorLogDao.query(id);
+  }
+
+  public abstract MessageLogPo getMessageLogPo(Message message);
+
+  public abstract ErrorLogPo getErrorLogPo(Message message);
+
 }

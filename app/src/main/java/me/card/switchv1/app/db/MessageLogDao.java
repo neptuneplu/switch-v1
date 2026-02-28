@@ -18,8 +18,8 @@ public class MessageLogDao {
   public void add(MessageLogPo messageLogPo) {
     int rs = mapper.insert(messageLogPo);
     if (rs != 1) {
-      logger.error("insert log error");
-      throw new DbException("insert log error: " + rs);
+      logger.error("insert message log error");
+      throw new DbException("insert message log error: " + rs);
     }
   }
 

@@ -5,19 +5,18 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.BackofficeURL;
-import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageContext {
-  private static final Logger logger = LoggerFactory.getLogger(MessageContext.class);
+public class ApiContext {
+  private static final Logger logger = LoggerFactory.getLogger(ApiContext.class);
 
   private MessageDirection messageDirection;
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
-  private Message incomeMsg;
-  private Message outgoMsg;
+//  private Message incomeMsg;
+//  private Message outgoMsg;
   private Api incomeApi;
   private Api outgoApi;
   private final Map<String, Object> businessData;
@@ -30,7 +29,7 @@ public class MessageContext {
   long remoteEndTime;
   long processEndTime;
 
-  public MessageContext(MessageDirection messageDirection) {
+  public ApiContext(MessageDirection messageDirection) {
     this.messageDirection = messageDirection;
     this.startTime = System.currentTimeMillis();
     this.businessData = new ConcurrentHashMap<>();
@@ -40,7 +39,7 @@ public class MessageContext {
     return messageDirection;
   }
 
-  public MessageContext setMessageDirection(
+  public ApiContext setMessageDirection(
       MessageDirection messageDirection) {
     this.messageDirection = messageDirection;
     return this;
@@ -70,21 +69,21 @@ public class MessageContext {
     this.backofficeURL = backofficeURL;
   }
 
-  public Message getIncomeMsg() {
-    return incomeMsg;
-  }
-
-  public void setIncomeMsg(Message incomeMsg) {
-    this.incomeMsg = incomeMsg;
-  }
-
-  public Message getOutgoMsg() {
-    return outgoMsg;
-  }
-
-  public void setOutgoMsg(Message outgoMsg) {
-    this.outgoMsg = outgoMsg;
-  }
+//  public Message getIncomeMsg() {
+//    return incomeMsg;
+//  }
+//
+//  public void setIncomeMsg(Message incomeMsg) {
+//    this.incomeMsg = incomeMsg;
+//  }
+//
+//  public Message getOutgoMsg() {
+//    return outgoMsg;
+//  }
+//
+//  public void setOutgoMsg(Message outgoMsg) {
+//    this.outgoMsg = outgoMsg;
+//  }
 
   public Api getIncomeApi() {
     return incomeApi;

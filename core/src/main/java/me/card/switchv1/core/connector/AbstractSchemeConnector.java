@@ -2,11 +2,13 @@ package me.card.switchv1.core.connector;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
+import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.BackofficeURL;
 import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.component.Id;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
+import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.component.Prefix;
 import me.card.switchv1.core.processor.Processor;
 
@@ -26,6 +28,7 @@ public class AbstractSchemeConnector {
   protected Supplier<Message> signOffMessageSupplier;
   protected Processor processor;
   protected MessageCoder messageCoder;
+  protected ApiCoder apiCoder;
 
   public AbstractSchemeConnector() {
     this.connectorMonitor = new ConnectorMonitor();
@@ -84,5 +87,10 @@ public class AbstractSchemeConnector {
 
   public void setMessageCoder(MessageCoder messageCoder) {
     this.messageCoder = messageCoder;
+  }
+
+
+  public void setApiCoder(ApiCoder apiCoder) {
+    this.apiCoder = apiCoder;
   }
 }

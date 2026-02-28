@@ -38,7 +38,7 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
       }
       out.writeBytes(msg);
     } catch (Exception e) {
-      logger.error("write byte buf error!!!", e);
+      throw new StreamHandlerException("encode error: " + e.getMessage());
     }
   }
 

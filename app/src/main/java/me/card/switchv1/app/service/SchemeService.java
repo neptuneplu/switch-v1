@@ -1,8 +1,11 @@
 package me.card.switchv1.app.service;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import me.card.switchv1.app.config.Params;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
@@ -28,6 +31,8 @@ import org.springframework.util.Assert;
 @Component
 public class SchemeService {
   private static final Logger logger = LoggerFactory.getLogger(SchemeService.class);
+
+  private ExecutorService executor;
 
   @Resource
   private Params params;
@@ -153,6 +158,7 @@ public class SchemeService {
         .signOffMessageSupplier(SignOnAndOffMessage::signOffMessage)
         .processor(processor)
         .messageCoder(messageCoder)
+        .apiCoder(apiCoder)
         .build();
 
     processor.setConnector(connector);
@@ -169,29 +175,34 @@ public class SchemeService {
 
   public CompletableFuture<Api> sendOutgoRequestAsync(Api api) {
 
-    return processor.handleOutgoRequestAsync(api);
+    return processor.handleOutgoRequest(api);
 
   }
 
   @PostConstruct
   public void init() {
+    executor = Executors.newFixedThreadPool(params.processorThreads(),
+        new ThreadFactoryBuilder()
+            .setNameFormat("business-pool-%d")
+            .setDaemon(true)
+            .build());
+
     processor = processorBuilder
-        .apiClient(new DefaultApiClient(params.getApiClientConnectTimeoutSeconds(),
+        .apiClient(new DefaultApiClient(executor, params.getApiClientConnectTimeoutSeconds(),
             params.getApiClientRequestTimeoutSeconds()))
         .responseApiClz(apiClz)
-        .apiCoder(apiCoder)
-        .messageCoder(messageCoder)
         .persistentWorker(logService)
         .backofficeURL(params.destinationURL())
-        .setThreadsNumber(params.processorThreads())
         .setAcqTranTimeoutSeconds(params.acqTimeoutSeconds())
+        .setExecutor(executor)
         .build();
   }
 
+
   public ConnectorMonitor pendingOutgos() {
     ConnectorMonitor monitor = status();
-//    monitor.setPendingOutgos(processor.pendingOutgos());
     return monitor;
 
   }
+
 }

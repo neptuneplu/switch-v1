@@ -20,7 +20,8 @@ public class CupApiCoder implements ApiCoder<CupApi, CupMessageByJpos> {
     cupApi.setSourceId(cupMessage.getSourceId());
     //todo enhancement
     cupApi.setHeader(cupMessage.getByteHeader());
-
+    //
+    cupApi.setMessage(cupMessage);
 
     for (int i = 2; i <= 128; i++) {
       if (cupMessage.hasField(i)) {
@@ -63,6 +64,8 @@ public class CupApiCoder implements ApiCoder<CupApi, CupMessageByJpos> {
     cupMessage.setSourceId(cupMessage.getDestinationId());
     //todo enhancement
     cupMessage.setByteHeader(cupApi.getHeader());
+    //
+    cupApi.setMessage(cupMessage);
 
 
     for (int i = 2; i <= 128; i++) {

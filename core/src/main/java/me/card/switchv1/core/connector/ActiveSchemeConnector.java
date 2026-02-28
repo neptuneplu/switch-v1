@@ -1,5 +1,7 @@
 package me.card.switchv1.core.connector;
 
+import static me.card.switchv1.core.handler.attributes.ChannelAttributes.ON_LINE_FLAG;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -10,12 +12,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.util.Objects;
 import java.util.function.Consumer;
-import me.card.switchv1.component.Message;
+import me.card.switchv1.component.Api;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
+import me.card.switchv1.core.handler.ApiHandler;
+import me.card.switchv1.core.handler.ExceptionIncomeHandler;
+import me.card.switchv1.core.handler.ExceptionOutgoHandler;
 import me.card.switchv1.core.handler.MessageHandler;
 import me.card.switchv1.core.handler.ProcessHandler;
 import me.card.switchv1.core.handler.StreamHandler;
@@ -25,7 +29,6 @@ import org.slf4j.LoggerFactory;
 public class ActiveSchemeConnector extends AbstractSchemeConnector
     implements Connector, AutoConnectable {
   private static final Logger logger = LoggerFactory.getLogger(ActiveSchemeConnector.class);
-  public static final AttributeKey<Boolean> ON_LINE_FLAG = AttributeKey.valueOf("ON_LINE");
   private static final int CONNECTOR_THREADS_NUMBER = 1;
 
   protected final Bootstrap bootstrap = new Bootstrap();
@@ -59,9 +62,13 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
         ch.pipeline()
             .addLast(StreamHandler.NAME, new StreamHandler(prefix))
             .addLast(MessageHandler.NAME, new MessageHandler(messageCoder))
+            .addLast(ApiHandler.NAME, new ApiHandler(apiCoder))
             .addLast(ProcessHandler.NAME, new ProcessHandler(processor))
             .addLast(new IdleStateHandler(readIdleTime, 0, 0))
-            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable));
+            .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable))
+            .addLast(ExceptionIncomeHandler.NAME, new ExceptionIncomeHandler(processor))
+            .addLast(ExceptionOutgoHandler.NAME, new ExceptionOutgoHandler(processor))
+        ;
       }
     };
   }
@@ -119,8 +126,8 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
   }
 
   @Override
-  public void write(Message outgoMessage, Consumer<Message> succCallback,
-                    Consumer<Message> failCallback) {
+  public void write(Api outgoApi, Consumer<Api> succCallback,
+                    Consumer<Api> failCallback) {
 
     logger.info("[stage connector] sendOutgo start: current thread={}, objective thread={}",
         Thread.currentThread().getName(), channel.eventLoop());
@@ -133,7 +140,7 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
       logger.info("[stage connector] sendOutgo netty write: thread={}",
           Thread.currentThread().getName());
 
-      channel.writeAndFlush(outgoMessage)
+      channel.writeAndFlush(outgoApi)
           .addListener((ChannelFutureListener) future -> {
             logger.info("[stage connector listener] sendOutgo listener: thread={}",
                 Thread.currentThread().getName());
@@ -141,12 +148,12 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
             if (future.isSuccess()) {
               logger.debug("send outgo successfully");
               if (succCallback != null) {
-                succCallback.accept(outgoMessage);
+                succCallback.accept(outgoApi);
               }
             } else {
               logger.error("send outgo failed", future.cause());
               if (failCallback != null) {
-                failCallback.accept(outgoMessage);
+                failCallback.accept(outgoApi);
               }
             }
           });
