@@ -5,21 +5,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.CorrelationId;
 
-public class PendingOutgoTrans {
-  private final ConcurrentHashMap<CorrelationId, ApiContext> pendingTrans
+public class PendingTrans {
+  private final ConcurrentHashMap<CorrelationId, ApiContext> pendings
       = new ConcurrentHashMap<>();
 
 
-  public CompletableFuture<Api> registerOutgo(CorrelationId correlationId, ApiContext context) {
+  public CompletableFuture<Api> register(CorrelationId correlationId, ApiContext context) {
     CompletableFuture<Api> future = new CompletableFuture<>();
     context.setResultFuture(future);
-    pendingTrans.put(correlationId, context);
+    pendings.put(correlationId, context);
     return future;
   }
 
 
-  public void completeOutgo(CorrelationId correlationId, Api api) {
-    ApiContext context = pendingTrans.remove(correlationId);
+  public void complete(CorrelationId correlationId, Api api) {
+    ApiContext context = pendings.remove(correlationId);
 
     if (context != null) {
       context.getResultFuture().complete(api);
@@ -29,11 +29,11 @@ public class PendingOutgoTrans {
   }
 
 
-  public ApiContext matchOutgo(CorrelationId correlationId) {
-    return pendingTrans.get(correlationId);
+  public ApiContext match(CorrelationId correlationId) {
+    return pendings.get(correlationId);
   }
 
-  public int pendingOutgoCount() {
-    return pendingTrans.size();
+  public int pendingCount() {
+    return pendings.size();
   }
 }

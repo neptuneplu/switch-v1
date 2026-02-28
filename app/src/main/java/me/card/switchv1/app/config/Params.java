@@ -52,6 +52,9 @@ public class Params {
   @Value("${processor.acq.timeout}")
   private int acqTimeoutSeconds;
 
+  @Value("${processor.iss.timeout}")
+  private int issTimeoutSeconds;
+
   @Value("${apiClient.connectTimeoutSeconds}")
   private int apiClientConnectTimeoutSeconds;
 
@@ -94,8 +97,33 @@ public class Params {
     return processorThreads;
   }
 
+  @Override
+  public String toString() {
+    return "Params{" +
+        "name='" + name + '\'' +
+        ", localAddress='" + localAddress + '\'' +
+        ", localPort='" + localPort + '\'' +
+        ", sourceAddress='" + sourceAddress + '\'' +
+        ", sourcePort='" + sourcePort + '\'' +
+        ", destinationAddress='" + destinationAddress + '\'' +
+        ", destinationPort='" + destinationPort + '\'' +
+        ", destinationPortUri='" + destinationPortUri + '\'' +
+        ", readIdleTime='" + readIdleTime + '\'' +
+        ", connectorType='" + connectorType + '\'' +
+        ", processorThreads=" + processorThreads +
+        ", acqTimeoutSeconds=" + acqTimeoutSeconds +
+        ", issTimeoutSeconds=" + issTimeoutSeconds +
+        ", apiClientConnectTimeoutSeconds=" + apiClientConnectTimeoutSeconds +
+        ", apiClientRequestTimeoutSeconds=" + apiClientRequestTimeoutSeconds +
+        '}';
+  }
+
   public int acqTimeoutSeconds() {
     return acqTimeoutSeconds;
+  }
+
+  public int issTimeoutSeconds() {
+    return issTimeoutSeconds;
   }
 
   public int getApiClientConnectTimeoutSeconds() {
@@ -113,23 +141,4 @@ public class Params {
     }
   }
 
-  @Override
-  public String toString() {
-    return "Params{" +
-        "name='" + name + '\'' +
-        ", localAddress='" + localAddress + '\'' +
-        ", localPort='" + localPort + '\'' +
-        ", sourceAddress='" + sourceAddress + '\'' +
-        ", sourcePort='" + sourcePort + '\'' +
-        ", destinationAddress='" + destinationAddress + '\'' +
-        ", destinationPort='" + destinationPort + '\'' +
-        ", destinationPortUri='" + destinationPortUri + '\'' +
-        ", readIdleTime='" + readIdleTime + '\'' +
-        ", connectorType='" + connectorType + '\'' +
-        ", processorThreads='" + processorThreads + '\'' +
-        ", acqTimeoutSeconds=" + acqTimeoutSeconds +
-        ", apiClientConnectTimeoutSeconds=" + apiClientConnectTimeoutSeconds +
-        ", apiClientRequestTimeoutSeconds=" + apiClientRequestTimeoutSeconds +
-        '}';
-  }
 }

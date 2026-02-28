@@ -20,6 +20,7 @@ public class ProcessorBuilder {
   private Class<? extends Api> responseApiClz;
   private BackofficeURL backofficeURL;
   private int acqTranTimeoutSeconds;
+  private int issTranTimeoutSeconds;
   private ExecutorService executor;
 
   public ProcessorBuilder apiClient(ApiClient apiClient) {
@@ -45,12 +46,17 @@ public class ProcessorBuilder {
     return this;
   }
 
-  public ProcessorBuilder setAcqTranTimeoutSeconds(int acqTranTimeoutSeconds) {
+  public ProcessorBuilder acqTranTimeoutSeconds(int acqTranTimeoutSeconds) {
     this.acqTranTimeoutSeconds = acqTranTimeoutSeconds;
     return this;
   }
 
-  public ProcessorBuilder setExecutor(ExecutorService executor) {
+  public ProcessorBuilder issTranTimeoutSeconds(int issTranTimeoutSeconds) {
+    this.issTranTimeoutSeconds = issTranTimeoutSeconds;
+    return this;
+  }
+
+  public ProcessorBuilder executor(ExecutorService executor) {
     this.executor = executor;
     return this;
 
@@ -64,6 +70,7 @@ public class ProcessorBuilder {
     processor.setPersistentWorker(persistentWorker);
     processor.setBackofficeURL(backofficeURL);
     processor.setAcqTranTimeoutSeconds(acqTranTimeoutSeconds);
+    processor.setIssTranTimeoutSeconds(issTranTimeoutSeconds);
     processor.setExecutor(executor);
 
     return processor;

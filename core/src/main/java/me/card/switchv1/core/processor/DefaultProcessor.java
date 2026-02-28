@@ -13,8 +13,7 @@ import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.core.client.ApiClient;
 import me.card.switchv1.core.connector.Connector;
 import me.card.switchv1.core.internal.ApiContext;
-import me.card.switchv1.core.internal.PendingIncomeTrans;
-import me.card.switchv1.core.internal.PendingOutgoTrans;
+import me.card.switchv1.core.internal.PendingTrans;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +21,10 @@ public class DefaultProcessor implements Processor {
   private static final Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
   private static final String NAME = "DefaultProcessor";
   private static final int DEFAULT_ACQ_TRAN_TIMEOUT_SECONDS = 20;
+  private static final int DEFAULT_ISS_TRAN_TIMEOUT_SECONDS = 15;
 
-  private final PendingOutgoTrans pendingOutgoTrans;
-  private final PendingIncomeTrans pendingIncomeTrans;
+  private final PendingTrans pendingOutgoTrans;
+  private final PendingTrans pendingIncomeTrans;
   private ExecutorService executor;
   private ApiClient apiClient;
   private PersistentWorker persistentWorker;
@@ -32,10 +32,11 @@ public class DefaultProcessor implements Processor {
   private BackofficeURL backofficeURL;
   private Connector connector;
   private int acqTranTimeoutSeconds;
+  private int issTranTimeoutSeconds;
 
   DefaultProcessor() {
-    this.pendingOutgoTrans = new PendingOutgoTrans();
-    this.pendingIncomeTrans = new PendingIncomeTrans();
+    this.pendingOutgoTrans = new PendingTrans();
+    this.pendingIncomeTrans = new PendingTrans();
 
   }
 
@@ -64,6 +65,10 @@ public class DefaultProcessor implements Processor {
     this.acqTranTimeoutSeconds = acqTranTimeoutSeconds;
   }
 
+  public void setIssTranTimeoutSeconds(int issTranTimeoutSeconds) {
+    this.issTranTimeoutSeconds = issTranTimeoutSeconds;
+  }
+
   public void setExecutor(ExecutorService executor) {
     this.executor = executor;
   }
@@ -77,7 +82,20 @@ public class DefaultProcessor implements Processor {
     ApiContext context = new ApiContext(MessageDirection.INCOME);
     context.setIncomeApi(api);
     context.markProcessStart();
-    pendingIncomeTrans.registerIncome(api.correlationId(), context);
+
+    pendingIncomeTrans.register(api.correlationId(), context)
+        .orTimeout(
+            issTranTimeoutSeconds == 0 ? DEFAULT_ISS_TRAN_TIMEOUT_SECONDS : issTranTimeoutSeconds,
+            TimeUnit.SECONDS)
+        .exceptionally(ex -> {
+          if (ex instanceof TimeoutException) {
+            pendingIncomeTrans.complete(api.correlationId(), api);
+          } else {
+            logger.error(ex.getMessage(), ex);
+          }
+          return api;
+        })
+    ;
 
     executor.submit(() -> doHandleIncomeRequest(context));
   }
@@ -85,7 +103,7 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void handleOutgoResponse(Api api) {
-    ApiContext context = pendingIncomeTrans.matchIncome(api.correlationId());
+    ApiContext context = pendingIncomeTrans.match(api.correlationId());
     if (context == null) {
 
     }
@@ -110,14 +128,14 @@ public class DefaultProcessor implements Processor {
 
     CorrelationId correlationId = api.correlationId();
 
-    CompletableFuture<Api> future = pendingOutgoTrans.registerOutgo(correlationId, context)
+    CompletableFuture<Api> future = pendingOutgoTrans.register(correlationId, context)
         .orTimeout(
             acqTranTimeoutSeconds == 0 ? DEFAULT_ACQ_TRAN_TIMEOUT_SECONDS : acqTranTimeoutSeconds,
             TimeUnit.SECONDS)
         .exceptionally(ex -> {
               if (ex instanceof TimeoutException) {
                 api.toResponse("91");
-                pendingOutgoTrans.completeOutgo(correlationId, api);
+                pendingOutgoTrans.complete(correlationId, api);
               } else {
                 api.toResponse("96");
               }
@@ -135,7 +153,7 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void handleIncomeResponse(Api api) {
-    ApiContext context = pendingOutgoTrans.matchOutgo(api.correlationId());
+    ApiContext context = pendingOutgoTrans.match(api.correlationId());
     if (context == null) {
       logger.error("income response not found for correlationId {}", api.correlationId());
     }
@@ -149,8 +167,6 @@ public class DefaultProcessor implements Processor {
     logger.debug("[stage {}] handleIncomeRequest start: thread={}", NAME,
         Thread.currentThread().getName());
 
-    //todo check pendings
-
     //
     callApiClient(context);
   }
@@ -162,7 +178,7 @@ public class DefaultProcessor implements Processor {
     connector.write(context.getOutgoApi(),
         msg -> {
           saveOutgoMessage(context.getOutgoApi().message());
-          pendingIncomeTrans.completeIncome(context.getOutgoApi().correlationId());
+          pendingIncomeTrans.complete(context.getOutgoApi().correlationId(), context.getOutgoApi());
           context.markProcessEnd();
           context.logPerformance();
         },
@@ -191,7 +207,7 @@ public class DefaultProcessor implements Processor {
 
     saveIncomeMessage(context.getIncomeApi().message());
 
-    pendingOutgoTrans.completeOutgo(context.getIncomeApi().correlationId(),
+    pendingOutgoTrans.complete(context.getIncomeApi().correlationId(),
         context.getIncomeApi());
 
     context.markProcessEnd();
@@ -273,17 +289,17 @@ public class DefaultProcessor implements Processor {
 
   private void pendingOutgoErrorPcs(Api api) {
     api.toResponse("99");
-    pendingOutgoTrans.completeOutgo(api.correlationId(), api);
+    pendingOutgoTrans.complete(api.correlationId(), api);
   }
 
   @Override
   public int pendingOutgos() {
-    return pendingOutgoTrans.pendingOutgoCount();
+    return pendingOutgoTrans.pendingCount();
   }
 
   @Override
   public int pendingIncomes() {
-    return pendingIncomeTrans.pendingIncomeCount();
+    return pendingIncomeTrans.pendingCount();
   }
 
 }

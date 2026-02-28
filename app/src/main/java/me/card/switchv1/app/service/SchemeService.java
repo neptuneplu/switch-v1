@@ -193,8 +193,9 @@ public class SchemeService {
         .responseApiClz(apiClz)
         .persistentWorker(logService)
         .backofficeURL(params.destinationURL())
-        .setAcqTranTimeoutSeconds(params.acqTimeoutSeconds())
-        .setExecutor(executor)
+        .acqTranTimeoutSeconds(params.acqTimeoutSeconds())
+        .issTranTimeoutSeconds(params.issTimeoutSeconds())
+        .executor(executor)
         .build();
   }
 
