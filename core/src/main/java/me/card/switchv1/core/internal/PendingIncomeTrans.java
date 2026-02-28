@@ -7,12 +7,12 @@ public class PendingIncomeTrans {
   private final ConcurrentHashMap<CorrelationId, ApiContext> pendingTrans
       = new ConcurrentHashMap<>();
 
-  public void registerOutgo(CorrelationId correlationId, ApiContext context) {
+  public void registerIncome(CorrelationId correlationId, ApiContext context) {
     pendingTrans.put(correlationId, context);
   }
 
 
-  public void completeOutgo(CorrelationId correlationId) {
+  public void completeIncome(CorrelationId correlationId) {
     ApiContext context = pendingTrans.remove(correlationId);
 
     if (context != null) {
@@ -23,7 +23,11 @@ public class PendingIncomeTrans {
   }
 
 
-  public ApiContext matchOutgo(CorrelationId correlationId) {
+  public ApiContext matchIncome(CorrelationId correlationId) {
     return pendingTrans.get(correlationId);
+  }
+
+  public int pendingIncomeCount() {
+    return pendingTrans.size();
   }
 }

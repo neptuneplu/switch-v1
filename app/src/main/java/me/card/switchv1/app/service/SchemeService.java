@@ -198,11 +198,4 @@ public class SchemeService {
         .build();
   }
 
-
-  public ConnectorMonitor pendingOutgos() {
-    ConnectorMonitor monitor = status();
-    return monitor;
-
-  }
-
 }

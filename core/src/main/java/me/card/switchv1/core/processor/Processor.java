@@ -19,6 +19,8 @@ public interface Processor {
 
   int pendingOutgos();
 
+  int pendingIncomes();
+
   void saveIncomeMessage(Message message);
 
   void saveOutgoMessage(Message message);

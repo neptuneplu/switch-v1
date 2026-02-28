@@ -77,7 +77,7 @@ public class DefaultProcessor implements Processor {
     ApiContext context = new ApiContext(MessageDirection.INCOME);
     context.setIncomeApi(api);
     context.markProcessStart();
-    pendingIncomeTrans.registerOutgo(api.correlationId(), context);
+    pendingIncomeTrans.registerIncome(api.correlationId(), context);
 
     executor.submit(() -> doHandleIncomeRequest(context));
   }
@@ -85,7 +85,7 @@ public class DefaultProcessor implements Processor {
 
   @Override
   public void handleOutgoResponse(Api api) {
-    ApiContext context = pendingIncomeTrans.matchOutgo(api.correlationId());
+    ApiContext context = pendingIncomeTrans.matchIncome(api.correlationId());
     if (context == null) {
 
     }
@@ -162,10 +162,12 @@ public class DefaultProcessor implements Processor {
     connector.write(context.getOutgoApi(),
         msg -> {
           saveOutgoMessage(context.getOutgoApi().message());
+          pendingIncomeTrans.completeIncome(context.getOutgoApi().correlationId());
           context.markProcessEnd();
           context.logPerformance();
         },
         null);
+
   }
 
   private void doHandleOutgoRequest(ApiContext context) {
@@ -277,6 +279,11 @@ public class DefaultProcessor implements Processor {
   @Override
   public int pendingOutgos() {
     return pendingOutgoTrans.pendingOutgoCount();
+  }
+
+  @Override
+  public int pendingIncomes() {
+    return pendingIncomeTrans.pendingIncomeCount();
   }
 
 }
