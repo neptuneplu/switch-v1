@@ -18,8 +18,6 @@ import java.util.function.Consumer;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.core.handler.AdminActiveServerHandler;
 import me.card.switchv1.core.handler.ApiHandler;
-import me.card.switchv1.core.handler.ExceptionIncomeHandler;
-import me.card.switchv1.core.handler.ExceptionOutgoHandler;
 import me.card.switchv1.core.handler.MessageHandler;
 import me.card.switchv1.core.handler.ProcessHandler;
 import me.card.switchv1.core.handler.StreamHandler;
@@ -66,8 +64,6 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
             .addLast(ProcessHandler.NAME, new ProcessHandler(processor))
             .addLast(new IdleStateHandler(readIdleTime, 0, 0))
             .addLast(new AdminActiveServerHandler(heartBeat, autoConnectable))
-            .addLast(ExceptionIncomeHandler.NAME, new ExceptionIncomeHandler(processor))
-            .addLast(ExceptionOutgoHandler.NAME, new ExceptionOutgoHandler(processor))
         ;
       }
     };
@@ -129,23 +125,17 @@ public class ActiveSchemeConnector extends AbstractSchemeConnector
   @Override
   public void write(Api outgoApi, Consumer<Api> succCallback,
                     Consumer<Api> failCallback) {
-
-    logger.info("[stage connector] sendOutgo start: current thread={}, objective thread={}",
-        Thread.currentThread().getName(), channel.eventLoop());
+    logger.debug("write start");
 
     if (channel == null) {
       throw new ConnectorException("channel is null");
     }
     //
     channel.eventLoop().execute(() -> {
-      logger.info("[stage connector] sendOutgo netty write: thread={}",
-          Thread.currentThread().getName());
+      logger.info("sendOutgo netty write");
 
       channel.writeAndFlush(outgoApi)
           .addListener((ChannelFutureListener) future -> {
-            logger.info("[stage connector listener] sendOutgo listener: thread={}",
-                Thread.currentThread().getName());
-
             if (future.isSuccess()) {
               logger.debug("send outgo successfully");
               if (succCallback != null) {
