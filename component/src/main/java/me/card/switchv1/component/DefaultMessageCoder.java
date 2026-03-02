@@ -1,7 +1,5 @@
 package me.card.switchv1.component;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.function.Supplier;
 
 public class DefaultMessageCoder implements MessageCoder {
@@ -15,9 +13,9 @@ public class DefaultMessageCoder implements MessageCoder {
   }
 
   @Override
-  public Message extract(ByteBuf byteBuf) {
+  public Message extract(byte[] bytes) {
     Message message = messageSupplier.get();
-    message.extract(byteBuf.array());
+    message.extract(bytes);
     message.setSeqNo(id.nextStrSeqNo());
     message.print();
     return message;
@@ -29,11 +27,11 @@ public class DefaultMessageCoder implements MessageCoder {
   }
 
   @Override
-  public ByteBuf compress(Message message) {
+  public byte[] compress(Message message) {
     if (message.getSeqNo() == null) {
       message.setSeqNo(id.nextStrSeqNo());
     }
-    return Unpooled.wrappedBuffer(message.compress());
+    return message.compress();
   }
 
   @Override

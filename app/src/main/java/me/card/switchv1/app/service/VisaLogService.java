@@ -8,7 +8,6 @@ import me.card.switchv1.app.db.MessageLogPo;
 import me.card.switchv1.component.Id;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.PersistentWorker;
-import me.card.switchv1.message.visa.jpos.VisaMessageByJpos;
 import org.jpos.iso.ISOUtil;
 import org.springframework.stereotype.Component;
 

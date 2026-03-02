@@ -1,23 +1,17 @@
 package me.card.switchv1.app.service;
 
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import jakarta.annotation.Resource;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import me.card.switchv1.app.db.MessageLogDao;
 import me.card.switchv1.app.db.MessageLogPo;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
-import me.card.switchv1.component.Id;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
 import me.card.switchv1.component.PersistentWorker;
 import me.card.switchv1.message.visa.jpos.VisaMessageByJpos;
-import org.jpos.iso.ISOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 
 public abstract class LogService implements PersistentWorker {
@@ -40,7 +34,7 @@ public abstract class LogService implements PersistentWorker {
   public Api queryApi(String seqNo, String direction) {
     MessageLogPo messageLogPo = queryRawMessage(seqNo, direction);
     VisaMessageByJpos visaMessageByJpos = (VisaMessageByJpos) messageCoder.extract(
-        Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(messageLogPo.getHexMessage())));
+        ByteBufUtil.decodeHexDump(messageLogPo.getHexMessage()));
 
     return apiCoder.messageToApi(visaMessageByJpos);
 
