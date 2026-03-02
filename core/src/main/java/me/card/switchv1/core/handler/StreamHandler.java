@@ -2,7 +2,6 @@ package me.card.switchv1.core.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import java.util.List;
@@ -32,8 +31,8 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
     }
 
     try {
-      if (msg.array().length != prefix.getPrefixLength()) {
-        byte[] byteLength = prefix.getBytePrefix(msg.array().length);
+      if (msg.readableBytes() != prefix.getPrefixLength()) {
+        byte[] byteLength = prefix.getBytePrefix(msg.readableBytes());
         out.writeBytes(byteLength);
       }
       out.writeBytes(msg);
@@ -58,9 +57,9 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
       }
       byteBuf.markReaderIndex();
 
-      ByteBuf byteLen = Unpooled.buffer(prefixLength);
+      byte[] byteLen = new byte[prefixLength];
       byteBuf.readBytes(byteLen);
-      int intLen = prefix.getIntPrefix(byteLen.array());
+      int intLen = prefix.getIntPrefix(byteLen);
 
       // echo message
       if (intLen == 0) {
@@ -78,8 +77,8 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
       }
 
 
-      ByteBuf byteMsg = Unpooled.unreleasableBuffer(Unpooled.buffer(intLen));
-      byteBuf.readBytes(byteMsg);
+      ByteBuf byteMsg = byteBuf.retainedSlice(byteBuf.readerIndex(), intLen);
+      byteBuf.skipBytes(intLen);
 
       out.add(byteMsg);
 

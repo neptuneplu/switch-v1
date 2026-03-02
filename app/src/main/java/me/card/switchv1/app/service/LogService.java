@@ -1,7 +1,6 @@
 package me.card.switchv1.app.service;
 
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import jakarta.annotation.Resource;
 import me.card.switchv1.app.db.ErrorLogDao;
 import me.card.switchv1.app.db.ErrorLogPo;
@@ -40,7 +39,7 @@ public abstract class LogService implements PersistentWorker {
   public Api queryApi(String seqNo, String direction) {
     MessageLogPo messageLogPo = queryRawMessage(seqNo, direction);
     VisaMessageByJpos visaMessageByJpos = (VisaMessageByJpos) messageCoder.extract(
-        Unpooled.wrappedBuffer(ByteBufUtil.decodeHexDump(messageLogPo.getHexMessage())));
+        ByteBufUtil.decodeHexDump(messageLogPo.getHexMessage()));
 
     return apiCoder.messageToApi(visaMessageByJpos);
 
