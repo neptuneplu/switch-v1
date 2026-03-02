@@ -2,7 +2,11 @@ package me.card.switchv1.component;
 
 public interface PersistentWorker {
 
-  void saveInput(Message message);
+  void saveIncomeMessage(Message message);
 
-  void saveOutput(Message message);
+  void saveOutgoMessage(Message message);
+
+  void saveIncomeError(Message message);
+
+  void saveOutgoError(Message message);
 }

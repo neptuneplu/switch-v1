@@ -1,6 +1,7 @@
 package me.card.switchv1.core.connector;
 
 import java.util.function.Consumer;
+import me.card.switchv1.component.Api;
 import me.card.switchv1.component.Message;
 
 public interface Connector {
@@ -15,6 +16,6 @@ public interface Connector {
 
   void signOff();
 
-  void write(Message outgoMessage, Consumer<Message> succCallback, Consumer<Message> failCallback);
+  void write(Api outgoApi, Consumer<Api> succCallback, Consumer<Api> failCallback);
 
 }

@@ -7,6 +7,7 @@ import io.netty.handler.codec.ByteToMessageCodec;
 import java.util.List;
 import me.card.switchv1.component.Message;
 import me.card.switchv1.component.MessageCoder;
+import me.card.switchv1.core.handler.attributes.ChannelAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +31,14 @@ public class MessageHandler extends ByteToMessageCodec<Message> {
       byteBuf.writeBytes(messageCoder.compress(msg));
     } catch (Exception e) {
       logger.error("compress message failed, msg: {}", msg);
+      throw new MessageHandlerException("message compress failed, " + e.getMessage());
+
     }
   }
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf bytes, List<Object> out) {
-    logger.debug("[stage {}] decode start: thread={}", NAME, Thread.currentThread().getName());
+    logger.debug("decode start");
 
     try {
       logger.debug("bytes readable length = {}", bytes.readableBytes());
@@ -44,6 +47,7 @@ public class MessageHandler extends ByteToMessageCodec<Message> {
       out.add(messageCoder.extract(tmpBytes));
     } catch (Exception e) {
       logger.error("extract message failed, bytes: {}", ByteBufUtil.hexDump(bytes));
+      throw new MessageHandlerException("message extract failed, " + e.getMessage());
     }
   }
 

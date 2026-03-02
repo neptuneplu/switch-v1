@@ -7,16 +7,26 @@ import me.card.switchv1.core.connector.Connector;
 
 public interface Processor {
 
-  void handleIncomeRequestAsync(Message message);
+  void handleIncomeRequest(Api api);
 
-  void handleIncomeResponseAsync(Message message);
+  void handleIncomeResponse(Api api);
 
-  CompletableFuture<Api> handleOutgoRequestAsync(Api api);
+  CompletableFuture<Api> handleOutgoRequest(Api api);
 
-  void handleOutgoResponseAsync(Api api);
+  void handleOutgoResponse(Api api);
 
   void setConnector(Connector connector);
 
   int pendingOutgos();
+
+  int pendingIncomes();
+
+  void saveIncomeMessage(Message message);
+
+  void saveOutgoMessage(Message message);
+
+  void saveIncomeError(Message message);
+
+  void saveOutgoError(Message message);
 
 }

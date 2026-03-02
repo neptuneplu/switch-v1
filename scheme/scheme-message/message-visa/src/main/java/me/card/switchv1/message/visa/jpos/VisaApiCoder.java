@@ -33,6 +33,8 @@ public class VisaApiCoder implements ApiCoder<VisaApi, VisaMessageByJpos> {
     visaApi.setSeqNo(visaMessage.getSeqNo());
     visaApi.setDestinationId(visaMessage.getDestinationId());
     visaApi.setSourceId(visaMessage.getSourceId());
+    //
+    visaApi.setMessage(visaMessage);
 
 
     for (int i = 2; i <= 128; i++) {
@@ -77,6 +79,8 @@ public class VisaApiCoder implements ApiCoder<VisaApi, VisaMessageByJpos> {
     //exchange destination and source
     visaMessage.setDestinationId(visaApi.getSourceId());
     visaMessage.setSourceId(visaMessage.getDestinationId());
+    //
+    visaApi.setMessage(visaMessage);
 
 
     for (int i = 2; i <= 128; i++) {

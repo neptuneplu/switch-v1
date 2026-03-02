@@ -6,5 +6,13 @@ public interface Api {
 
   String mti();
 
+  Message message();
+
+  void setMessage(Message message);
+
+  boolean isRequest();
+
+  boolean isResponse();
+
   CorrelationId correlationId();
 }

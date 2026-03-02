@@ -61,21 +61,21 @@ public class VisaMessageByJpos implements Message {
     return seqNo;
   }
 
-  @Override
-  public boolean isRequest() {
-    if (getMti().equals("0100")) {
-      return true;
-    }
-    return false;
-  }
-
-  @Override
-  public boolean isResponse() {
-    if (getMti().equals("0110")) {
-      return true;
-    }
-    return false;
-  }
+//  @Override
+//  public boolean isRequest() {
+//    if (getMti().equals("0100")) {
+//      return true;
+//    }
+//    return false;
+//  }
+//
+//  @Override
+//  public boolean isResponse() {
+//    if (getMti().equals("0110")) {
+//      return true;
+//    }
+//    return false;
+//  }
 
   @Override
   public CorrelationId correlationId() {

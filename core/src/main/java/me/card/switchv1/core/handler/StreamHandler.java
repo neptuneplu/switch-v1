@@ -24,7 +24,7 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) {
-    logger.debug("[stage {}] encode start: thread={}", NAME, Thread.currentThread().getName());
+    logger.debug("encode start");
 
     if (logger.isDebugEnabled()) {
       logger.debug("return encode hex msg: {}", ByteBufUtil.hexDump(msg));
@@ -37,14 +37,13 @@ public class StreamHandler extends ByteToMessageCodec<ByteBuf> {
       }
       out.writeBytes(msg);
     } catch (Exception e) {
-      logger.error("write byte buf error!!!", e);
+      throw new StreamHandlerException("encode error: " + e.getMessage());
     }
   }
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> out) {
     logger.debug("************ new income tran received ************");
-    logger.debug("[stage {}] decode start: thread={}", NAME, Thread.currentThread().getName());
 
     if (logger.isDebugEnabled()) {
       logger.debug("decode byteBuf hex: {} ", ByteBufUtil.hexDump(byteBuf));

@@ -1,15 +1,19 @@
 package me.card.switchv1.api.visa;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import me.card.switchv1.component.Api;
+import me.card.switchv1.component.Message;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class VisaApi implements Api, Serializable {
 
   private String seqNo;
+  @JsonIgnore
+  private Message message;
   private String destinationId;
   private String sourceId;
   private String MTI;
@@ -108,6 +112,34 @@ public class VisaApi implements Api, Serializable {
   @Override
   public String mti() {
     return this.MTI;
+  }
+
+  @Override
+  public Message message() {
+    return this.message;
+  }
+
+  @Override
+  public void setMessage(Message message) {
+    this.message = message;
+  }
+
+  @Override
+  @JsonIgnore
+  public boolean isRequest() {
+    if (MTI.equals("0100")) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  @JsonIgnore
+  public boolean isResponse() {
+    if (MTI.equals("0110")) {
+      return true;
+    }
+    return false;
   }
 
   public VisaCorrelationId correlationId() {

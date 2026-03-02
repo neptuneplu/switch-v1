@@ -2,6 +2,7 @@ package me.card.switchv1.core.connector;
 
 import java.net.InetSocketAddress;
 import java.util.function.Supplier;
+import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.BackofficeURL;
 import me.card.switchv1.component.HeartBeat;
 import me.card.switchv1.component.Id;
@@ -29,6 +30,7 @@ public class SchemeConnectorBuilder {
   private Supplier<Message> signOffMessageSupplier;
   private Processor processor;
   private MessageCoder messageCoder;
+  private ApiCoder apiCoder;
 
   public SchemeConnectorBuilder name(String name) {
     this.name = name;
@@ -105,6 +107,11 @@ public class SchemeConnectorBuilder {
     return this;
   }
 
+  public SchemeConnectorBuilder apiCoder(ApiCoder apiCoder) {
+    this.apiCoder = apiCoder;
+    return this;
+  }
+
   public Connector build() {
     logger.debug("connector build start");
     check();
@@ -145,6 +152,7 @@ public class SchemeConnectorBuilder {
     connector.setSignOffMessageSupplier(signOffMessageSupplier);
     connector.setProcessor(processor);
     connector.setMessageCoder(messageCoder);
+    connector.setApiCoder(apiCoder);
   }
 
 }

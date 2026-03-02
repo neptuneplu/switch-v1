@@ -4,6 +4,7 @@ public class ConnectorMonitor {
   private String desc;
   private Boolean status;
   private int pendingOutgos;
+  private int pendingIncomes;
 
   public String getDesc() {
     return desc;
@@ -25,16 +26,25 @@ public class ConnectorMonitor {
     return pendingOutgos;
   }
 
-  public ConnectorMonitor setPendingOutgos(int pendingOutgos) {
+  public void setPendingOutgos(int pendingOutgos) {
     this.pendingOutgos = pendingOutgos;
-    return this;
   }
+
+  public int getPendingIncomes() {
+    return pendingIncomes;
+  }
+
+  public void setPendingIncomes(int pendingIncomes) {
+    this.pendingIncomes = pendingIncomes;
+  }
+
 
   public ConnectorMonitor copy() {
     ConnectorMonitor connectorMonitor = new ConnectorMonitor();
     connectorMonitor.setDesc(this.desc);
-    connectorMonitor.setStatus(this.status);
-    connectorMonitor.setPendingOutgos(this.pendingOutgos);
+//    connectorMonitor.setStatus(this.status);
+//    connectorMonitor.setPendingOutgos(this.pendingOutgos);
+//    connectorMonitor.setPendingIncomes(this.pendingIncomes);
     return connectorMonitor;
   }
 }
