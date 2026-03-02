@@ -36,19 +36,16 @@ public class DefaultApiClient implements ApiClient {
   public CompletableFuture<Api> call(ApiContext context) {
 
     context.markRemoteStart();
-
-    logger.info("[stage DefaultApiClient] HTTP invoke start: thread={}",
-        Thread.currentThread().getName());
+    logger.info("HTTP invoke start");
 
     return httpClient.sendAsync(getRequest(context), HttpResponse.BodyHandlers.ofString())
         .thenApply(response -> {
-          logger.info("[stage DefaultApiClient] thenApply: thread={}",
-              Thread.currentThread().getName());
+          logger.info("response apply:");
           context.markRemoteEnd();
           return str2api(getBody(response), context.getResponseApiClz());
         })
         .exceptionally(ex -> {
-          logger.error("[stage DefaultApiClient] HTTP invoke exception: ", ex);
+          logger.error("HTTP invoke exception: ", ex);
           throw new ClientException("HTTP invoke exception");
         });
   }
@@ -79,7 +76,7 @@ public class DefaultApiClient implements ApiClient {
     try {
       return mapper.writeValueAsString(api);
     } catch (IOException e) {
-      logger.error("[stage DefaultApiClient] api2str error: ", e);
+      logger.error("api2str error: ", e);
       throw new ClientException("jackson api to request body error");
     }
   }
@@ -88,7 +85,7 @@ public class DefaultApiClient implements ApiClient {
     try {
       return mapper.readValue(str, responseApiClz);
     } catch (IOException e) {
-      logger.error("[stage DefaultApiClient] str2api error: ", e);
+      logger.error("str2api error: ", e);
       throw new ClientException("jackson response body to api error");
     }
 

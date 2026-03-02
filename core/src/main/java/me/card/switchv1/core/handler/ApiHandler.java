@@ -7,7 +7,6 @@ import java.util.List;
 import me.card.switchv1.component.Api;
 import me.card.switchv1.component.ApiCoder;
 import me.card.switchv1.component.Message;
-import me.card.switchv1.core.handler.attributes.ChannelAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +23,7 @@ public class ApiHandler extends MessageToMessageCodec<Message, Api> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, Api api, List<Object> out) {
-    logger.debug("[stage {}] encode start: thread={}", NAME,
-        Thread.currentThread().getName());
-//    ctx.channel().attr(ChannelAttributes.MESSAGE).set(api);
+    logger.debug("encode start");
 
     try {
       Message message = apiCoder.apiToMessage(api);
@@ -38,10 +35,7 @@ public class ApiHandler extends MessageToMessageCodec<Message, Api> {
 
   @Override
   protected void decode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
-    logger.debug("[stage {}] decode start: thread={}", NAME,
-        Thread.currentThread().getName());
-
-    ctx.channel().attr(ChannelAttributes.MESSAGE).set(msg);
+    logger.debug("decode start");
 
     try {
       Api api = apiCoder.messageToApi(msg);

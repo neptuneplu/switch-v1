@@ -26,25 +26,28 @@ public class MessageHandler extends MessageToMessageCodec<ByteBuf, Message> {
 
   @Override
   protected void encode(ChannelHandlerContext ctx, Message msg, List<Object> out) {
-    logger.debug("[stage {}] encode start: thread={}",NAME, Thread.currentThread().getName());
-
-    ctx.channel().attr(ChannelAttributes.MESSAGE).set(msg);
+    logger.debug("encode start");
 
     try {
-      out.add(Unpooled.unreleasableBuffer(messageCoder.compress(msg)));
+      //todo test
+//      out.add(Unpooled.unreleasableBuffer(messageCoder.compress(msg)));
+      throw new RuntimeException("test exception");
     } catch (Exception e) {
       logger.error("compress message failed, msg: {}", msg);
+      throw new MessageHandlerException("message compress failed, " + e.getMessage());
+
     }
   }
 
   @Override
   protected void decode(ChannelHandlerContext ctx, ByteBuf bytes, List<Object> out) {
-    logger.debug("[stage {}] decode start: thread={}",NAME, Thread.currentThread().getName());
+    logger.debug("decode start");
 
     try {
       out.add(messageCoder.extract(bytes));
     } catch (Exception e) {
       logger.error("extract message failed, bytes: {}", ByteBufUtil.hexDump(bytes));
+      throw new MessageHandlerException("message extract failed, " + e.getMessage());
     }
   }
 

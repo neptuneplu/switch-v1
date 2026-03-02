@@ -83,20 +83,6 @@ public class DefaultProcessor implements Processor {
     context.setIncomeApi(api);
     context.markProcessStart();
 
-    pendingIncomeTrans.register(api.correlationId(), context)
-        .orTimeout(
-            issTranTimeoutSeconds == 0 ? DEFAULT_ISS_TRAN_TIMEOUT_SECONDS : issTranTimeoutSeconds,
-            TimeUnit.SECONDS)
-        .exceptionally(ex -> {
-          if (ex instanceof TimeoutException) {
-            pendingIncomeTrans.complete(api.correlationId(), api);
-          } else {
-            logger.error(ex.getMessage(), ex);
-          }
-          return api;
-        })
-    ;
-
     executor.submit(() -> doHandleIncomeRequest(context));
   }
 
@@ -164,16 +150,31 @@ public class DefaultProcessor implements Processor {
   }
 
   private void doHandleIncomeRequest(ApiContext context) {
-    logger.debug("[stage {}] handleIncomeRequest start: thread={}", NAME,
-        Thread.currentThread().getName());
+    logger.debug("doHandleIncomeRequest start");
 
+    Api api = context.getIncomeApi();
+
+    saveIncomeMessage(api.message());
+
+    pendingIncomeTrans.register(api.correlationId(), context)
+        .orTimeout(
+            issTranTimeoutSeconds == 0 ? DEFAULT_ISS_TRAN_TIMEOUT_SECONDS : issTranTimeoutSeconds,
+            TimeUnit.SECONDS)
+        .exceptionally(ex -> {
+          if (ex instanceof TimeoutException) {
+            pendingIncomeTrans.complete(api.correlationId(), api);
+          } else {
+            logger.error(ex.getMessage(), ex);
+          }
+          return api;
+        })
+    ;
     //
     callApiClient(context);
   }
 
   private void doHandleOutgoResponse(ApiContext context) {
-    logger.debug("[stage {}] handleOutgoResponse start: thread={}", NAME,
-        Thread.currentThread().getName());
+    logger.debug("handleOutgoResponse start");
 
     connector.write(context.getOutgoApi(),
         msg -> {
@@ -187,8 +188,8 @@ public class DefaultProcessor implements Processor {
   }
 
   private void doHandleOutgoRequest(ApiContext context) {
-    logger.debug("[stage {}] handleOutgoRequest start: thread={}", NAME,
-        Thread.currentThread().getName());
+    logger.debug("doHandleOutgoRequest start");
+
 
     //
 
@@ -202,8 +203,7 @@ public class DefaultProcessor implements Processor {
   }
 
   private void doHandleIncomeResponse(ApiContext context) {
-    logger.debug("[stage {}] handleIncomeResponse start: thread={}", NAME,
-        Thread.currentThread().getName());
+    logger.debug("doHandleIncomeResponse start");
 
     saveIncomeMessage(context.getIncomeApi().message());
 

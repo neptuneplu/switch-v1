@@ -21,8 +21,8 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Api> {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, Api api) {
-    logger.debug("[stage {}] channelRead0 start: thread={}", NAME,
-        Thread.currentThread().getName());
+    logger.debug("channelRead0 start");
+
 
     if (api.isRequest()) {
       processor.handleIncomeRequest(api);
